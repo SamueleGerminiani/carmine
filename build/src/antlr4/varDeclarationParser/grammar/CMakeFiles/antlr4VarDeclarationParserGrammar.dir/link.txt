@@ -1,0 +1,2 @@
+/usr/bin/ar qc libantlr4VarDeclarationParserGrammar.a  CMakeFiles/antlr4VarDeclarationParserGrammar.dir/src/varDeclarationLexer.cpp.o CMakeFiles/antlr4VarDeclarationParserGrammar.dir/src/varDeclarationParser.cpp.o CMakeFiles/antlr4VarDeclarationParserGrammar.dir/src/varDeclarationListener.cpp.o CMakeFiles/antlr4VarDeclarationParserGrammar.dir/src/varDeclarationBaseListener.cpp.o
+/usr/bin/ranlib libantlr4VarDeclarationParserGrammar.a

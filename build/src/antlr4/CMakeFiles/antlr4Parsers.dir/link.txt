@@ -1,0 +1,2 @@
+/usr/bin/ar qc libantlr4Parsers.a  CMakeFiles/antlr4Parsers.dir/utils/src/parserUtils.cc.o
+/usr/bin/ranlib libantlr4Parsers.a
