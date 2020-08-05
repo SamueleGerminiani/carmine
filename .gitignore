@@ -1,0 +1,9 @@
+build/*
+*.swp
+tags
+Session.vim
+compile_commands.json
+setUpFiles.txt
+*.srctrlbm
+*.srctrldb
+*.srctrlprj
