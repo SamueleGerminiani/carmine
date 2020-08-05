@@ -1,2 +1,0 @@
-/usr/bin/ar qc libantlr4PropositionParserHandler.a  CMakeFiles/antlr4PropositionParserHandler.dir/src/parserHandler.cc.o
-/usr/bin/ranlib libantlr4PropositionParserHandler.a

@@ -1,2 +1,0 @@
-/usr/bin/ar qc libantlr4VarDeclarationParserHandler.a  CMakeFiles/antlr4VarDeclarationParserHandler.dir/src/varDeclarationHandler.cc.o
-/usr/bin/ranlib libantlr4VarDeclarationParserHandler.a

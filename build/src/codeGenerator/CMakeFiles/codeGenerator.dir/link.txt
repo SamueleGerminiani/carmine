@@ -1,2 +1,0 @@
-/usr/bin/ar qc libcodeGenerator.a  CMakeFiles/codeGenerator.dir/src/converter.cc.o
-/usr/bin/ranlib libcodeGenerator.a

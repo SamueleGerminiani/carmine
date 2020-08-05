@@ -1,2 +1,0 @@
-/usr/bin/ar qc libantlr4PropositionParserGrammar.a  CMakeFiles/antlr4PropositionParserGrammar.dir/src/propositionLexer.cpp.o CMakeFiles/antlr4PropositionParserGrammar.dir/src/propositionParser.cpp.o CMakeFiles/antlr4PropositionParserGrammar.dir/src/propositionListener.cpp.o CMakeFiles/antlr4PropositionParserGrammar.dir/src/propositionBaseListener.cpp.o
-/usr/bin/ranlib libantlr4PropositionParserGrammar.a

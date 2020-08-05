@@ -1,2 +1,0 @@
-/usr/bin/ar qc libcommandLineParser.a  CMakeFiles/commandLineParser.dir/src/commandLineParser.cc.o
-/usr/bin/ranlib libcommandLineParser.a
