@@ -1,4 +1,3 @@
-build/*
 *.swp
 tags
 Session.vim
@@ -7,3 +6,4 @@ setUpFiles.txt
 *.srctrlbm
 *.srctrldb
 *.srctrlprj
+build/*
