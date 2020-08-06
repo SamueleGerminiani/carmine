@@ -117,6 +117,7 @@ target_link_libraries(${NAME} oden)
 
 #Code generator
 add_subdirectory(src/codeGenerator)
+target_link_libraries(${NAME} codeGenerator) 
 
 
 #Command line parser

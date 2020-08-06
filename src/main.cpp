@@ -21,11 +21,25 @@ int main(int argc, char *args[]) {
   //Proposition test
   std::string formula="b > c >> 2 && !a"; 
   std::string declarations="bool a;int b; int c;";
+
+  //Placeholder : subFormula
+  std::unordered_map<std::string,std::string> map;
+
+  codeGenerator::converter::insertPlaceholders(formula, '\'', map);
+  
+
   oden::Proposition *p=oden::parseProposition(formula,declarations);
   std::cout << oden::prop2String(*p) << "\n";
 
+
+  codeGenerator::converter::generateAutomata(formula);
+
   return 0;
 }
+
+
+
+
 void parseCommandLineArguments(int argc, char *args[],
                                std::vector<std::string> &files,
                                std::string &outDirectory) {
