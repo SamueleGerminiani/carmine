@@ -33,7 +33,7 @@ int main(int argc, char *args[]) {
   for (auto p : res.second) {
 	  delete p.second;
   }
-  codeGenerator::converter::generateAutomata(formula);
+  codeGenerator::converter::generateAutomata(res.first);
 
   return 0;
 }
