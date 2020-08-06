@@ -96,6 +96,8 @@ include_directories(
     ${SPOTLTLCPP_INCLUDE_DIRS}
 	src/antlr4/propositionParser/grammar/include
 	src/antlr4/propositionParser/handler/include
+	src/antlr4/PSLParser/grammar/include
+	src/antlr4/PSLParser/handler/include
     src/antlr4/utils/include
 	src/oden/include
 	src/testCaseGenerator/include

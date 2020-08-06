@@ -10,6 +10,66 @@ std::unordered_map<std::string, std::string> &getDebugVars() {
   return debugVars;
 }
 
+std::pair<std::string,std::unordered_map<std::string,Proposition*>> parseLTLformula(std::string &formula,
+                              const std::string &localDecls,
+                              std::string propLocation,
+                              std::string locDecLocation) {
+  // DEBUG
+  // formula="ePage == PAGE_MAIN && c8val==M_TEST+M_NULL";
+
+  // parse local var declarations
+  oden::varDeclarationParserHandler listenerLocDec(locDecLocation);
+  if (localDecls != "") {
+    antlr4::ANTLRInputStream inputLocDec(localDecls);
+    varDeclarationLexer lexerLocDec(&inputLocDec);
+    CommonTokenStream tokensLocDec(&lexerLocDec);
+    varDeclarationParser parserPrecLocDec(&tokensLocDec);
+    tree::ParseTree *treeLocDec = parserPrecLocDec.file();
+    tree::ParseTreeWalker::DEFAULT.walk(&listenerLocDec, treeLocDec);
+
+    // keep track of debug variables
+    for (const auto &debugVar : listenerLocDec.getDebugVars()) {
+      debugVars.insert({{debugVar.first, debugVar.second}});
+    }
+    // check var type
+    for (const auto &name_type : listenerLocDec.getVarDeclarations()) {
+      if (foundVariablesDefault.count(name_type.first) &&
+          name_type.second != foundVariablesDefault[name_type.first]) {
+        messageError("Variable " + name_type.first +
+                     " redaclered with different type in " + locDecLocation +
+                     "\n\tPrevious declaration: " +
+                     foundVariablesDefault[name_type.first] +
+                     "\n\tRedeclaration: " + name_type.second);
+      } else {
+        foundVariablesDefault[name_type.first] = name_type.second;
+      }
+    }
+  }
+
+  // DEBUG
+  //    listener1.print();
+  std::vector<VarDeclaration> varDecls = listenerLocDec.getVarDeclarations();
+  EnumMap enums = listenerLocDec.getEnums();
+
+  
+  addTypeToProposition(formula, varDecls, enums);
+
+  // parse typed propositions
+  oden::TemporalParserHandler listener2(enums, propLocation);
+  antlr4::ANTLRInputStream input2(formula);
+  temporalLexer lexer2(&input2);
+  CommonTokenStream tokens2(&lexer2);
+  temporalParser parser2(&tokens2);
+  tree::ParseTree *treeFragAnt = parser2.formula();
+  std::cout << treeFragAnt->toStringTree(&parser2) << "\n\n\n";
+  tree::ParseTreeWalker::DEFAULT.walk(&listener2, treeFragAnt);
+  /*
+  DEBUG
+  exit(0);
+  */
+
+  return std::make_pair(listener2.getSFormula(),listener2.getPropositions());
+}
 Proposition *parseProposition(std::string &formula,
                               const std::string &localDecls,
                               std::string propLocation,
