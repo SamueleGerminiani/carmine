@@ -33,9 +33,14 @@ int main(int argc, char *args[]) {
   for (auto p : res.second) {
 	  delete p.second;
   }
+  codeGenerator::converter::generateAutomata(formula);
 
   return 0;
 }
+
+
+
+
 void parseCommandLineArguments(int argc, char *args[],
                                std::vector<std::string> &files,
                                std::string &outDirectory) {

@@ -4,9 +4,11 @@
 #include "spot/tl/parse.hh"
 #include "spot/twaalgos/hoa.hh"
 #include "spot/twaalgos/translate.hh"
+#include "spot/twa/bddprint.hh"
 #include <limits>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 namespace codeGenerator {
 static std::string tab = "   ";
