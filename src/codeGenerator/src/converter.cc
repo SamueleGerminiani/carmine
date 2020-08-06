@@ -26,15 +26,15 @@ SpotAutomata generateAutomata(const PSLformula &formula) {
 
 //Generate and print checker
 void generateChecker(const SpotAutomata& aut, std::ofstream& outstream ){
-
-  outstream<<"const int ERROR = -1;"<<std::endl;
-  outstream<<"void checker(bool const reset, bool& param_fail, bool& param_fail_if_last_cycle";
-
+  outstream<<"//Return true if checker did not fail"<<std::endl;
+  outstream<<"bool checker(";
 
   //Add all input variables (atomic propositions and placeholders) 
   for(auto f: aut->ap()){
-	outstream<<", bool "<<f;
+	outstream<<"bool "<<f<<", ";
   }
+
+  outstream<<"bool const reset = false";
 
 	outstream<<"){"<<std::endl;
 	
@@ -42,33 +42,40 @@ void generateChecker(const SpotAutomata& aut, std::ofstream& outstream ){
 
   outstream<<codeGenerator::ident1<<"if(reset){\n"<<codeGenerator::ident2<<"NEXT_STATE = "<<aut->get_init_state_number()<<";\n      return;\n    }"<<std::endl;
   
-  //Set param_fail to false, will be eventually set to true in sink error state
-  outstream<<codeGenerator::ident1<<"param_fail = false;"<<std::endl;
-
   outstream<<codeGenerator::ident1<<"switch(NEXT_STATE){"<<std::endl;
   const spot::bdd_dict_ptr &dict = aut->get_dict();
   unsigned num_states = aut -> num_states();
 
 	for(unsigned state = 0; state < num_states; state++){
-		outstream<<"\n"<<codeGenerator::ident2<<"case " << state <<":"<<std::endl;
-		for(auto &edge : aut->out(state)){
-			spot::formula f = spot::parse_formula(spot::bdd_format_formula(dict,edge.cond));
-			//Convert formula to string format
-			std::string stringF = formulaToString(f);		
-			outstream<<codeGenerator::ident3<<"if("<<stringF<<"){"<<std::endl;
-			outstream<<codeGenerator::ident4<<"NEXT_STATE = "<<edge.dst<<";"<<std::endl;
-			outstream<<codeGenerator::ident3<<"}"<<std::endl;
+		//Don't process error sink states
+		if (! (codeGenerator::isFinalState(aut, state) && ! (aut->state_is_accepting(state)) )){ //Current state is not error sink state
+		
+			outstream<<"\n"<<codeGenerator::ident2<<"case " << state <<":"<<std::endl;
+			for(auto &edge : aut->out(state)){
+				spot::formula f = spot::parse_formula(spot::bdd_format_formula(dict,edge.cond));
+				//Convert formula to string format
+				std::string stringF = formulaToString(f);		
+				outstream<<codeGenerator::ident3<<"if("<<stringF<<"){"<<std::endl;
 
+				//Don't go in error sink state but stay in current state and return false
+				if(codeGenerator::isFinalState(aut, edge.dst) && ! (aut->state_is_accepting(edge.dst)) ){ //Next state is error sink state
+					outstream<<codeGenerator::ident4<<"return false;"<<std::endl;
+				}
+
+				else{
+					outstream<<codeGenerator::ident4<<"NEXT_STATE = "<<edge.dst<<";"<<std::endl;
+				}
+				
+				outstream<<codeGenerator::ident3<<"}"<<std::endl;
+
+			}
+			outstream<<codeGenerator::ident3<<"break;"<<std::endl;
 		}
+  }
 
-		outstream<<codeGenerator::ident3<<"else{\n"<<codeGenerator::ident4<<"NEXT_STATE = ERROR;\n";
-        outstream<<codeGenerator::ident4<< "param_fail = true;\n"<<codeGenerator::ident3<<"}"<<std::endl;
-		outstream<<codeGenerator::ident3<<"break;"<<std::endl;
-	}
-
-	//Sink state error
-	outstream<<"\n"<<codeGenerator::ident2<<"case ERROR: \n"<<codeGenerator::ident3<< "param_fail = true;\n"<<codeGenerator::ident3<<"break;"<<std::endl;
 	
+	
+	outstream<<"\n"<<codeGenerator::ident2<<"return true;"<<std::endl; 
 	outstream<<codeGenerator::ident1<<"}"<<std::endl; //close switch
 	outstream<<"}"<<std::endl; //close function
 }
