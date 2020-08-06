@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <iostream>
+#include <fstream>
 
 namespace codeGenerator {
 static std::string tab = "   ";
