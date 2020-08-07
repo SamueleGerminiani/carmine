@@ -40,7 +40,7 @@ void generateChecker(const SpotAutomata& aut, std::ofstream& outstream ){
 	
 	outstream<<codeGenerator::ident1<<"static int NEXT_STATE = "<<aut->get_init_state_number()<<";"<<std::endl;
 
-  outstream<<codeGenerator::ident1<<"if(reset){\n"<<codeGenerator::ident2<<"NEXT_STATE = "<<aut->get_init_state_number()<<";\n      return;\n    }"<<std::endl;
+  outstream<<codeGenerator::ident1<<"if(reset){\n"<<codeGenerator::ident2<<"NEXT_STATE = "<<aut->get_init_state_number()<<";\n    }"<<std::endl;
   
   outstream<<codeGenerator::ident1<<"switch(NEXT_STATE){"<<std::endl;
   const spot::bdd_dict_ptr &dict = aut->get_dict();
@@ -54,22 +54,27 @@ void generateChecker(const SpotAutomata& aut, std::ofstream& outstream ){
 			for(auto &edge : aut->out(state)){
 				spot::formula f = spot::parse_formula(spot::bdd_format_formula(dict,edge.cond));
 				//Convert formula to string format
-				std::string stringF = formulaToString(f);		
-				outstream<<codeGenerator::ident3<<"if("<<stringF<<"){"<<std::endl;
+				std::string stringF = formulaToString(f);	
 
-				//Don't go in error sink state but stay in current state and return false
-				if(codeGenerator::isFinalState(aut, edge.dst) && ! (aut->state_is_accepting(edge.dst)) ){ //Next state is error sink state
-					outstream<<codeGenerator::ident4<<"return false;"<<std::endl;
-				}
+				//Skip self loops
+				if(! (stringF.compare("1") == 0 && state == edge.dst)){
+					
+					outstream<<codeGenerator::ident3<<"if("<<stringF<<"){"<<std::endl;
 
-				else{
-					outstream<<codeGenerator::ident4<<"NEXT_STATE = "<<edge.dst<<";"<<std::endl;
-				}
-				
-				outstream<<codeGenerator::ident3<<"}"<<std::endl;
+					//Don't go in error sink state but stay in current state and return false
+					if(codeGenerator::isFinalState(aut, edge.dst) && ! (aut->state_is_accepting(edge.dst)) ){ //Next state is error sink state
+						outstream<<codeGenerator::ident4<<"return false;"<<std::endl;
+					}
+
+					else{
+						outstream<<codeGenerator::ident4<<"NEXT_STATE = "<<edge.dst<<";"<<std::endl;
+					}
+					
+					outstream<<codeGenerator::ident3<<"}"<<std::endl;
 
 			}
 			outstream<<codeGenerator::ident3<<"break;"<<std::endl;
+		}
 		}
   }
 

@@ -3,7 +3,6 @@ bool checker(bool p0, bool const reset = false){
    static int NEXT_STATE = 0;
    if(reset){
       NEXT_STATE = 0;
-      return;
     }
    switch(NEXT_STATE){
 
@@ -17,15 +16,13 @@ bool checker(bool p0, bool const reset = false){
          if(p0){
             NEXT_STATE = 2;
          }
+         break;
          if(!p0){
             return false;
          }
          break;
 
       case 2:
-         if(1){
-            NEXT_STATE = 2;
-         }
          break;
 
       return true;
