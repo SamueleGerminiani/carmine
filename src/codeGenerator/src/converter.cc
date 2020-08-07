@@ -19,8 +19,15 @@ SpotAutomata generateAutomata(const PSLformula &formula) {
   auto res = trans.run(pf.f);
 
   //    DEBUG
-  // print_hoa(std::cout, res) << '\n';
+  //print_hoa(std::cout, res) << '\n';
 
+
+  //Check if automata is deterministic
+/*
+  if(! (spot::is_universal(res))){
+	std::cout<<"WARNING: could not generate deterministic automata for formula "<<formula<<std::endl;
+  }
+*/
   return res;
 }
 

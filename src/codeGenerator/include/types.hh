@@ -5,6 +5,7 @@
 #include "spot/twaalgos/hoa.hh"
 #include "spot/twaalgos/translate.hh"
 #include "spot/twa/bddprint.hh"
+#include "spot/twaalgos/isdet.hh"
 #include <limits>
 #include <string>
 #include <vector>
