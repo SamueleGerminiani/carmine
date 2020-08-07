@@ -88,20 +88,23 @@ public:
     std::vector<SereContext *> sere();
     SereContext* sere(size_t i);
     antlr4::tree::TerminalNode *RPAREN();
+    antlr4::tree::TerminalNode *LGPAREN();
+    antlr4::tree::TerminalNode *RGPAREN();
     antlr4::tree::TerminalNode *LCPAREN();
     antlr4::tree::TerminalNode *TIMES();
     std::vector<antlr4::tree::TerminalNode *> NUMERIC();
     antlr4::tree::TerminalNode* NUMERIC(size_t i);
     antlr4::tree::TerminalNode *DOTS();
     antlr4::tree::TerminalNode *RCPAREN();
+    antlr4::tree::TerminalNode *PLUS();
     antlr4::tree::TerminalNode *DSYM1();
     antlr4::tree::TerminalNode *FIRST_MATCH();
     antlr4::tree::TerminalNode *AND();
     antlr4::tree::TerminalNode *OR();
     antlr4::tree::TerminalNode *COL();
     antlr4::tree::TerminalNode *SCOL();
-    antlr4::tree::TerminalNode *PLUS();
     antlr4::tree::TerminalNode *ASS();
+    antlr4::tree::TerminalNode *IMPL();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -131,7 +134,6 @@ public:
     antlr4::tree::TerminalNode *RCPAREN();
     antlr4::tree::TerminalNode *ALWAYS();
     antlr4::tree::TerminalNode *EVENTUALLY();
-    antlr4::tree::TerminalNode *SUNTIL();
     antlr4::tree::TerminalNode *IMPL();
     antlr4::tree::TerminalNode *IMPL2();
     antlr4::tree::TerminalNode *BIND1();
