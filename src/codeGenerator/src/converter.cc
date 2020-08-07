@@ -73,8 +73,9 @@ void generateChecker(const SpotAutomata& aut, std::ofstream& outstream ){
 					outstream<<codeGenerator::ident3<<"}"<<std::endl;
 
 			}
-			outstream<<codeGenerator::ident3<<"break;"<<std::endl;
+			
 		}
+         outstream<<codeGenerator::ident3<<"break;"<<std::endl;
 		}
   }
 
