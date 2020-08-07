@@ -33,7 +33,12 @@ int main(int argc, char *args[]) {
   for (auto p : res.second) {
 	  delete p.second;
   }
-  codeGenerator::converter::generateAutomata(res.first);
+  auto automata = codeGenerator::converter::generateAutomata(res.first);
+
+  std::ofstream outfile;
+  outfile.open ("../output/checker.cpp");
+  codeGenerator::converter::generateChecker(automata, outfile);
+  outfile.close();
 
   return 0;
 }
