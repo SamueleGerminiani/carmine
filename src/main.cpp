@@ -37,6 +37,7 @@ int main(int argc, char *args[]) {
 
   std::ofstream outfile;
   outfile.open ("../output/checker.cpp");
+  outfile<<"//Checker for "<<args[1]<<std::endl;
   codeGenerator::converter::generateChecker(automata, outfile);
   outfile.close();
 

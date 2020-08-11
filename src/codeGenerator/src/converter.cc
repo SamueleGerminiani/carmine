@@ -23,11 +23,11 @@ SpotAutomata generateAutomata(const PSLformula &formula) {
 
 
   //Check if automata is deterministic
-/*
+
   if(! (spot::is_universal(res))){
 	std::cout<<"WARNING: could not generate deterministic automata for formula "<<formula<<std::endl;
   }
-*/
+
   return res;
 }
 
@@ -54,8 +54,8 @@ void generateChecker(const SpotAutomata& aut, std::ofstream& outstream ){
   unsigned num_states = aut -> num_states();
 
 	for(unsigned state = 0; state < num_states; state++){
-		//Don't process error sink states
-		if (! (codeGenerator::isFinalState(aut, state) && ! (aut->state_is_accepting(state)) )){ //Current state is not error sink state
+		//Don't process error states
+		if ( aut->state_is_accepting(state)){ //Current state is not an error state
 		
 			outstream<<"\n"<<codeGenerator::ident2<<"case " << state <<":"<<std::endl;
 			for(auto &edge : aut->out(state)){
@@ -68,8 +68,8 @@ void generateChecker(const SpotAutomata& aut, std::ofstream& outstream ){
 					
 					outstream<<codeGenerator::ident3<<"if("<<stringF<<"){"<<std::endl;
 
-					//Don't go in error sink state but stay in current state and return false
-					if(codeGenerator::isFinalState(aut, edge.dst) && ! (aut->state_is_accepting(edge.dst)) ){ //Next state is error sink state
+					//Don't go in error state but stay in current state and return false
+					if( aut->state_is_accepting(edge.dst) == false){ //Next state is error state
 						outstream<<codeGenerator::ident4<<"return false;"<<std::endl;
 					}
 
