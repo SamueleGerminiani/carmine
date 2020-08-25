@@ -34,7 +34,7 @@ SpotAutomata generateAutomata(const PSLformula &formula) {
 //Generate and print checker
 void generateChecker(const SpotAutomata& aut, std::ofstream& outstream ){
   outstream<<"//Return true if checker did not fail"<<std::endl;
-  outstream<<"bool checker(";
+  outstream<<"inline bool checker(";
 
   //Add all input variables (atomic propositions and placeholders) 
   for(auto f: aut->ap()){
@@ -92,6 +92,72 @@ void generateChecker(const SpotAutomata& aut, std::ofstream& outstream ){
 	outstream<<codeGenerator::ident1<<"}"<<std::endl; //close switch
 	outstream<<"}"<<std::endl; //close function
 }
+
+
+//Create a specific request, inheriting from the base request class
+void createRequestClass(const SpotAutomata& aut, std::ofstream& outstream, const std::string className){
+	outstream<<"class "<<className<<" : request{"<<std::endl;
+	
+    addEval(aut,outstream, className);
+    addProcess(aut, outstream , className);
+	
+	outstream<<"}"<<std::endl;
+}
+
+//Add variables used by the checker in a .h file
+void addCheckerVariables(const SpotAutomata& aut, std::ofstream& outstream){
+}
+
+//Add eval method to the request class created earlier
+void addEval(const SpotAutomata& aut, std::ofstream& outstream, const std::string className){
+     
+
+     outstream<<"bool"<<className<<"::eval"<<"(";
+     //Add all input variables (atomic propositions and placeholders) 
+      int count = 1;
+	  for(auto f: aut->ap()){
+		outstream<<"bool &"<<f;
+        if(count< aut->ap().size()){
+			outstream<<", ";
+		}
+        count++;
+	  }
+
+     outstream<<"){"<<std::endl;
+
+
+     
+     outstream<<"}"<<std::endl;
+     
+	
+}
+
+//Add process method to the request class created earlier
+void addProcess(const SpotAutomata& aut, std::ofstream& outstream, const std::string className){
+	outstream<<"void"<<className<<"::process"<<"(){"<<std::endl;
+
+     //Declare checker variables
+     for(auto f: aut->ap()){
+		outstream<<"bool "<<f<<std::endl;
+	  }
+	
+    outstream<<"while (!sliceEnded) {"<<std::endl;
+    outstream<<codeGenerator::ident1<<"if( eval(";
+	int count = 1;
+	  for(auto f: aut->ap()){
+		outstream<<f;
+        if(count< aut->ap().size()){
+			outstream<<", ";
+		}
+        count++;
+	  }
+   outstream<<")){"<<std::endl;
+   
+
+    outstream<<"}"<<std::endl;
+     
+}
+
 
 std::string formulaToString(const spot::formula f){
 
