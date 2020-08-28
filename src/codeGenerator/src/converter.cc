@@ -88,8 +88,9 @@ void generateChecker(const SpotAutomata& aut, std::ofstream& outstream ){
 
 	
 	
-	outstream<<"\n"<<codeGenerator::ident2<<"return true;"<<std::endl; 
+	
 	outstream<<codeGenerator::ident1<<"}"<<std::endl; //close switch
+	outstream<<"\n"<<codeGenerator::ident1<<"return true;"<<std::endl; 
 	outstream<<"}"<<std::endl; //close function
 }
 

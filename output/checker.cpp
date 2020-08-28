@@ -1,6 +1,6 @@
-//Checker for G (a->X(b))
+//Checker for G(a->Xb)
 //Return true if checker did not fail
-bool checker(bool p0, bool p1, bool const reset = false){
+inline bool checker(bool p0, bool p1, bool const reset = false){
    static int NEXT_STATE = 0;
    if(reset){
       NEXT_STATE = 0;
@@ -27,7 +27,7 @@ bool checker(bool p0, bool p1, bool const reset = false){
             return false;
          }
          break;
-
-      return true;
    }
+
+   return true;
 }
