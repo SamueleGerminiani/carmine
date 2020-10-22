@@ -32,7 +32,10 @@ SpotAutomata generateAutomata(const PSLformula &formula) {
 }
 
 //Generate and print checker
-void generateChecker(const SpotAutomata& aut, std::ofstream& outstream ){
+void generateChecker(const SpotAutomata& aut,const std::string checkerName, std::ofstream& outstream ){
+
+  std::string initState = "INIT_"+checkerName;
+  outstream<<"#define "<<initState<<" "<<aut->get_init_state_number()<<std::endl;
   outstream<<"//Return true if checker did not fail"<<std::endl;
   outstream<<"inline bool checker(";
 
@@ -45,9 +48,9 @@ void generateChecker(const SpotAutomata& aut, std::ofstream& outstream ){
 
 	outstream<<"){"<<std::endl;
 	
-	outstream<<codeGenerator::ident1<<"static int NEXT_STATE = "<<aut->get_init_state_number()<<";"<<std::endl;
+	
 
-  outstream<<codeGenerator::ident1<<"if(reset){\n"<<codeGenerator::ident2<<"NEXT_STATE = "<<aut->get_init_state_number()<<";\n    }"<<std::endl;
+  outstream<<codeGenerator::ident1<<"if(reset){\n"<<codeGenerator::ident2<<"NEXT_STATE = "<<initState<<";\n    }"<<std::endl;
   
   outstream<<codeGenerator::ident1<<"switch(NEXT_STATE){"<<std::endl;
   const spot::bdd_dict_ptr &dict = aut->get_dict();

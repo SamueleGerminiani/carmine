@@ -12,6 +12,11 @@ static void parseCommandLineArguments(int argc, char *args[],
 
 int main(int argc, char *args[]) {
 
+	if(argc < 3){
+		std::cout<<"Missing parameters, call as ./carmine <formula> <checker name>"<<std::endl;
+		return 0;
+	}
+
   // set default output directory
   std::string outDirectory = ".";
   std::vector<std::string> files;
@@ -21,7 +26,8 @@ int main(int argc, char *args[]) {
   // Proposition test
   //  std::string formula="G(a U b)";
   std::string formula = args[1];
-  std::string declarations = "bool a;int b; int c;";
+  std::string checkerName = args[2];
+  std::string declarations = "int currPos; bool start; int tcur;";
   //  oden::Proposition *p=oden::parseProposition(formula,declarations);
   //  std::cout << oden::prop2String(*p) << "\n";
   auto res = oden::parseLTLformula(formula, declarations);
@@ -36,9 +42,9 @@ int main(int argc, char *args[]) {
   auto automata = codeGenerator::converter::generateAutomata(res.first);
 
   std::ofstream outfile;
-  outfile.open ("../output/checker.cpp");
+  outfile.open ("../output/"+checkerName+".cpp");
   outfile<<"//Checker for "<<args[1]<<std::endl;
-  codeGenerator::converter::generateChecker(automata, outfile);
+  codeGenerator::converter::generateChecker(automata,checkerName, outfile);
   outfile.close();
 
   return 0;
