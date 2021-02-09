@@ -103,7 +103,8 @@ include_directories(
 	src/testCaseGenerator/include
     src/codeGenerator/include
     src/commandLineParser/include
-
+	src/codeGenerator/include/rapidxml/include
+    src/include
 )
 
 #Main executable

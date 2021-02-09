@@ -6,7 +6,7 @@ project(codeGenerator)
 
 
 include_directories( 
-    ./include 
+    ./include
     ../oden/include
     ../antlr4/utils/include
     ../antlr4/propositionParser/grammar/include

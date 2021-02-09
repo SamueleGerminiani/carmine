@@ -35,16 +35,15 @@ SpotAutomata generateAutomata(const PSLformula &formula) {
 void generateChecker(const SpotAutomata& aut,const std::string checkerName, std::ofstream& outstream ){
 
   std::string initState = "INIT_"+checkerName;
-  outstream<<"#define "<<initState<<" "<<aut->get_init_state_number()<<std::endl;
   outstream<<"//Return true if checker did not fail"<<std::endl;
-  outstream<<"inline bool checker(";
+  outstream<<"inline bool "+checkerName+"::eval_"+checkerName+"(";
 
   //Add all input variables (atomic propositions and placeholders) 
   for(auto f: aut->ap()){
 	outstream<<"bool "<<f<<", ";
   }
 
-  outstream<<"bool const reset = false";
+  outstream<<"bool const reset";
 
 	outstream<<"){"<<std::endl;
 	

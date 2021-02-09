@@ -1,0 +1,7 @@
+string handlerName
+string checkerName
+uint64[] buffer_p
+uint64[] buffer_o
+int16 state
+---
+bool response
