@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <handler name ="handler0" migrateTo="handler1">
-		<checker name="CheckerT0" description="simple checker" LTLformula="G(x >= 0 -> y >= 0)">
-			<variable decl="float x">
-				<rosTopic>/y1/odom</rosTopic>
-				<msgType>nav_msgs::Odometry</msgType>
-				<msgField>pose.pose.position.x</msgField>
+		<checker name="CheckerT0" description="simple checker" LTLformula="G(v1 && v2 -> 0)">
+			<variable decl="bool v2">
+				<rosTopic>V2</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
 			</variable>
 
-			<variable decl="float y">
-				<rosTopic>/y1/odom</rosTopic>
-				<msgType>nav_msgs::Odometry</msgType>
-				<msgField>pose.pose.position.y</msgField>
+			<variable decl="bool v1">
+				<rosTopic>V1</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
 			</variable>
 		</checker>
 </handler>

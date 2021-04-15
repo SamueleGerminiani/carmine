@@ -10,8 +10,8 @@
 #include <vector>
 #include "Checker.hpp"
 #include <chrono>
-#include "nav_msgs/Odometry.h"
-#include "nav_msgs/Odometry.h"
+#include "msg_gen/Num.h"
+#include "msg_gen/Num.h"
 #define INIT_CheckerT0 0
 
 #define BUFF_SIZE 1'000'000
@@ -47,15 +47,23 @@ public:
 
 	void notifyFailure() override;
 
-   void addEvent_var0(ros::Time ts, unsigned int value);
-   void addEvent_var1(ros::Time ts, float value);
+   void addEvent_var0(ros::Time ts, bool value);
+   void addEvent_var1(ros::Time ts, bool value);
 
 
 	union Value{
-      Value(const unsigned int var, size_t id): _x(var){}
-      Value(const float var, size_t id): _y(var){}
-      unsigned int _x;
-      float _y;
+      Value(const bool var, size_t id){
+         switch (id) {
+            case 0:
+               _v2 = var;
+               break;
+            case 1:
+               _v1 = var;
+               break;
+            }
+         }
+      bool _v2;
+      bool _v1;
 
 	};
 	// used to have a common data type for all variables <timestamp,var>

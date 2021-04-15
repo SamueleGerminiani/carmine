@@ -10,8 +10,8 @@ rm ./output/ver_env/src/ver_env.cpp 2> /dev/null
 rm ./output/checkers/include/*.hh 2> /dev/null
 
 #Clean verification_env directory
-rm -rf ./verification_env/checkers/ 2> /dev/null
-rm -rf ./verification_env/ver_env/ 2> /dev/null
+rm -rf ./verification_env
+mkdir ./verification_env
 
 #Generate environment
 ./build/carmine $1
@@ -22,6 +22,7 @@ if [ "$?" -eq 1 ]; then
 fi
 
 #Move generated files
+cp -rf ./src/standalone/* ./verification_env/
 cp -R ./output/checkers/ ./verification_env/
 cp -R ./output/ver_env/ ./verification_env/
 

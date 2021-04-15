@@ -285,24 +285,24 @@ void CheckerT0::reorder(bool forceReorder) {
 				return e1._timeStamp < e2._timeStamp;
 			});
 		
-   static unsigned int x;
-   static float y;
+   static bool v2;
+   static bool v1;
 
 
 		for (auto event : vbuff) {
 			switch (event._type) {
                case 0:{
-                  x = event._value._x;
-                  const bool p0 = (x >= 0);
+                  v2 = event._value._v2;
+                  const bool p0 = (v1 && v2);
                   assign<bool>(pbuff, index_p, p0, 0);
                   assign<bool>(order, index_p, 1, 0);
                }
                break;
                case 1:{
-                  y = event._value._y;
-                  const bool p1 = (y >= 0);
-                  assign<bool>(pbuff, index_p, 0, p1);
-                  assign<bool>(order, index_p, 0, 1);
+                  v1 = event._value._v1;
+                  const bool p0 = (v1 && v2);
+                  assign<bool>(pbuff, index_p, p0, 0);
+                  assign<bool>(order, index_p, 1, 0);
                }
                break;
 
@@ -324,7 +324,7 @@ void CheckerT0::reorder(bool forceReorder) {
 	}
 }
 
-void CheckerT0::addEvent_var0(ros::Time ts, unsigned int value){
+void CheckerT0::addEvent_var0(ros::Time ts, bool value){
    if(checkerPhase == pausing && ts > timestampToReach){
       sendBufferClient(_remoteHandlerName);
       checkerPhase = paused;
@@ -336,7 +336,7 @@ void CheckerT0::addEvent_var0(ros::Time ts, unsigned int value){
       addEvent_mutex.unlock();
    }
 }
-void CheckerT0::addEvent_var1(ros::Time ts, float value){
+void CheckerT0::addEvent_var1(ros::Time ts, bool value){
    if(checkerPhase == pausing && ts > timestampToReach){
       sendBufferClient(_remoteHandlerName);
       checkerPhase = paused;

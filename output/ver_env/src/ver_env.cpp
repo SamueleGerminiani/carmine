@@ -29,15 +29,26 @@ void sigint_handler(int signal) {
 }
 
 
-//Callback for topic /y1/odom
-void callbackV0(const nav_msgs::Odometry::Ptr& msg){
+//Callback for topic V1
+void callbackV0(const msg_gen::Num::Ptr& msg){
    for (const auto& e : chs) {
       auto checker = e.second;
       if(checker -> getPhase() != Checker::Phase::paused){
          if(dynamic_cast<CheckerT0*>(checker) != NULL){
             CheckerT0 *ch = dynamic_cast<CheckerT0*>(checker);
-            ch->addEvent_var0(msg->header.stamp, msg->pose.pose.position.x);
-            ch->addEvent_var1(msg->header.stamp, msg->pose.pose.position.y);
+            ch->addEvent_var1(msg->header.stamp, msg->num);
+         }
+      }
+   }
+}
+//Callback for topic V2
+void callbackV1(const msg_gen::Num::Ptr& msg){
+   for (const auto& e : chs) {
+      auto checker = e.second;
+      if(checker -> getPhase() != Checker::Phase::paused){
+         if(dynamic_cast<CheckerT0*>(checker) != NULL){
+            CheckerT0 *ch = dynamic_cast<CheckerT0*>(checker);
+            ch->addEvent_var0(msg->header.stamp, msg->num);
          }
       }
    }
@@ -85,18 +96,27 @@ int main(int argc, char** argv) {
 	ros::init(argc, argv, "handler0", ros::init_options::NoSigintHandler);
 	ros::NodeHandle n;
 
-   ros::CallbackQueue *queue_0;
-   ros::Subscriber *sub_0;
-   std::thread *thread_0;
-   ros::SingleThreadedSpinner *spinner_0;
+   ros::CallbackQueue *queue_0, *queue_1;
+   ros::Subscriber *sub_0, *sub_1;
+   std::thread *thread_0, *thread_1;
+   ros::SingleThreadedSpinner *spinner_0, *spinner_1;
 
    queue_0 = new ros::CallbackQueue;
    n.setCallbackQueue(queue_0);
    sub_0 = new ros::Subscriber;
-   *sub_0 = n.subscribe("/y1/odom", 1000, callbackV0, ros::TransportHints().tcpNoDelay());
+   *sub_0 = n.subscribe("V1", 1000, callbackV0, ros::TransportHints().tcpNoDelay());
    thread_0 = new std::thread([&queue_0, &spinner_0]() {
       spinner_0 = new ros::SingleThreadedSpinner;
       spinner_0->spin(queue_0);
+   });
+
+   queue_1 = new ros::CallbackQueue;
+   n.setCallbackQueue(queue_1);
+   sub_1 = new ros::Subscriber;
+   *sub_1 = n.subscribe("V2", 1000, callbackV1, ros::TransportHints().tcpNoDelay());
+   thread_1 = new std::thread([&queue_1, &spinner_1]() {
+      spinner_1 = new ros::SingleThreadedSpinner;
+      spinner_1->spin(queue_1);
    });
 
 
@@ -136,12 +156,18 @@ int main(int argc, char** argv) {
 	sched.stop();
 
    thread_0->join();
+   thread_1->join();
    keepPolling = false;
 
    delete thread_0;
    delete sub_0;
    delete spinner_0;
    delete queue_0;
+
+   delete thread_1;
+   delete sub_1;
+   delete spinner_1;
+   delete queue_1;
 
 
 
