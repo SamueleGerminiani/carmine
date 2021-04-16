@@ -563,8 +563,24 @@ void TemporalParserHandler::exitTformula(temporalParser::TformulaContext *ctx) {
     _subFormulas.push(newFormula);
     return;
   }
+  if (ctx->tformula().size() == 2 && ctx->BAND() != nullptr) {
+    std::string newFormula = " & " + _subFormulas.top();
+    _subFormulas.pop();
+    newFormula = _subFormulas.top() + newFormula;
+    _subFormulas.pop();
+    _subFormulas.push(newFormula);
+    return;
+  }
   if (ctx->tformula().size() == 2 && ctx->OR() != nullptr) {
     std::string newFormula = " || " + _subFormulas.top();
+    _subFormulas.pop();
+    newFormula = _subFormulas.top() + newFormula;
+    _subFormulas.pop();
+    _subFormulas.push(newFormula);
+    return;
+  }
+  if (ctx->tformula().size() == 2 && ctx->BOR() != nullptr) {
+    std::string newFormula = " | " + _subFormulas.top();
     _subFormulas.pop();
     newFormula = _subFormulas.top() + newFormula;
     _subFormulas.pop();

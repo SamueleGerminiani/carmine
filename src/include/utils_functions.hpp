@@ -1,3 +1,12 @@
+#pragma once
+#include <iostream>
+#include <algorithm>
+#include <map>
+#include <set>
+#include <unordered_map>
+#include <vector>
+#include "xmlUtils.hh"
+#include "oden/oden.hh"
  //Struct used to parse variables informations from the xml specification
   struct checkerVar{
     std::string type;
@@ -7,13 +16,13 @@
     std::string msgField;
   };
 
-  //Map used to store the binding between the addEvent_varx function of the checkers 
+  //Map used to store the binding between the addEvent_varx function of the checkers
   //and the variable it refers to
   //Key = checker's name
   //Value = vector of checkerVar
-  //If vector[0] = "msg.a" then the function addEvent_var0 of the checker 
+  //If vector[0] = "msg.a" then the function addEvent_var0 of the checker
   //will take msg.a as a parameter
-  std::map<std::string,std::vector<checkerVar>> bindings;
+  extern std::map<std::string,std::vector<checkerVar>> bindings;
 
 //Trim string
 inline std::string trim(const std::string &s)
@@ -24,17 +33,17 @@ inline std::string trim(const std::string &s)
 }
 
 //Given a variable declaration split its type and its name
-//eg int a gets splitted into "int" and "a" 
-void getVarName(std::string& name,std::string& type,std::string& decl){
-    decl = trim(decl); 
+//eg int a gets splitted into "int" and "a"
+inline void getVarName(std::string& name,std::string& type,std::string& decl){
+    decl = trim(decl);
     auto p = decl.find_last_of(" ");
     type = decl.substr(0,p);
     name = decl.substr(p+1);
 }
 
 //Parse variables and for each variable fill checkerVar struct
-  void parseVariables(std::vector<checkerVar>& parsed,rapidxml::XmlNodeList& variables){
-    
+inline  void parseVariables(std::vector<checkerVar>& parsed,rapidxml::XmlNodeList& variables){
+
     for (auto v: variables){
       checkerVar var;
       auto decl = rapidxml::getAttributeValue(v,"decl","");
@@ -49,13 +58,13 @@ void getVarName(std::string& name,std::string& type,std::string& decl){
       rapidxml::getNodesFromName(v,"msgField",list);
       var.msgField = list[0]->value();
       parsed.push_back(var);
-    } 
-   
+    }
+
 
   }
 
   //Return a map with a type as key and as value the number of variables of that type
-  std::map<std::string, int> countVarTypes(std::vector<checkerVar>& varList){
+inline  std::map<std::string, int> countVarTypes(std::vector<checkerVar>& varList){
     std::map<std::string, int> res;
 
     for(auto v: varList){
@@ -72,8 +81,8 @@ void getVarName(std::string& name,std::string& type,std::string& decl){
 
   //Given a XmlNodeList of variable nodes return a map having the msgType as key
   //and as value a vector of checkerVar representing the variables that are updated from that topic
-  void groupVariablesByMsgType(std::map<std::string,std::vector<checkerVar>>& parsedVars,std::vector<checkerVar>& varList){
-    
+inline  void groupVariablesByMsgType(std::map<std::string,std::vector<checkerVar>>& parsedVars,std::vector<checkerVar>& varList){
+
     for (auto var: varList){
 
       if(parsedVars.count(var.msgType) == 0){
@@ -81,12 +90,12 @@ void getVarName(std::string& name,std::string& type,std::string& decl){
       }
 
       parsedVars[var.msgType].push_back(var);
-    } 
+    }
 
-  } 
+  }
 
   //Return a map with a placeholder as key and a vector of variables names as value
-  void groupVariablesByPlaceholders(std::pair<std::string,std::unordered_map<std::string,oden::Proposition*>>& parsedFormula,
+inline  void groupVariablesByPlaceholders(std::pair<std::string,std::unordered_map<std::string,oden::Proposition*>>& parsedFormula,
     std::map<std::string, std::vector<std::string>>& varsPH){
     for (auto p : parsedFormula.second) {
 
@@ -99,9 +108,9 @@ void getVarName(std::string& name,std::string& type,std::string& decl){
 
   //Get parameters to pass to assign<bool>(order, index_p,...) in reorder()
   //E.g if we have p0,p1,p2 and p0,p2 are updated then getOrderEntries will return 1,0,1
-  std::string getOrderEntries(std::vector<std::string>& placeholders, int totPlaceholders){
+inline  std::string getOrderEntries(std::vector<std::string>& placeholders, int totPlaceholders){
     std::string ret="";
-    int indexVector = 0;
+    size_t indexVector = 0;
     for(int i = 0;i<totPlaceholders;i++){
       if(indexVector < placeholders.size() && placeholders[indexVector].compare("p"+std::to_string(i)) == 0){
         ret+=", 1";
@@ -113,11 +122,11 @@ void getVarName(std::string& name,std::string& type,std::string& decl){
     }
     return ret;
   }
- 
+
  //Get parameters to pass to assign<bool>(pbuff, index_p,...) in reorder()
- std::string getPbuffEntries(std::vector<std::string>& placeholders, int totPlaceholders){
+inline std::string getPbuffEntries(std::vector<std::string>& placeholders, int totPlaceholders){
     std::string ret="";
-    int indexVector = 0;
+    size_t indexVector = 0;
     for(int i = 0;i<totPlaceholders;i++){
       if(indexVector < placeholders.size() && placeholders[indexVector].compare("p"+std::to_string(i)) == 0){
         ret+=", "+placeholders[indexVector];
@@ -130,29 +139,29 @@ void getVarName(std::string& name,std::string& type,std::string& decl){
     return ret;
   }
 
-//Return a map having a pair <message type,topic> as key and as value a vector of the checkers that 
+//Return a map having a pair <message type,topic> as key and as value a vector of the checkers that
   //listen to that type and topic
-  std::map<std::pair<std::string,std::string>,std::set<std::string>> groupCheckersByMsgTopic(rapidxml::XmlNodeList& checkers){
+inline  std::map<std::pair<std::string,std::string>,std::set<std::string>> groupCheckersByMsgTopic(rapidxml::XmlNodeList& checkers){
     std::map<std::pair<std::string,std::string>,std::set<std::string>> output;
 
     rapidxml::XmlNodeList variables,msg;
     for(auto ch: checkers){
       std::string name = rapidxml::getAttributeValue(ch,"name","");
 
-      
+
       variables.clear();
       rapidxml::getNodesFromName(ch,"variable",variables);
 
       for(auto v: variables){
 
         rapidxml::getNodesFromName(v,"msgType",msg);
-        
+
         std::string msgType = msg[0]->value();
         msg.clear();
         rapidxml::getNodesFromName(v,"rosTopic",msg);
         std::string rosTopic = msg[0]->value();
 
-       
+
         //If the msg type is not already in the map instert it as key and create a new vector as value
         if(output.count(make_pair(msgType,rosTopic)) == 0){
           output.insert(std::pair<std::pair<std::string,std::string>,std::set<std::string>>(make_pair(msgType,rosTopic), std::set<std::string>()));
@@ -162,12 +171,13 @@ void getVarName(std::string& name,std::string& type,std::string& decl){
         output[make_pair(msgType,rosTopic)].insert(name);
         msg.clear();
       }
-      
+
     }
 
     return output;
 
   }
+
 
 
 

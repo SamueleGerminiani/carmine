@@ -43,7 +43,9 @@ tformula: boolean
 	| tformula SRELEASE tformula
 	| tformula RELEASE tformula
 	| tformula AND tformula 
+	| tformula BAND tformula 
 	| tformula OR tformula 
+	| tformula BOR tformula 
 	| tformula XOR tformula 
 	| tformula IMPL tformula  
 	| tformula IFF tformula 

@@ -1,5 +1,5 @@
 
-// Generated from temporal.g4 by ANTLR 4.7.2
+// Generated from temporal.g4 by ANTLR 4.9.2
 
 #pragma once
 
@@ -33,7 +33,7 @@ public:
     RuleVariable = 19, RuleRelop = 20
   };
 
-  temporalParser(antlr4::TokenStream *input);
+  explicit temporalParser(antlr4::TokenStream *input);
   ~temporalParser();
 
   virtual std::string getGrammarFileName() const override;
@@ -143,7 +143,9 @@ public:
     antlr4::tree::TerminalNode *SRELEASE();
     antlr4::tree::TerminalNode *RELEASE();
     antlr4::tree::TerminalNode *AND();
+    antlr4::tree::TerminalNode *BAND();
     antlr4::tree::TerminalNode *OR();
+    antlr4::tree::TerminalNode *BOR();
     antlr4::tree::TerminalNode *XOR();
     antlr4::tree::TerminalNode *IFF();
 
@@ -156,7 +158,7 @@ public:
   TformulaContext* tformula(int precedence);
   class  BooleanContext : public antlr4::ParserRuleContext {
   public:
-    antlr4::Token *booleanop = nullptr;;
+    antlr4::Token *booleanop = nullptr;
     BooleanContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *NOT();
@@ -225,8 +227,8 @@ public:
 
   class  LogicContext : public antlr4::ParserRuleContext {
   public:
-    antlr4::Token *artop = nullptr;;
-    antlr4::Token *logop = nullptr;;
+    antlr4::Token *artop = nullptr;
+    antlr4::Token *logop = nullptr;
     LogicContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *NEG();
@@ -357,7 +359,7 @@ public:
 
   class  NumericContext : public antlr4::ParserRuleContext {
   public:
-    antlr4::Token *artop = nullptr;;
+    antlr4::Token *artop = nullptr;
     NumericContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     NumericAtomContext *numericAtom();

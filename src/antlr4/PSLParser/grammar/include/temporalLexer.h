@@ -1,5 +1,5 @@
 
-// Generated from temporal.g4 by ANTLR 4.7.2
+// Generated from temporal.g4 by ANTLR 4.9.2
 
 #pragma once
 
@@ -24,7 +24,7 @@ public:
     LSHIFT = 56, RSHIFT = 57, AND = 58, OR = 59, NOT = 60, WS = 61
   };
 
-  temporalLexer(antlr4::CharStream *input);
+  explicit temporalLexer(antlr4::CharStream *input);
   ~temporalLexer();
 
   virtual std::string getGrammarFileName() const override;
