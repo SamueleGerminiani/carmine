@@ -10,18 +10,35 @@
 #include <experimental/filesystem>
 #include <fstream>
 #include <numeric>
+#include <spot/tl/formula.hh>
+#include <string>
 
-std::map<std::string,std::vector<checkerVar>> bindings;
+namespace timer {
+std::vector<std::pair<size_t, size_t>> timers;
+}
+std::map<std::string, std::vector<checkerVar>> bindings;
 /*static void parseCommandLineArguments(int argc, char *args[],
                                       std::vector<std::string> &files,
                                       std::string &outDirectory);*/
 
 // Generate code for checker class
 bool generateCpp(
-    codeGenerator::SpotAutomata &fsm, std::vector<checkerVar> &varList,
-    std::pair<std::string, std::unordered_map<std::string, oden::Proposition *>>
+    std::pair<codeGenerator::SpotAutomata, codeGenerator::SpotAutomata> &fsms,
+    std::vector<checkerVar> &varList,
+    std::pair<std::pair<std::string, std::string>,
+              std::unordered_map<std::string, oden::Proposition *>>
         &parsedFormula,
     std::string &checkerName) {
+
+  std::vector<spot::formula> aps;
+
+  for (auto ap : fsms.first->ap()) {
+    if (ap.ap_name().find("start", 0) != std::string::npos ||
+        ap.ap_name().find("stop", 0) != std::string::npos) {
+      continue;
+    }
+    aps.push_back(ap);
+  }
 
   std::ifstream src("code_templates/class_template.cpp");
 
@@ -60,10 +77,10 @@ bool generateCpp(
     // Code for retrieving placeholder's values
     if (line.compare("$order_entry") == 0) {
       line = "";
-      for (unsigned int i = 0; i < fsm->ap().size(); i++) {
+      for (unsigned int i = 0; i < aps.size(); i++) {
         line += codeGenerator::ident1 + "if (order_entry & (1ULL << " +
                 std::to_string(i) + ")) {\n";
-        line += codeGenerator::ident2 + "last_" + (fsm->ap()[i]).ap_name() +
+        line += codeGenerator::ident2 + "last_" + (aps[i]).ap_name() +
                 "= pbuff_entry & (1ULL << " + std::to_string(i) + ");\n";
         line += codeGenerator::ident1 + "}\n";
       }
@@ -73,16 +90,16 @@ bool generateCpp(
     else if (line.compare("$call_eval") == 0) {
       line = "";
       line += codeGenerator::ident1 + "if (!eval_" + checkerName + "(last_" +
-              (fsm->ap()[0]).ap_name();
-      for (unsigned int i = 1; i < fsm->ap().size(); i++) {
-        line += ",last_" + (fsm->ap()[i]).ap_name();
+              (aps[0]).ap_name();
+      for (unsigned int i = 1; i < aps.size(); i++) {
+        line += ",last_" + (aps[i]).ap_name();
       }
       line += ")){\n";
       line += codeGenerator::ident2 + "notify_mutex.lock();\n";
       line += codeGenerator::ident2 + "notifyFailure();\n";
       line += codeGenerator::ident2 + "notify_mutex.unlock();\n";
       line += codeGenerator::ident2 + "eval_" + checkerName + "(";
-      for (unsigned int i = 0; i < fsm->ap().size(); i++) {
+      for (unsigned int i = 0; i < aps.size(); i++) {
         line += "0,";
       }
       line += "1);\n";
@@ -93,7 +110,15 @@ bool generateCpp(
     // Checker FSM
     else if (line.compare("$FSM") == 0) {
       line = "";
-      codeGenerator::converter::generateChecker(fsm, checkerName, dst);
+      codeGenerator::converter::generateChecker(fsms, checkerName, dst);
+    }
+    else if (line.compare("$initTimers$") == 0) {
+      line = "";
+      for (size_t i = 0; i < timer::timers.size(); i++) {
+        line += codeGenerator::ident1 + "_timerInstances[" + std::to_string(i) + "];\n";
+        line += codeGenerator::ident1 + "_timerCache[" + std::to_string(i) + "];\n";
+        line += codeGenerator::ident1 + "_timeouts.push_back("+std::to_string(timer::timers[i].second)+");\n";
+      }
     }
 
     // Declare static vars inside reorder()
@@ -108,7 +133,7 @@ bool generateCpp(
     else if (line.compare("$setBuffer") == 0) {
       line = "";
       std::string placeholders = "";
-      for (unsigned int i = 0; i < fsm->ap().size(); i++) {
+      for (unsigned int i = 0; i < aps.size(); i++) {
         line += codeGenerator::ident3 + "bool p" + std::to_string(i) +
                 " = val & (1ULL << " + std::to_string(i) + ");\n";
         placeholders += " ,p" + std::to_string(i);
@@ -118,7 +143,7 @@ bool generateCpp(
               placeholders + ");\n";
       line += codeGenerator::ident3 + "val = (req.buffer_o)[i];\n";
 
-      for (unsigned int i = 0; i < fsm->ap().size(); i++) {
+      for (unsigned int i = 0; i < aps.size(); i++) {
         line += codeGenerator::ident3 + "p" + std::to_string(i) +
                 " = val & (1ULL << " + std::to_string(i) + ");\n";
       }
@@ -236,9 +261,9 @@ bool generateCpp(
 }
 
 // Generate header for checker class
-bool generateHeader(codeGenerator::SpotAutomata &fsm,
-                    std::vector<checkerVar> &varList,
-                    std::string &checkerName) {
+bool generateHeader(
+    std::pair<codeGenerator::SpotAutomata, codeGenerator::SpotAutomata> &fsms,
+    std::vector<checkerVar> &varList, std::string &checkerName) {
   // Copy templates in new files replacing generic names
   std::ifstream src("code_templates/header_template.hh");
   if (src.fail()) {
@@ -260,6 +285,19 @@ bool generateHeader(codeGenerator::SpotAutomata &fsm,
   std::string line;
   std::string toReplace = "$ClassName$";
   size_t len = toReplace.length();
+  std::string toReplaceNStatesAss = "$nStatesAss$";
+  size_t lenNSA = toReplaceNStatesAss.length();
+  std::string toReplaceNStatesAnt = "$nStatesAnt$";
+  size_t lenNSAn = toReplaceNStatesAnt.length();
+  std::vector<spot::formula> aps;
+
+  for (auto ap : fsms.first->ap()) {
+    if (ap.ap_name().find("start", 0) != std::string::npos ||
+        ap.ap_name().find("stop", 0) != std::string::npos) {
+      continue;
+    }
+    aps.push_back(ap);
+  }
 
   // Read template file, and on each line replace $ClassName$
   // or generate code
@@ -272,20 +310,35 @@ bool generateHeader(codeGenerator::SpotAutomata &fsm,
       else
         break;
     }
+    while (true) { // To handle multiple occurences
+      size_t pos = line.find(toReplaceNStatesAss);
+      if (pos != std::string::npos)
+        line.replace(pos, lenNSA, std::to_string(fsms.first->num_states()));
+      else
+        break;
+    }
+    while (true) { // To handle multiple occurences
+      size_t pos = line.find(toReplaceNStatesAnt);
+      if (pos != std::string::npos)
+        line.replace(pos, lenNSAn, std::to_string(fsms.second->num_states()));
+      else
+        break;
+    }
 
     // Code for placeholders initialization
     if (line.compare("$init") == 0) {
       line = "";
-      for (auto prop : fsm->ap()) {
+      for (auto prop : aps) {
         line += codeGenerator::ident1 + "bool last_" + prop.ap_name() +
                 " = false;\n";
       }
     }
+
     // Code for defining the eval function
     else if (line.compare("$eval") == 0) {
       line = "";
       line = codeGenerator::ident1 + "bool eval_" + checkerName + "(";
-      for (auto ap : fsm->ap()) {
+      for (auto ap : aps) {
         line += "bool " + ap.ap_name() + ",";
       }
       line += "bool reset = false);\n";
@@ -351,7 +404,7 @@ bool generateHeader(codeGenerator::SpotAutomata &fsm,
       }
 
       line += "#define INIT_" + checkerName + " " +
-              std::to_string(fsm->get_init_state_number()) + "\n";
+              std::to_string(fsms.first->get_init_state_number()) + "\n";
 
     }
 
@@ -408,7 +461,7 @@ bool generateHandler(rapidxml::XmlNodeList &checkers, int nVars[],
         auto checkerName = rapidxml::getAttributeValue(ch, "name", "");
         line += codeGenerator::ident1;
         line += "chs[\"" + checkerName + "\"] = new " + checkerName + "(" +
-                std::to_string(nVars[i]) + ",rand() % 2 + 1,";
+                std::to_string(nVars[i]) + ",1,";
         line += std::string("handlerName, ") + "\"" + checkerName + "\"" + ",";
         line += paused ? "true" : "false";
         line += ");\n";
@@ -618,8 +671,8 @@ int main(int argc, char *args[]) {
 
   // Each item in the array is the number o placeholders generated for each
   // checker formula
-  int* nVars;
-  nVars= new int[checkers.size()];
+  int *nVars;
+  nVars = new int[checkers.size()];
   int i = 0;
   std::vector<checkerVar> varList;
   // Parse each checker and generate code
@@ -632,19 +685,21 @@ int main(int argc, char *args[]) {
     for (auto v : variables) {
       declarations += rapidxml::getAttributeValue(v, "decl", "") + ";";
     }
-
-    auto parsedFormula = oden::parseLTLformula(formula, declarations);
+    timer::timers.clear();
+    auto parsedFormula =
+        oden::parseLTLformula(formula, declarations, "", "", timer::timers);
 
     nVars[i] = parsedFormula.second.size();
 
     varList.clear();
     parseVariables(varList, variables);
 
-    auto fsm = codeGenerator::converter::generateAutomata(parsedFormula.first);
+    auto fsms = codeGenerator::converter::generateAutomata(
+        parsedFormula.first.first, parsedFormula.first.second);
     auto checkerName = rapidxml::getAttributeValue(ch, "name", "");
 
-    if (generateCpp(fsm, varList, parsedFormula, checkerName) &&
-        generateHeader(fsm, varList, checkerName)) {
+    if (generateCpp(fsms, varList, parsedFormula, checkerName) &&
+        generateHeader(fsms, varList, checkerName)) {
       std::cout << "Successfully generated files for checker " << checkerName
                 << std::endl;
     } else {
@@ -661,12 +716,12 @@ int main(int argc, char *args[]) {
     return 1;
   }
   if (!generateHandler(checkers, nVars, handlerName, migrateTo)) {
-  delete []nVars;
+    delete[] nVars;
     std::cout << "Could not generate handler node" << std::endl;
     return 1;
   }
 
-  delete []nVars;
+  delete[] nVars;
   return 0;
 }
 

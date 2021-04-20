@@ -549,7 +549,97 @@ TemporalParserHandler::getPropositions() {
   return _phToProp;
 }
 
+void TemporalParserHandler::exitImplication(
+    temporalParser::ImplicationContext *ctx) {
+  if (ctx->tformula().size() == 2 && ctx->IMPL() != nullptr) {
+    std::string newFormula = " -> " + _subFormulas.top();
+    _subFormulas.pop();
+    newFormula = _subFormulas.top() + newFormula;
+    antecedent=_subFormulas.top();
+    _subFormulas.pop();
+    _subFormulas.push(newFormula);
+    return;
+  }
+  if (ctx->tformula().size() == 2 && ctx->IMPL2() != nullptr) {
+    std::string newFormula = " => " + _subFormulas.top();
+    _subFormulas.pop();
+    newFormula = _subFormulas.top() + newFormula;
+    antecedent=_subFormulas.top();
+    _subFormulas.pop();
+    _subFormulas.push(newFormula);
+    return;
+  }
+
+  if (ctx->tformula().size() == 1 && ctx->sere() != nullptr &&
+      ctx->LGPAREN() != nullptr && ctx->LCPAREN() != nullptr &&
+      ctx->RCPAREN() != nullptr && ctx->RGPAREN() != nullptr &&
+      ctx->IMPL() != nullptr) {
+
+    std::string newFormula = "[]->" + _subFormulas.top();
+    _subFormulas.pop();
+    newFormula = "{" + _subFormulas.top() + "}" + newFormula;
+    antecedent="{" + _subFormulas.top() + "}";
+    _subFormulas.pop();
+    _subFormulas.push(newFormula);
+    return;
+  }
+
+  if (ctx->tformula().size() == 1 && ctx->sere() != nullptr &&
+      ctx->LGPAREN() != nullptr && ctx->LCPAREN() != nullptr &&
+      ctx->RCPAREN() != nullptr && ctx->RGPAREN() != nullptr &&
+      ctx->IMPL2() != nullptr) {
+
+    std::string newFormula = "[]->" + _subFormulas.top();
+    _subFormulas.pop();
+    newFormula = "{" + _subFormulas.top() + "}" + newFormula;
+    antecedent="{" + _subFormulas.top() + "}";
+    _subFormulas.pop();
+    _subFormulas.push(newFormula);
+    return;
+  }
+
+  if (ctx->tformula().size() == 1 && ctx->sere() != nullptr &&
+      ctx->LGPAREN() != nullptr && ctx->RGPAREN() != nullptr &&
+      ctx->BIND1() != nullptr) {
+
+    std::string newFormula = "<>->" + _subFormulas.top();
+    _subFormulas.pop();
+    newFormula = "{" + _subFormulas.top() + "}" + newFormula;
+    antecedent="{" + _subFormulas.top() + "}";
+    _subFormulas.pop();
+    _subFormulas.push(newFormula);
+    return;
+  }
+
+  if (ctx->tformula().size() == 1 && ctx->sere() != nullptr &&
+      ctx->LGPAREN() != nullptr && ctx->RGPAREN() != nullptr &&
+      ctx->BIND2() != nullptr) {
+
+    std::string newFormula = "<>=>" + _subFormulas.top();
+    _subFormulas.pop();
+    newFormula = "{" + _subFormulas.top() + "}" + newFormula;
+    antecedent="{" + _subFormulas.top() + "}";
+    _subFormulas.pop();
+    _subFormulas.push(newFormula);
+    return;
+  }
+}
 void TemporalParserHandler::exitTformula(temporalParser::TformulaContext *ctx) {
+  if (ctx->TIMER() != nullptr) {
+    std::stringstream ss;
+    ss << "("
+       << "start" << timerN << " & ("
+       << "(!stop" << timerN << " & "
+       << "!p" << placeholdN << ")"
+       << " U "
+       << "p" << placeholdN << "))";
+
+    _timers.emplace_back(
+        timerN++, std::stoull(ctx->NUMERIC()[0]->getText(), nullptr, 10));
+    _subFormulas.push(ss.str());
+    _phToProp["p" + std::to_string(placeholdN++)] = _proposition.top();
+    return;
+  }
   if (ctx->boolean() != nullptr) {
     _subFormulas.push("p" + std::to_string(placeholdN));
     _phToProp["p" + std::to_string(placeholdN++)] = _proposition.top();
@@ -595,72 +685,6 @@ void TemporalParserHandler::exitTformula(temporalParser::TformulaContext *ctx) {
     _subFormulas.push(newFormula);
     return;
   }
-  if (ctx->tformula().size() == 2 && ctx->IMPL() != nullptr) {
-    std::string newFormula = " -> " + _subFormulas.top();
-    _subFormulas.pop();
-    newFormula = _subFormulas.top() + newFormula;
-    _subFormulas.pop();
-    _subFormulas.push(newFormula);
-    return;
-  }
-  if (ctx->tformula().size() == 2 && ctx->IFF() != nullptr) {
-    std::string newFormula = " <-> " + _subFormulas.top();
-    _subFormulas.pop();
-    newFormula = _subFormulas.top() + newFormula;
-    _subFormulas.pop();
-    _subFormulas.push(newFormula);
-    return;
-  }
-
-  if (ctx->tformula().size() == 1 && ctx->sere() != nullptr &&
-      ctx->LGPAREN() != nullptr && ctx->LCPAREN() != nullptr &&
-      ctx->RCPAREN() != nullptr && ctx->RGPAREN() != nullptr &&
-      ctx->IMPL() != nullptr) {
-
-    std::string newFormula = "[]->" + _subFormulas.top();
-    _subFormulas.pop();
-    newFormula = "{" + _subFormulas.top() + "}" + newFormula;
-    _subFormulas.pop();
-    _subFormulas.push(newFormula);
-    return;
-  }
-
-  if (ctx->tformula().size() == 1 && ctx->sere() != nullptr &&
-      ctx->LGPAREN() != nullptr && ctx->LCPAREN() != nullptr &&
-      ctx->RCPAREN() != nullptr && ctx->RGPAREN() != nullptr &&
-      ctx->IMPL2() != nullptr) {
-
-    std::string newFormula = "[]->" + _subFormulas.top();
-    _subFormulas.pop();
-    newFormula = "{" + _subFormulas.top() + "}" + newFormula;
-    _subFormulas.pop();
-    _subFormulas.push(newFormula);
-    return;
-  }
-
-  if (ctx->tformula().size() == 1 && ctx->sere() != nullptr &&
-      ctx->LGPAREN() != nullptr && ctx->RGPAREN() != nullptr &&
-      ctx->BIND1() != nullptr) {
-
-    std::string newFormula = "<>->" + _subFormulas.top();
-    _subFormulas.pop();
-    newFormula = "{" + _subFormulas.top() + "}" + newFormula;
-    _subFormulas.pop();
-    _subFormulas.push(newFormula);
-    return;
-  }
-
-  if (ctx->tformula().size() == 1 && ctx->sere() != nullptr &&
-      ctx->LGPAREN() != nullptr && ctx->RGPAREN() != nullptr &&
-      ctx->BIND2() != nullptr) {
-
-    std::string newFormula = "<>=>" + _subFormulas.top();
-    _subFormulas.pop();
-    newFormula = "{" + _subFormulas.top() + "}" + newFormula;
-    _subFormulas.pop();
-    _subFormulas.push(newFormula);
-    return;
-  }
 
   if (ctx->tformula().size() == 1 && ctx->NEXT() != nullptr &&
       ctx->LCPAREN() != nullptr && ctx->NUMERIC().size() == 2 &&
@@ -693,55 +717,6 @@ void TemporalParserHandler::exitTformula(temporalParser::TformulaContext *ctx) {
     _subFormulas.push(newFormula);
     return;
   }
-  if (ctx->tformula().size() == 1 && ctx->ALWAYS() != nullptr &&
-      ctx->LCPAREN() != nullptr && ctx->NUMERIC().size() == 2 &&
-      ctx->DOTS() != nullptr && ctx->LCPAREN() != nullptr &&
-      ctx->NOT() != nullptr) {
-
-    std::string newFormula = "G[" + ctx->NUMERIC()[0]->getText() + ".." +
-                             ctx->NUMERIC()[1]->getText() + "!]" +
-                             _subFormulas.top();
-    _subFormulas.pop();
-    _subFormulas.push(newFormula);
-    return;
-  }
-
-  if (ctx->tformula().size() == 1 && ctx->ALWAYS() != nullptr &&
-      ctx->LCPAREN() != nullptr && ctx->NUMERIC().size() == 2 &&
-      ctx->DOTS() != nullptr && ctx->LCPAREN() != nullptr) {
-
-    std::string newFormula = "G[" + ctx->NUMERIC()[0]->getText() + ".." +
-                             ctx->NUMERIC()[1]->getText() + "]" +
-                             _subFormulas.top();
-    _subFormulas.pop();
-    _subFormulas.push(newFormula);
-    return;
-  }
-  if (ctx->tformula().size() == 1 && ctx->EVENTUALLY() != nullptr &&
-      ctx->LCPAREN() != nullptr && ctx->NUMERIC().size() == 2 &&
-      ctx->DOTS() != nullptr && ctx->LCPAREN() != nullptr &&
-      ctx->NOT() != nullptr) {
-
-    std::string newFormula = "F[" + ctx->NUMERIC()[0]->getText() + ".." +
-                             ctx->NUMERIC()[1]->getText() + "!]" +
-                             _subFormulas.top();
-    _subFormulas.pop();
-    _subFormulas.push(newFormula);
-    return;
-  }
-
-  if (ctx->tformula().size() == 1 && ctx->EVENTUALLY() != nullptr &&
-      ctx->LCPAREN() != nullptr && ctx->NUMERIC().size() == 2 &&
-      ctx->DOTS() != nullptr && ctx->LCPAREN() != nullptr) {
-
-    std::string newFormula = "F[" + ctx->NUMERIC()[0]->getText() + ".." +
-                             ctx->NUMERIC()[1]->getText() + "]" +
-                             _subFormulas.top();
-    _subFormulas.pop();
-    _subFormulas.push(newFormula);
-    return;
-  }
-
   if (ctx->tformula().size() == 2 && ctx->UNTIL() != nullptr) {
     std::string newFormula = _subFormulas.top();
     _subFormulas.pop();
@@ -803,18 +778,6 @@ void TemporalParserHandler::exitTformula(temporalParser::TformulaContext *ctx) {
     _subFormulas.push(newFormula);
     return;
   }
-  if (ctx->tformula().size() == 1 && ctx->ALWAYS() != nullptr) {
-    std::string newFormula = "G" + _subFormulas.top();
-    _subFormulas.pop();
-    _subFormulas.push(newFormula);
-    return;
-  }
-  if (ctx->tformula().size() == 1 && ctx->EVENTUALLY() != nullptr) {
-    std::string newFormula = "F" + _subFormulas.top();
-    _subFormulas.pop();
-    _subFormulas.push(newFormula);
-    return;
-  }
 }
 void TemporalParserHandler::exitSere(temporalParser::SereContext *ctx) {
 
@@ -841,14 +804,14 @@ void TemporalParserHandler::exitSere(temporalParser::SereContext *ctx) {
     return;
   }
 
-
   if (ctx->sere().size() == 2 && ctx->LCPAREN() != nullptr &&
       ctx->RCPAREN() != nullptr && ctx->NUMERIC().size() == 2 &&
       ctx->DOTS() != nullptr && ctx->DSYM1() != nullptr) {
-    std::string newFormula =
-        " ##[" + ctx->NUMERIC()[0]->getText() + ".." + ctx->NUMERIC()[1]->getText()+"]" + _subFormulas.top();
+    std::string newFormula = " ##[" + ctx->NUMERIC()[0]->getText() + ".." +
+                             ctx->NUMERIC()[1]->getText() + "]" +
+                             _subFormulas.top();
     _subFormulas.pop();
-    newFormula= _subFormulas.top() + newFormula;
+    newFormula = _subFormulas.top() + newFormula;
     _subFormulas.pop();
     _subFormulas.push(newFormula);
     return;
@@ -856,8 +819,9 @@ void TemporalParserHandler::exitSere(temporalParser::SereContext *ctx) {
   if (ctx->sere().size() == 1 && ctx->LCPAREN() != nullptr &&
       ctx->RCPAREN() != nullptr && ctx->NUMERIC().size() == 2 &&
       ctx->DOTS() != nullptr && ctx->DSYM1() != nullptr) {
-    std::string newFormula =
-        " ##[" + ctx->NUMERIC()[0]->getText() + ".." + ctx->NUMERIC()[1]->getText()+"]" + _subFormulas.top();
+    std::string newFormula = " ##[" + ctx->NUMERIC()[0]->getText() + ".." +
+                             ctx->NUMERIC()[1]->getText() + "]" +
+                             _subFormulas.top();
     _subFormulas.pop();
     _subFormulas.push(newFormula);
     return;
@@ -920,8 +884,8 @@ void TemporalParserHandler::exitSere(temporalParser::SereContext *ctx) {
   if (ctx->sere().size() == 1 && ctx->LCPAREN() != nullptr &&
       ctx->ASS() != nullptr && ctx->NUMERIC().size() == 2 &&
       ctx->DOTS() != nullptr && ctx->RCPAREN() != nullptr) {
-    std::string newFormula = _subFormulas.top() +
-                             "[=" + ctx->NUMERIC()[0]->getText() + ".." +
+    std::string newFormula = _subFormulas.top() + "[=" +
+                             ctx->NUMERIC()[0]->getText() + ".." +
                              ctx->NUMERIC()[1]->getText() + "]";
     _subFormulas.pop();
     _subFormulas.push(newFormula);
@@ -966,23 +930,22 @@ void TemporalParserHandler::exitSere(temporalParser::SereContext *ctx) {
     return;
   }
 
-  if (ctx->sere().size() == 2 && ctx->COL() != nullptr ) {
+  if (ctx->sere().size() == 2 && ctx->COL() != nullptr) {
     std::string newFormula = " : " + _subFormulas.top();
     _subFormulas.pop();
-    newFormula= _subFormulas.top() + newFormula;
+    newFormula = _subFormulas.top() + newFormula;
     _subFormulas.pop();
     _subFormulas.push(newFormula);
     return;
   }
 
-  if (ctx->sere().size() == 2 && ctx->SCOL() != nullptr ) {
+  if (ctx->sere().size() == 2 && ctx->SCOL() != nullptr) {
     std::string newFormula = " ; " + _subFormulas.top();
     _subFormulas.pop();
-    newFormula= _subFormulas.top() + newFormula;
+    newFormula = _subFormulas.top() + newFormula;
     _subFormulas.pop();
     _subFormulas.push(newFormula);
     return;
   }
-
 }
 } // namespace oden

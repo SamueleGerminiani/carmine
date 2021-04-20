@@ -13,15 +13,15 @@ class  temporalLexer : public antlr4::Lexer {
 public:
   enum {
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
-    EVENTUALLY = 8, ALWAYS = 9, NEXT = 10, UNTIL = 11, WUNTIL = 12, SUNTIL = 13, 
-    RELEASE = 14, SRELEASE = 15, DOTS = 16, IMPL = 17, IMPL2 = 18, IFF = 19, 
-    XOR = 20, BIND1 = 21, BIND2 = 22, ASS = 23, DSYM1 = 24, SCOL = 25, COL = 26, 
-    FIRST_MATCH = 27, SIGN = 28, LGPAREN = 29, RGPAREN = 30, LCPAREN = 31, 
-    RCPAREN = 32, LPAREN = 33, RPAREN = 34, CAST_BOOL = 35, CAST_NUMERIC = 36, 
-    VARIABLE = 37, NUMERIC = 38, VERILOG_BINARY = 39, GCC_BINARY = 40, BOOLEAN = 41, 
-    PLUS = 42, MINUS = 43, TIMES = 44, DIV = 45, GT = 46, GE = 47, LT = 48, 
-    LE = 49, EQ = 50, NEQ = 51, BAND = 52, BOR = 53, BXOR = 54, NEG = 55, 
-    LSHIFT = 56, RSHIFT = 57, AND = 58, OR = 59, NOT = 60, WS = 61
+    TIMER = 8, EVENTUALLY = 9, ALWAYS = 10, NEXT = 11, UNTIL = 12, WUNTIL = 13, 
+    SUNTIL = 14, RELEASE = 15, SRELEASE = 16, DOTS = 17, IMPL = 18, IMPL2 = 19, 
+    IFF = 20, XOR = 21, BIND1 = 22, BIND2 = 23, ASS = 24, DSYM1 = 25, SCOL = 26, 
+    COL = 27, FIRST_MATCH = 28, SIGN = 29, LGPAREN = 30, RGPAREN = 31, LCPAREN = 32, 
+    RCPAREN = 33, LPAREN = 34, RPAREN = 35, CAST_BOOL = 36, CAST_NUMERIC = 37, 
+    VARIABLE = 38, NUMERIC = 39, VERILOG_BINARY = 40, GCC_BINARY = 41, BOOLEAN = 42, 
+    PLUS = 43, MINUS = 44, TIMES = 45, DIV = 46, GT = 47, GE = 48, LT = 49, 
+    LE = 50, EQ = 51, NEQ = 52, BAND = 53, BOR = 54, BXOR = 55, NEG = 56, 
+    LSHIFT = 57, RSHIFT = 58, AND = 59, OR = 60, NOT = 61, WS = 62
   };
 
   explicit temporalLexer(antlr4::CharStream *input);

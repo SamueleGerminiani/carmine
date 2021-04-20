@@ -10,6 +10,8 @@
 #include <vector>
 #include "Checker.hpp"
 #include <chrono>
+#include <map>
+#include <deque>
 $msgHeaders
 #define BUFF_SIZE 1'000'000
 #define MIGRATION_TH 10
@@ -66,6 +68,54 @@ $value
 $eval
 	
 	
+    void addTimerValue(size_t timerID) {
+        _timerInstances[timerID].push_back(ros::Time::now().toSec() * 1000);
+    }
+    void popTimerInst(size_t timerID, size_t nToErase) {
+        if (_timerInstances.at(timerID).empty()) {
+            return;
+        }
+        _timerInstances.at(timerID).erase(
+            begin(_timerInstances.at(timerID)),
+            begin(_timerInstances.at(timerID)) + nToErase);
+    }
+    bool getTimerValue(size_t timerID, size_t timerInstance, bool isAss) {
+        if (isAss) {
+            if (_timerInstances.at(timerID).empty()) {
+                _timerCache[timerID].push_back(0);
+                return 0;
+            }
+            double now = ros::Time::now().toSec() * 1000;
+            bool val = (now - _timerInstances.at(timerID)[timerInstance]) >
+                       _timeouts[timerID];
+            _timerCache[timerID].push_back(val);
+            return val;
+        } else {
+            bool val = _timerCache.at(timerID).front();
+            _timerCache.at(timerID).pop_front();
+            return val;
+        }
+    }
+    void resetChecker() {
+        for (size_t j = 0; j < $nStatesAss$; j++) {
+            currAss[j] = 0;
+            nextAss[j] = 0;
+        }
+        for (size_t j = 0; j < $nStatesAnt$; j++) {
+            currAnt[j] = 0;
+            nextAnt[j] = 0;
+        }
+        for (auto &e : _timerInstances) {
+            e.second.clear();
+        }
+        for (auto &e : _timerCache) {
+            e.second.clear();
+        }
+        printOnce1 = 1;
+        printOnce2 = 1;
+        conIns = 0;
+        endIns = 0;
+    }
 	
 	
 	Checker::Phase checkerPhase;
@@ -82,6 +132,17 @@ $init
 	
 	uint64_t* order;
 	uint64_t* pbuff;
+    std::map<size_t, std::deque<double>> _timerInstances;
+    std::map<size_t, std::deque<bool>> _timerCache;
+    std::vector<size_t> _timeouts;
+    size_t currAss[$nStatesAss$];
+    size_t nextAss[$nStatesAss$];
+    size_t currAnt[$nStatesAnt$];
+    size_t nextAnt[$nStatesAnt$];
+    bool printOnce1 = 1;
+    bool printOnce2 = 1;
+    int conIns = 0;
+    int endIns = 0;
 	size_t eventsInBuffer = 0;
 	std::mutex buff_mutex;
 	std::mutex addEvent_mutex;

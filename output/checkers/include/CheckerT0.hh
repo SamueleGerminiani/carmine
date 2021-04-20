@@ -10,8 +10,8 @@
 #include <vector>
 #include "Checker.hpp"
 #include <chrono>
-#include "msg_gen/Num.h"
-#include "msg_gen/Num.h"
+#include <map>
+#include <deque>
 #include "msg_gen/Num.h"
 #include "msg_gen/Num.h"
 #define INIT_CheckerT0 0
@@ -51,31 +51,21 @@ public:
 
    void addEvent_var0(ros::Time ts, bool value);
    void addEvent_var1(ros::Time ts, bool value);
-   void addEvent_var2(ros::Time ts, bool value);
-   void addEvent_var3(ros::Time ts, bool value);
 
 
 	union Value{
       Value(const bool var, size_t id){
          switch (id) {
             case 0:
-               _start0 = var;
+               _v1 = var;
                break;
             case 1:
-               _end0 = var;
-               break;
-            case 2:
-               _v0 = var;
-               break;
-            case 3:
-               _v1 = var;
+               _v2 = var;
                break;
             }
          }
-      bool _start0;
-      bool _end0;
-      bool _v0;
       bool _v1;
+      bool _v2;
 
 	};
 	// used to have a common data type for all variables <timestamp,var>
@@ -92,10 +82,58 @@ public:
 
 	std::vector<Event> vbuff;
 
-   bool eval_CheckerT0(bool p0,bool p1,bool p2,bool p3,bool reset = false);
+   bool eval_CheckerT0(bool p0,bool p1,bool reset = false);
 
 	
 	
+    void addTimerValue(size_t timerID) {
+        _timerInstances[timerID].push_back(ros::Time::now().toSec() * 1000);
+    }
+    void popTimerInst(size_t timerID, size_t nToErase) {
+        if (_timerInstances.at(timerID).empty()) {
+            return;
+        }
+        _timerInstances.at(timerID).erase(
+            begin(_timerInstances.at(timerID)),
+            begin(_timerInstances.at(timerID)) + nToErase);
+    }
+    bool getTimerValue(size_t timerID, size_t timerInstance, bool isAss) {
+        if (isAss) {
+            if (_timerInstances.at(timerID).empty()) {
+                _timerCache[timerID].push_back(0);
+                return 0;
+            }
+            double now = ros::Time::now().toSec() * 1000;
+            bool val = (now - _timerInstances.at(timerID)[timerInstance]) >
+                       _timeouts[timerID];
+            _timerCache[timerID].push_back(val);
+            return val;
+        } else {
+            bool val = _timerCache.at(timerID).front();
+            _timerCache.at(timerID).pop_front();
+            return val;
+        }
+    }
+    void resetChecker() {
+        for (size_t j = 0; j < 4; j++) {
+            currAss[j] = 0;
+            nextAss[j] = 0;
+        }
+        for (size_t j = 0; j < 3; j++) {
+            currAnt[j] = 0;
+            nextAnt[j] = 0;
+        }
+        for (auto &e : _timerInstances) {
+            e.second.clear();
+        }
+        for (auto &e : _timerCache) {
+            e.second.clear();
+        }
+        printOnce1 = 1;
+        printOnce2 = 1;
+        conIns = 0;
+        endIns = 0;
+    }
 	
 	
 	Checker::Phase checkerPhase;
@@ -110,12 +148,21 @@ public:
 
    bool last_p0 = false;
    bool last_p1 = false;
-   bool last_p2 = false;
-   bool last_p3 = false;
 
 	
 	uint64_t* order;
 	uint64_t* pbuff;
+    std::map<size_t, std::deque<double>> _timerInstances;
+    std::map<size_t, std::deque<bool>> _timerCache;
+    std::vector<size_t> _timeouts;
+    size_t currAss[4];
+    size_t nextAss[4];
+    size_t currAnt[3];
+    size_t nextAnt[3];
+    bool printOnce1 = 1;
+    bool printOnce2 = 1;
+    int conIns = 0;
+    int endIns = 0;
 	size_t eventsInBuffer = 0;
 	std::mutex buff_mutex;
 	std::mutex addEvent_mutex;

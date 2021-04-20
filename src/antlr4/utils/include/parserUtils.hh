@@ -22,10 +22,10 @@ Proposition *parseProposition(std::string &formula,
                               const std::string &localDecls,
                               std::string propLocation = "unknown location",
                               std::string locDecLocation = "unknown location");
-std::pair<std::string,std::unordered_map<std::string,Proposition*>> parseLTLformula(std::string &formula,
+std::pair<std::pair<std::string,std::string>,std::unordered_map<std::string,Proposition*>> parseLTLformula(std::string &formula,
                               const std::string &localDecls,
-                              std::string propLocation = "unknown location",
-                              std::string locDecLocation = "unknown location");
+                              std::string propLocation  ,
+                              std::string locDecLocation ,std::vector<std::pair<size_t,size_t>> &timers);
 
 std::unordered_map<std::string, std::string> &getDebugVars();
 bool exists(const std::string &varName);

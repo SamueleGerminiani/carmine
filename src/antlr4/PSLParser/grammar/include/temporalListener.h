@@ -17,6 +17,9 @@ public:
   virtual void enterFormula(temporalParser::FormulaContext *ctx) = 0;
   virtual void exitFormula(temporalParser::FormulaContext *ctx) = 0;
 
+  virtual void enterImplication(temporalParser::ImplicationContext *ctx) = 0;
+  virtual void exitImplication(temporalParser::ImplicationContext *ctx) = 0;
+
   virtual void enterSere(temporalParser::SereContext *ctx) = 0;
   virtual void exitSere(temporalParser::SereContext *ctx) = 0;
 

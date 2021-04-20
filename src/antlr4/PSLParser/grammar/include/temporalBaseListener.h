@@ -19,6 +19,9 @@ public:
   virtual void enterFormula(temporalParser::FormulaContext * /*ctx*/) override { }
   virtual void exitFormula(temporalParser::FormulaContext * /*ctx*/) override { }
 
+  virtual void enterImplication(temporalParser::ImplicationContext * /*ctx*/) override { }
+  virtual void exitImplication(temporalParser::ImplicationContext * /*ctx*/) override { }
+
   virtual void enterSere(temporalParser::SereContext * /*ctx*/) override { }
   virtual void exitSere(temporalParser::SereContext * /*ctx*/) override { }
 

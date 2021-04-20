@@ -1,7 +1,14 @@
 grammar temporal;
 import proposition;
 
-formula : tformula EOF;
+formula : implication EOF;
+implication: ALWAYS '(' tformula IMPL tformula ')'
+    | ALWAYS '(' tformula IMPL2 tformula   ')'
+	| ALWAYS '(' LGPAREN sere RGPAREN LCPAREN  RCPAREN IMPL tformula ')'
+	| ALWAYS '(' LGPAREN sere RGPAREN LCPAREN  RCPAREN IMPL2 tformula ')'
+	| ALWAYS '(' LGPAREN sere RGPAREN BIND1 tformula ')'
+	| ALWAYS '(' LGPAREN sere RGPAREN BIND2 tformula ')';
+
 sere : boolean
 	 | LPAREN sere RPAREN
 	 | LGPAREN sere RGPAREN
@@ -25,6 +32,7 @@ sere : boolean
 	 ;
 
 tformula: boolean
+    | TIMER '(' boolean ',' NUMERIC ')'
 	| LPAREN tformula RPAREN 
 	| LGPAREN sere RGPAREN
 	| LGPAREN sere RGPAREN NOT
@@ -32,12 +40,6 @@ tformula: boolean
 	| NEXT tformula 
 	| NEXT LCPAREN NUMERIC DOTS NUMERIC RCPAREN tformula 
 	| NEXT LCPAREN NUMERIC DOTS NUMERIC NOT RCPAREN tformula 
-	| ALWAYS tformula
-	| ALWAYS LCPAREN NUMERIC DOTS NUMERIC RCPAREN tformula
-	| ALWAYS LCPAREN NUMERIC DOTS NUMERIC NOT RCPAREN tformula
-	| EVENTUALLY tformula 
-	| EVENTUALLY LCPAREN NUMERIC DOTS NUMERIC RCPAREN tformula 
-	| EVENTUALLY LCPAREN NUMERIC DOTS NUMERIC NOT RCPAREN tformula
 	| tformula UNTIL tformula 
 	| tformula WUNTIL tformula 
 	| tformula SRELEASE tformula
@@ -47,14 +49,11 @@ tformula: boolean
 	| tformula OR tformula 
 	| tformula BOR tformula 
 	| tformula XOR tformula 
-	| tformula IMPL tformula  
-	| tformula IFF tformula 
-	| LGPAREN sere RGPAREN LCPAREN  RCPAREN IMPL tformula
-	| LGPAREN sere RGPAREN LCPAREN  RCPAREN IMPL2 tformula
-	| LGPAREN sere RGPAREN BIND1 tformula
-	| LGPAREN sere RGPAREN BIND2 tformula
 	;
 
+TIMER
+    : '$timeout'
+    ;
 EVENTUALLY
     : 'F'
     ;

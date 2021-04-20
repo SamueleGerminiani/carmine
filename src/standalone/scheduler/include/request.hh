@@ -31,7 +31,6 @@ class Request {
 	void start();
 	void process();
 	void finish();
-	size_t getPriority() const { return priority; }
-	void setPriority(size_t p) { priority=p; }
+	size_t getPriority() const { return _checker->_priority; }
 	Checker* _checker;
 };

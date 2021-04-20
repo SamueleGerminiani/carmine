@@ -30,6 +30,14 @@ public:
 	  return _subFormulas.top();
 
   }
+  std::string getAntecedent(){
+	  return antecedent;
+  }
+ std::vector<std::pair<size_t,size_t>>getTimers()
+{
+    return _timers;
+    
+}
 
   void printAllPropositions() {
 	  for (auto p : _phToProp) {
@@ -46,12 +54,15 @@ private:
   std::stack<LogicExpression *> _logicExpressions;
   std::stack<NumericExpression *> _numericExpressions;
   std::stack<std::string> _subFormulas;
+  std::string antecedent="";
   std::string _location;
   size_t boolStack = 0;
   size_t logicStack = 0;
   size_t numeriStack = 0;
   size_t placeholdN=0;
+  size_t timerN=0;
   std::unordered_map<std::string,Proposition*> _phToProp;
+  std::vector<std::pair<size_t,size_t>> _timers;
 
   // already implemented
   // void enterFile(temporalParser::FileContext *ctx) override;
@@ -98,6 +109,7 @@ private:
   enterEnumVariable(temporalParser::EnumVariableContext *ctx) override;
   virtual void visitErrorNode(antlr4::tree::ErrorNode *node) override;
   virtual void exitTformula(temporalParser::TformulaContext * ctx) override;
+  virtual void exitImplication(temporalParser::ImplicationContext * ctx) override;
   virtual void exitSere(temporalParser::SereContext * ctx) override;
 
 };

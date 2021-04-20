@@ -6,6 +6,7 @@
 #include "dispatcher.hh"
 #include "request.hh"
 #include "Checker.hpp"
+#include <chrono>
 class Scheduler {
        public:
 	Scheduler(size_t nWorkers, std::map<std::string,Checker*> &checkers)

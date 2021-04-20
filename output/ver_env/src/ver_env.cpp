@@ -36,8 +36,7 @@ void callbackV0(const msg_gen::Num::Ptr& msg){
       if(checker -> getPhase() != Checker::Phase::paused){
          if(dynamic_cast<CheckerT0*>(checker) != NULL){
             CheckerT0 *ch = dynamic_cast<CheckerT0*>(checker);
-            ch->addEvent_var2(msg->header.stamp, msg->num);
-            ch->addEvent_var3(msg->header.stamp, msg->num);
+            ch->addEvent_var0(msg->header.stamp, msg->num);
          }
       }
    }
@@ -49,7 +48,6 @@ void callbackV1(const msg_gen::Num::Ptr& msg){
       if(checker -> getPhase() != Checker::Phase::paused){
          if(dynamic_cast<CheckerT0*>(checker) != NULL){
             CheckerT0 *ch = dynamic_cast<CheckerT0*>(checker);
-            ch->addEvent_var0(msg->header.stamp, msg->num);
             ch->addEvent_var1(msg->header.stamp, msg->num);
          }
       }
@@ -134,7 +132,7 @@ int main(int argc, char** argv) {
 	//Client
 
    std::string handlerName = "handler0";
-   chs["CheckerT0"] = new CheckerT0(4,rand() % 2 + 1,handlerName, "CheckerT0",false);
+   chs["CheckerT0"] = new CheckerT0(2,1,handlerName, "CheckerT0",false);
 
 
 	//Services

@@ -1,5 +1,6 @@
 #include "parserUtils.hh"
 #include "parsers.hh"
+#include <string>
 std::unordered_map<std::string, std::string> foundVariablesDefault;
 std::unordered_map<std::string, std::string> debugVars;
 namespace oden {
@@ -10,10 +11,10 @@ std::unordered_map<std::string, std::string> &getDebugVars() {
   return debugVars;
 }
 
-std::pair<std::string,std::unordered_map<std::string,Proposition*>> parseLTLformula(std::string &formula,
+std::pair<std::pair<std::string,std::string>,std::unordered_map<std::string,Proposition*>> parseLTLformula(std::string &formula,
                               const std::string &localDecls,
                               std::string propLocation,
-                              std::string locDecLocation) {
+                              std::string locDecLocation,std::vector<std::pair<size_t,size_t>> &timers) {
   // DEBUG
   // formula="ePage == PAGE_MAIN && c8val==M_TEST+M_NULL";
 
@@ -54,7 +55,7 @@ std::pair<std::string,std::unordered_map<std::string,Proposition*>> parseLTLform
   
   addTypeToProposition(formula, varDecls, enums);
 
-  // parse typed propositions
+  // parse typed formula
   oden::TemporalParserHandler listener2(enums, propLocation);
   antlr4::ANTLRInputStream input2(formula);
   temporalLexer lexer2(&input2);
@@ -68,7 +69,9 @@ std::pair<std::string,std::unordered_map<std::string,Proposition*>> parseLTLform
   exit(0);
   */
 
-  return std::make_pair(listener2.getSFormula(),listener2.getPropositions());
+  timers=listener2.getTimers();
+  std::cout << listener2.getSFormula() << "\n";
+  return std::make_pair(std::make_pair(listener2.getSFormula(),listener2.getAntecedent()),listener2.getPropositions());
 }
 Proposition *parseProposition(std::string &formula,
                               const std::string &localDecls,

@@ -190,6 +190,10 @@ $ClassName$::$ClassName$(size_t nVars,size_t priority, std::string handlerName, 
 	else{
 		checkerPhase = active;
 	}
+
+$initTimers$
+
+
 }
 
 $ClassName$::~$ClassName$() {
@@ -217,7 +221,11 @@ bool $ClassName$::eval() {
 		buff_mutex.unlock();
 		return false;
 	}
-	_evaluations++;
+    if(_priority==1){
+	_evaluationsLP++;
+    }else{
+	_evaluationsHP++;
+    }
 	eventsInBuffer--;
 	buff_mutex.unlock();
 

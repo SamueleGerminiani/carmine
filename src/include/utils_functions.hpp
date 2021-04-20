@@ -95,7 +95,7 @@ inline  void groupVariablesByMsgType(std::map<std::string,std::vector<checkerVar
   }
 
   //Return a map with a placeholder as key and a vector of variables names as value
-inline  void groupVariablesByPlaceholders(std::pair<std::string,std::unordered_map<std::string,oden::Proposition*>>& parsedFormula,
+inline  void groupVariablesByPlaceholders(std::pair<std::pair<std::string,std::string>, std::unordered_map<std::string, oden::Proposition *>> &parsedFormula,
     std::map<std::string, std::vector<std::string>>& varsPH){
     for (auto p : parsedFormula.second) {
 

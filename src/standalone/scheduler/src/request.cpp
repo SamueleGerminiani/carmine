@@ -22,13 +22,12 @@ void Request::finish() {
 
 	
 if (!_noData) {
-	cv.notify_one();
 	Dispatcher::addRequest(this);
-	std::cout << "Slice ended!" << "\n";
+//	std::cout << "Slice ended!" << "\n";
 } else {
 	Dispatcher::addSleeper(this);
 	_noData = false;
-	 std::cout << "Ran out of data!" <<"\n";
+//	 std::cout << "Ran out of data!" <<"\n";
 }
 	sliceEnded = false;
 }

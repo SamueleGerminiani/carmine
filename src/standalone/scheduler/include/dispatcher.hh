@@ -26,6 +26,8 @@ private:
   static std::mutex sleepersMutex;
   static std::vector<Worker *> allWorkers;
   static std::vector<std::thread*> threads;
+  static size_t HPsum;
+  static size_t LPsum;
 
 static std::queue<std::pair<Request *,std::chrono::time_point<std::chrono::high_resolution_clock>>> sleepers;
   static std::thread* sh;

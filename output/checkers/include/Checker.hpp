@@ -35,7 +35,8 @@ class Checker {
 	virtual void notifyFailure() = 0;
 
 	size_t _priority = 0;
-	size_t _evaluations=0;
+	size_t _evaluationsHP=0;
+	size_t _evaluationsLP=0;
        protected:
 	Checker(size_t n,size_t priority) : nVars(n), _priority(priority),values_inside(64/nVars) {}
 
