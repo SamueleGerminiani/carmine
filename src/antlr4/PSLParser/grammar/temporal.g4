@@ -10,6 +10,7 @@ implication: ALWAYS '(' tformula IMPL tformula ')'
 	| ALWAYS '(' LGPAREN sere RGPAREN BIND2 tformula ')';
 
 sere : boolean
+     | TIMER '(' boolean ',' NUMERIC ')'
 	 | LPAREN sere RPAREN
 	 | LGPAREN sere RGPAREN
 	 | LCPAREN TIMES NUMERIC DOTS NUMERIC RCPAREN
@@ -21,7 +22,9 @@ sere : boolean
 	 | sere LCPAREN ASS NUMERIC DOTS NUMERIC RCPAREN
 	 | sere LCPAREN IMPL NUMERIC DOTS NUMERIC RCPAREN
 	 | sere AND sere
+	 | sere BAND sere
 	 | sere OR sere
+	 | sere BOR sere
 	 | DSYM1 NUMERIC sere
 	 | DSYM1 LCPAREN NUMERIC DOTS NUMERIC RCPAREN sere
 	 | sere DSYM1 NUMERIC sere

@@ -14,7 +14,8 @@
 #include <deque>
 #include "msg_gen/Num.h"
 #include "msg_gen/Num.h"
-#define INIT_CheckerT0 0
+#include "msg_gen/Num.h"
+#define INIT_CheckerT0 1
 
 #define BUFF_SIZE 1'000'000
 #define MIGRATION_TH 10
@@ -51,6 +52,7 @@ public:
 
    void addEvent_var0(ros::Time ts, bool value);
    void addEvent_var1(ros::Time ts, bool value);
+   void addEvent_var2(ros::Time ts, bool value);
 
 
 	union Value{
@@ -62,10 +64,14 @@ public:
             case 1:
                _v2 = var;
                break;
+            case 2:
+               _v3 = var;
+               break;
             }
          }
       bool _v1;
       bool _v2;
+      bool _v3;
 
 	};
 	// used to have a common data type for all variables <timestamp,var>
@@ -82,7 +88,7 @@ public:
 
 	std::vector<Event> vbuff;
 
-   bool eval_CheckerT0(bool p0,bool p1,bool reset = false);
+   bool eval_CheckerT0(bool p0,bool p1,bool p2,bool reset = false);
 
 	
 	
@@ -99,7 +105,7 @@ public:
     }
     bool getTimerValue(size_t timerID, size_t timerInstance, bool isAss) {
         if (isAss) {
-            if (_timerInstances.at(timerID).empty()) {
+            if (timerInstance>=_timerInstances.at(timerID).size()) {
                 _timerCache[timerID].push_back(0);
                 return 0;
             }
@@ -109,13 +115,14 @@ public:
             _timerCache[timerID].push_back(val);
             return val;
         } else {
+            assert(!_timerCache.at(timerID).empty());
             bool val = _timerCache.at(timerID).front();
             _timerCache.at(timerID).pop_front();
             return val;
         }
     }
     void resetChecker() {
-        for (size_t j = 0; j < 4; j++) {
+        for (size_t j = 0; j < 6; j++) {
             currAss[j] = 0;
             nextAss[j] = 0;
         }
@@ -148,6 +155,7 @@ public:
 
    bool last_p0 = false;
    bool last_p1 = false;
+   bool last_p2 = false;
 
 	
 	uint64_t* order;
@@ -155,8 +163,8 @@ public:
     std::map<size_t, std::deque<double>> _timerInstances;
     std::map<size_t, std::deque<bool>> _timerCache;
     std::vector<size_t> _timeouts;
-    size_t currAss[4];
-    size_t nextAss[4];
+    size_t currAss[6];
+    size_t nextAss[6];
     size_t currAnt[3];
     size_t nextAnt[3];
     bool printOnce1 = 1;

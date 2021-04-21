@@ -781,14 +781,45 @@ void TemporalParserHandler::exitTformula(temporalParser::TformulaContext *ctx) {
 }
 void TemporalParserHandler::exitSere(temporalParser::SereContext *ctx) {
 
+  if (ctx->TIMER() != nullptr) {
+    std::stringstream ss;
+    ss << "("
+       << "start" << timerN << " & ("
+       << "(!stop" << timerN << " & "
+       << "!p" << placeholdN << ")"
+       << "[*];"
+       << "p" << placeholdN << "))";
+
+    _timers.emplace_back(
+        timerN++, std::stoull(ctx->NUMERIC()[0]->getText(), nullptr, 10));
+    _subFormulas.push(ss.str());
+    _phToProp["p" + std::to_string(placeholdN++)] = _proposition.top();
+    return;
+  }
   if (ctx->boolean() != nullptr) {
     _subFormulas.push("p" + std::to_string(placeholdN));
     _phToProp["p" + std::to_string(placeholdN++)] = _proposition.top();
     return;
   }
 
+  if (ctx->sere().size() == 2 && ctx->BAND() != nullptr) {
+    std::string newFormula = " & " + _subFormulas.top();
+    _subFormulas.pop();
+    newFormula = _subFormulas.top() + newFormula;
+    _subFormulas.pop();
+    _subFormulas.push(newFormula);
+    return;
+  }
   if (ctx->sere().size() == 2 && ctx->AND() != nullptr) {
     std::string newFormula = " && " + _subFormulas.top();
+    _subFormulas.pop();
+    newFormula = _subFormulas.top() + newFormula;
+    _subFormulas.pop();
+    _subFormulas.push(newFormula);
+    return;
+  }
+  if (ctx->sere().size() == 2 && ctx->BOR() != nullptr) {
+    std::string newFormula = " | " + _subFormulas.top();
     _subFormulas.pop();
     newFormula = _subFormulas.top() + newFormula;
     _subFormulas.pop();

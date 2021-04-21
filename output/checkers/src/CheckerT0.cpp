@@ -128,11 +128,13 @@ bool CheckerT0::sendBufferServer(verification_env::sendBuffer::Request &req, ver
 			auto val = (req.buffer_p)[i];
          bool p0 = val & (1ULL << 0);
          bool p1 = val & (1ULL << 1);
-         assign<bool>(pbuff, index_p ,p0 ,p1);
+         bool p2 = val & (1ULL << 2);
+         assign<bool>(pbuff, index_p ,p0 ,p1 ,p2);
          val = (req.buffer_o)[i];
          p0 = val & (1ULL << 0);
          p1 = val & (1ULL << 1);
-         assign<bool>(order, index_p ,p0 ,p1);
+         p2 = val & (1ULL << 2);
+         assign<bool>(order, index_p ,p0 ,p1 ,p2);
 
 			index_p = (index_p >= BUFF_SIZE - 1) ? 0 : index_p + 1;
 			buff_mutex.lock();
@@ -200,7 +202,10 @@ CheckerT0::CheckerT0(size_t nVars,size_t priority, std::string handlerName, std:
 
    _timerInstances[0];
    _timerCache[0];
-   _timeouts.push_back(5000);
+   _timeouts.push_back(1000);
+   _timerInstances[1];
+   _timerCache[1];
+   _timeouts.push_back(10000);
 
 
 
@@ -214,58 +219,102 @@ CheckerT0::~CheckerT0() {
 }
 
 //Return true if checker did not fail
-inline bool CheckerT0::eval_CheckerT0(bool p0, bool p1, bool const reset){
+inline bool CheckerT0::eval_CheckerT0(bool p0, bool p1, bool p2, bool const reset){
    if(reset){
       resetChecker();
       return 1;
    }
-    currAss[0]++;
+    currAss[1]++;
     for (size_t i = 0; i < currAss[0]; i++) {
-      bool stop0 = getTimerValue(0, i, 1);
-      if((!p0 || (p1 && 1))){
-         endIns+=currAss[0];
-         break;
+      bool stop1 = getTimerValue(1, i, 1);
+      if((!p2 && !stop1)){
+          nextAss[0]++;
       }
-      if((p0 && !p1 && 1 && !stop0)){
-         addTimerValue(0);
-          nextAss[2]++;
+      else if(p2){
+         popTimerInst(1,1);
+         endIns++;
       }
-      if(((p0 && !p1 && stop0) || (p0 && !1))){
+      else if((!p2 && stop1)){
          return 0;
       }
    }
     currAss[0]=0;
+    for (size_t i = 0; i < currAss[1]; i++) {
+      bool stop0 = getTimerValue(0, i, 1);
+      bool stop1 = getTimerValue(1, i, 1);
+      if(((p0 && !p2 && !1 && 1 && !stop1) || (p0 && !p1 && !p2 && 1 && stop0 && !stop1))){
+         addTimerValue(0);
+         addTimerValue(1);
+          nextAss[0]++;
+      }
+      else if(((p0 && !p1 && 1 && !1 && !stop0) || (p0 && !p1 && !p2 && 1 && !stop0 && stop1))){
+         addTimerValue(0);
+         addTimerValue(1);
+          nextAss[2]++;
+      }
+      else if((p0 && !p1 && !p2 && 1 && 1 && !stop0 && !stop1)){
+         addTimerValue(0);
+         addTimerValue(1);
+          nextAss[3]++;
+      }
+      else if((!p0 || (p1 && 1) || (p2 && 1))){
+         endIns++;
+      }
+      else if(((p0 && !1 && !1) || (p0 && !p2 && !1 && stop1) || (p0 && !p1 && !1 && stop0) || (p0 && !p1 && !p2 && stop0 && stop1))){
+         return 0;
+      }
+   }
+    currAss[1]=0;
     for (size_t i = 0; i < currAss[2]; i++) {
       bool stop0 = getTimerValue(0, i, 1);
-      if(p1){
-         popTimerInst(0,currAss[2]);
-         endIns+=currAss[2];
-         break;
-      }
       if((!p1 && !stop0)){
           nextAss[2]++;
       }
-      if((!p1 && stop0)){
+      else if(p1){
+         popTimerInst(0,1);
+         endIns++;
+      }
+      else if((!p1 && stop0)){
          return 0;
       }
    }
     currAss[2]=0;
-   for (size_t i = 0; i <4; i++) {
+    for (size_t i = 0; i < currAss[3]; i++) {
+      bool stop0 = getTimerValue(0, i, 1);
+      bool stop1 = getTimerValue(1, i, 1);
+      if((!p1 && !p2 && stop0 && !stop1)){
+          nextAss[0]++;
+      }
+      else if((!p1 && !p2 && !stop0 && stop1)){
+          nextAss[2]++;
+      }
+      else if((!p1 && !p2 && !stop0 && !stop1)){
+          nextAss[3]++;
+      }
+      else if((p1 || p2)){
+         popTimerInst(0,1);
+         popTimerInst(1,1);
+         endIns++;
+      }
+      else if((!p1 && !p2 && stop0 && stop1)){
+         return 0;
+      }
+   }
+    currAss[3]=0;
+   for (size_t i = 0; i <6; i++) {
           currAss[i] = nextAss[i];
           nextAss[i] = 0;
    }
-    currAnt[0]++;
-    for (size_t i = 0; i < currAnt[0]; i++) {
+    currAnt[1]++;
+    for (size_t i = 0; i < currAnt[1]; i++) {
       if(p0){
-         conIns+=currAnt[0];
-         break;
+         conIns++;
       }
-      if(!p0){
-         endIns-=currAnt[0];
-         break;
+      else if(!p0){
+         endIns--;
       }
    }
-    currAnt[0]=0;
+    currAnt[1]=0;
    for (size_t i = 0; i <3; i++) {
           currAnt[i] = nextAnt[i];
           nextAnt[i] = 0;
@@ -317,17 +366,20 @@ bool CheckerT0::eval() {
    if (order_entry & (1ULL << 1)) {
       last_p1= pbuff_entry & (1ULL << 1);
    }
+   if (order_entry & (1ULL << 2)) {
+      last_p2= pbuff_entry & (1ULL << 2);
+   }
 
 
 
 	evalIndex_p = (evalIndex_p >= BUFF_SIZE - 1) ? 0 : evalIndex_p + 1;
 	state_mutex.lock();
 
-   if (!eval_CheckerT0(last_p0,last_p1)){
+   if (!eval_CheckerT0(last_p0,last_p1,last_p2)){
       notify_mutex.lock();
       notifyFailure();
       notify_mutex.unlock();
-      eval_CheckerT0(0,0,1);
+      eval_CheckerT0(0,0,0,1);
    }
 
 	state_mutex.unlock();
@@ -344,6 +396,7 @@ void CheckerT0::reorder(bool forceReorder) {
 		
    static bool v1;
    static bool v2;
+   static bool v3;
 
 
 		for (auto event : vbuff) {
@@ -351,15 +404,22 @@ void CheckerT0::reorder(bool forceReorder) {
                case 0:{
                   v1 = event._value._v1;
                   const bool p0 = v1;
-                  assign<bool>(pbuff, index_p, p0, 0);
-                  assign<bool>(order, index_p, 1, 0);
+                  assign<bool>(pbuff, index_p, p0, 0, 0);
+                  assign<bool>(order, index_p, 1, 0, 0);
                }
                break;
                case 1:{
                   v2 = event._value._v2;
                   const bool p1 = v2;
-                  assign<bool>(pbuff, index_p, 0, p1);
-                  assign<bool>(order, index_p, 0, 1);
+                  assign<bool>(pbuff, index_p, 0, p1, 0);
+                  assign<bool>(order, index_p, 0, 1, 0);
+               }
+               break;
+               case 2:{
+                  v3 = event._value._v3;
+                  const bool p2 = v3;
+                  assign<bool>(pbuff, index_p, 0, 0, p2);
+                  assign<bool>(order, index_p, 0, 0, 1);
                }
                break;
 
@@ -401,6 +461,18 @@ void CheckerT0::addEvent_var1(ros::Time ts, bool value){
    else{
       addEvent_mutex.lock();
       vbuff.push_back(Event(ts, Value(value, 1),1));
+      reorder();
+      addEvent_mutex.unlock();
+   }
+}
+void CheckerT0::addEvent_var2(ros::Time ts, bool value){
+   if(checkerPhase == pausing && ts > timestampToReach){
+      sendBufferClient(_remoteHandlerName);
+      checkerPhase = paused;
+   }
+   else{
+      addEvent_mutex.lock();
+      vbuff.push_back(Event(ts, Value(value, 2),2));
       reorder();
       addEvent_mutex.unlock();
    }

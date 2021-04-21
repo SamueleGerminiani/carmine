@@ -53,6 +53,18 @@ void callbackV1(const msg_gen::Num::Ptr& msg){
       }
    }
 }
+//Callback for topic V3
+void callbackV2(const msg_gen::Num::Ptr& msg){
+   for (const auto& e : chs) {
+      auto checker = e.second;
+      if(checker -> getPhase() != Checker::Phase::paused){
+         if(dynamic_cast<CheckerT0*>(checker) != NULL){
+            CheckerT0 *ch = dynamic_cast<CheckerT0*>(checker);
+            ch->addEvent_var2(msg->header.stamp, msg->num);
+         }
+      }
+   }
+}
 
 
 
@@ -96,10 +108,10 @@ int main(int argc, char** argv) {
 	ros::init(argc, argv, "handler0", ros::init_options::NoSigintHandler);
 	ros::NodeHandle n;
 
-   ros::CallbackQueue *queue_0, *queue_1;
-   ros::Subscriber *sub_0, *sub_1;
-   std::thread *thread_0, *thread_1;
-   ros::SingleThreadedSpinner *spinner_0, *spinner_1;
+   ros::CallbackQueue *queue_0, *queue_1, *queue_2;
+   ros::Subscriber *sub_0, *sub_1, *sub_2;
+   std::thread *thread_0, *thread_1, *thread_2;
+   ros::SingleThreadedSpinner *spinner_0, *spinner_1, *spinner_2;
 
    queue_0 = new ros::CallbackQueue;
    n.setCallbackQueue(queue_0);
@@ -119,6 +131,15 @@ int main(int argc, char** argv) {
       spinner_1->spin(queue_1);
    });
 
+   queue_2 = new ros::CallbackQueue;
+   n.setCallbackQueue(queue_2);
+   sub_2 = new ros::Subscriber;
+   *sub_2 = n.subscribe("V3", 1000, callbackV2, ros::TransportHints().tcpNoDelay());
+   thread_2 = new std::thread([&queue_2, &spinner_2]() {
+      spinner_2 = new ros::SingleThreadedSpinner;
+      spinner_2->spin(queue_2);
+   });
+
 
 
 	// init checkers
@@ -132,7 +153,7 @@ int main(int argc, char** argv) {
 	//Client
 
    std::string handlerName = "handler0";
-   chs["CheckerT0"] = new CheckerT0(2,1,handlerName, "CheckerT0",false);
+   chs["CheckerT0"] = new CheckerT0(3,1,handlerName, "CheckerT0",false);
 
 
 	//Services
@@ -157,6 +178,7 @@ int main(int argc, char** argv) {
 
    thread_0->join();
    thread_1->join();
+   thread_2->join();
    keepPolling = false;
 
    delete thread_0;
@@ -168,6 +190,11 @@ int main(int argc, char** argv) {
    delete sub_1;
    delete spinner_1;
    delete queue_1;
+
+   delete thread_2;
+   delete sub_2;
+   delete spinner_2;
+   delete queue_2;
 
 
 

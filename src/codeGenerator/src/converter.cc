@@ -1,5 +1,8 @@
 #include "converter.hh"
 #include "types.hh"
+#include <spot/twaalgos/isdet.hh>
+#include <spot/twaalgos/minimize.hh>
+#include <spot/twaalgos/powerset.hh>
 #include <string>
 #include <utility>
 
@@ -43,21 +46,25 @@ generateAutomata(const PSLformula &formula, const PSLformula &ant) {
                  "SpotLTL: Syntax errors in assertion:\n" + formula);
 
   spot::translator trans;
-  trans.set_pref(spot::postprocessor::Complete);
-  trans.set_type(spot::postprocessor::BA);
+  trans.set_pref(spot::postprocessor::Deterministic);
 
   auto res = trans.run(pf.f);
   auto resAnt = trans.run(pant.f);
+  spot::postprocessor post;
+  post.set_pref(spot::postprocessor::Complete);
+  res = post.run(res);
+  resAnt = post.run(resAnt);
 
   //    DEBUG
   // print_hoa(std::cout, res) << '\n';
 
   // Check if automata is deterministic
 
-  if (!(spot::is_universal(res))) {
+  if (!(spot::is_deterministic(res)) || !(spot::is_deterministic(resAnt))) {
     std::cout
-        << "WARNING: could not generate deterministic automata for formula "
+        << "Error: could not generate deterministic automata for formula "
         << formula << std::endl;
+    exit(1);
   }
 
   return std::make_pair(res, resAnt);
@@ -126,12 +133,18 @@ void generateChecker(
                 << " = getTimerValue(" << t << ", i, 1);\n";
     }
 
+    bool firstEdge = true;
     for (auto &edge : autAss->out(state)) {
       spot::formula f =
           spot::parse_formula(spot::bdd_format_formula(dict, edge.cond));
       // Convert formula to string format
       std::string stringF = formulaToString(f);
-      outstream << codeGenerator::ident2 << "if(" << stringF << "){\n";
+      if (firstEdge) {
+        outstream << codeGenerator::ident2 << "if(" << stringF << "){\n";
+        firstEdge = 0;
+      } else {
+        outstream << codeGenerator::ident2 << "else if(" << stringF << "){\n";
+      }
 
       // term edges
       auto nextState = autAss->state_from_number(edge.dst);
@@ -139,16 +152,17 @@ void generateChecker(
       if (it->first() && (it->dst()->hash() == nextState->hash()) &&
           !it->next()) {
         if (autAss->state_is_accepting(nextState)) {
-          for (size_t i = 0; i < timer::timers.size(); i++) {
-            if (!tokenExists(f, "start" + std::to_string(i))) {
-              outstream << codeGenerator::ident3 << "popTimerInst(" << i << ","
-                        << "currAss[" << state << "]);" << std::endl;
+          for (auto t : timers) {
+            if (!tokenExists(f, "start" + std::to_string(t))) {
+              //outstream << codeGenerator::ident3 << "popTimerInst(" << t << "," << "currAss[" << state << "]);" << std::endl;
+              outstream << codeGenerator::ident3 << "popTimerInst(" << t << "," << "1);" << std::endl;
             }
           }
 
-          outstream << codeGenerator::ident3 << "endIns+="
-                    << "currAss[" << state << "];" << std::endl;
-          outstream << codeGenerator::ident3 << "break;" << std::endl;
+          outstream << codeGenerator::ident3 << "endIns++;"<< std::endl;
+          //outstream << codeGenerator::ident3 << "endIns+="
+          //          << "currAss[" << state << "];" << std::endl;
+          //outstream << codeGenerator::ident3 << "break;" << std::endl;
         } else {
           outstream << codeGenerator::ident3 << "return 0;" << std::endl;
         }
@@ -179,7 +193,8 @@ void generateChecker(
 
   // ant
 
-  outstream << codeGenerator::ident1 << " currAnt[" << autAnt->get_init_state_number() << "]++;\n";
+  outstream << codeGenerator::ident1 << " currAnt["
+            << autAnt->get_init_state_number() << "]++;\n";
   num_states = autAnt->num_states();
   for (unsigned state = 0; state < num_states; state++) {
 
@@ -209,12 +224,18 @@ void generateChecker(
                 << " = getTimerValue(" << t << ", i, 0);\n";
     }
 
+    bool firstEdge = true;
     for (auto &edge : autAnt->out(state)) {
       spot::formula f =
           spot::parse_formula(spot::bdd_format_formula(dict, edge.cond));
       // Convert formula to string format
       std::string stringF = formulaToString(f);
-      outstream << codeGenerator::ident2 << "if(" << stringF << "){\n";
+      if (firstEdge) {
+        outstream << codeGenerator::ident2 << "if(" << stringF << "){\n";
+        firstEdge = 0;
+      } else {
+        outstream << codeGenerator::ident2 << "else if(" << stringF << "){\n";
+      }
 
       // term edges
       auto nextState = autAnt->state_from_number(edge.dst);
@@ -223,13 +244,16 @@ void generateChecker(
           !it->next()) {
         if (autAnt->state_is_accepting(nextState)) {
 
-          outstream << codeGenerator::ident3 << "conIns+="
-                    << "currAnt[" << state << "];" << std::endl;
-          outstream << codeGenerator::ident3 << "break;" << std::endl;
+        //  outstream << codeGenerator::ident3 << "conIns+="
+        //            << "currAnt[" << state << "];" << std::endl;
+        //  outstream << codeGenerator::ident3 << "break;" << std::endl;
+          outstream << codeGenerator::ident3 << "conIns++;"<< std::endl;
         } else {
-          outstream << codeGenerator::ident3 << "endIns-="
-                    << "currAnt[" << state << "];" << std::endl;
-          outstream << codeGenerator::ident3 << "break;" << std::endl;
+          //outstream << codeGenerator::ident3 << "endIns-="
+          //          << "currAnt[" << state << "];" << std::endl;
+          //outstream << codeGenerator::ident3 << "break;" << std::endl;
+
+          outstream << codeGenerator::ident3 << "endIns--;"<< std::endl;
         }
       } else {
         // non terminal
@@ -249,13 +273,11 @@ void generateChecker(
   outstream << codeGenerator::ident2 << "    nextAnt[i] = 0;\n";
   outstream << codeGenerator::ident1 << "}\n";
 
-outstream << codeGenerator::ident1 << "if (conIns - endIns > 0) {\n";
-outstream << codeGenerator::ident2 << "_priority = 2;\n";
-outstream << codeGenerator::ident1 << "} else if (conIns - endIns <= 0) {\n";
-outstream << codeGenerator::ident2 << "_priority = 1;\n";
-outstream << codeGenerator::ident1 << "}\n";
-
-
+  outstream << codeGenerator::ident1 << "if (conIns - endIns > 0) {\n";
+  outstream << codeGenerator::ident2 << "_priority = 2;\n";
+  outstream << codeGenerator::ident1 << "} else if (conIns - endIns <= 0) {\n";
+  outstream << codeGenerator::ident2 << "_priority = 1;\n";
+  outstream << codeGenerator::ident1 << "}\n";
 
   outstream << "\n" << codeGenerator::ident1 << "return true;" << std::endl;
   outstream << "}" << std::endl; // close function
@@ -354,11 +376,15 @@ std::string formulaToString(const spot::formula f) {
 
   // Atomic proposition
   if (f.is(spot::op::ap)) {
-    if (f.ap_name().find("start", 0) != std::string::npos) {
+    if (f.is_tt() || f.ap_name().find("start", 0) != std::string::npos) {
       return "1";
     }
     return f.ap_name();
   }
+
+    if (f.is_tt()) {
+      return "1";
+    }
   return "";
 }
 

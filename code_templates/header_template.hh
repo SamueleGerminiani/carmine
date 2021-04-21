@@ -81,7 +81,7 @@ $eval
     }
     bool getTimerValue(size_t timerID, size_t timerInstance, bool isAss) {
         if (isAss) {
-            if (_timerInstances.at(timerID).empty()) {
+            if (timerInstance>=_timerInstances.at(timerID).size()) {
                 _timerCache[timerID].push_back(0);
                 return 0;
             }
@@ -91,6 +91,7 @@ $eval
             _timerCache[timerID].push_back(val);
             return val;
         } else {
+            assert(!_timerCache.at(timerID).empty());
             bool val = _timerCache.at(timerID).front();
             _timerCache.at(timerID).pop_front();
             return val;
