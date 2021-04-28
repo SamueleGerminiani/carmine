@@ -15,7 +15,7 @@
 #include "msg_gen/Num.h"
 #include "msg_gen/Num.h"
 #include "msg_gen/Num.h"
-#define INIT_CheckerT0 1
+#define INIT_CheckerT0 3
 
 #define BUFF_SIZE 1'000'000
 #define MIGRATION_TH 10

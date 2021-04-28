@@ -202,10 +202,10 @@ CheckerT0::CheckerT0(size_t nVars,size_t priority, std::string handlerName, std:
 
    _timerInstances[0];
    _timerCache[0];
-   _timeouts.push_back(1000);
+   _timeouts.push_back(2000);
    _timerInstances[1];
    _timerCache[1];
-   _timeouts.push_back(10000);
+   _timeouts.push_back(5000);
 
 
 
@@ -224,57 +224,39 @@ inline bool CheckerT0::eval_CheckerT0(bool p0, bool p1, bool p2, bool const rese
       resetChecker();
       return 1;
    }
-    currAss[1]++;
-    for (size_t i = 0; i < currAss[0]; i++) {
+    currAss[3]++;
+    for (size_t i = 0; i < currAss[1]; i++) {
       bool stop1 = getTimerValue(1, i, 1);
-      if((!p2 && !stop1)){
-          nextAss[0]++;
-      }
-      else if(p2){
+      if(p2){
          popTimerInst(1,1);
          endIns++;
       }
+      else if((!p2 && !stop1)){
+          nextAss[1]++;
+      }
       else if((!p2 && stop1)){
-         return 0;
-      }
-   }
-    currAss[0]=0;
-    for (size_t i = 0; i < currAss[1]; i++) {
-      bool stop0 = getTimerValue(0, i, 1);
-      bool stop1 = getTimerValue(1, i, 1);
-      if(((p0 && !p2 && !1 && 1 && !stop1) || (p0 && !p1 && !p2 && 1 && stop0 && !stop1))){
-         addTimerValue(0);
-         addTimerValue(1);
-          nextAss[0]++;
-      }
-      else if(((p0 && !p1 && 1 && !1 && !stop0) || (p0 && !p1 && !p2 && 1 && !stop0 && stop1))){
-         addTimerValue(0);
-         addTimerValue(1);
-          nextAss[2]++;
-      }
-      else if((p0 && !p1 && !p2 && 1 && 1 && !stop0 && !stop1)){
-         addTimerValue(0);
-         addTimerValue(1);
-          nextAss[3]++;
-      }
-      else if((!p0 || (p1 && 1) || (p2 && 1))){
-         endIns++;
-      }
-      else if(((p0 && !1 && !1) || (p0 && !p2 && !1 && stop1) || (p0 && !p1 && !1 && stop0) || (p0 && !p1 && !p2 && stop0 && stop1))){
          return 0;
       }
    }
     currAss[1]=0;
     for (size_t i = 0; i < currAss[2]; i++) {
       bool stop0 = getTimerValue(0, i, 1);
-      if((!p1 && !stop0)){
-          nextAss[2]++;
-      }
-      else if(p1){
+      bool stop1 = getTimerValue(1, i, 1);
+      if((p1 && p2)){
          popTimerInst(0,1);
+         popTimerInst(1,1);
          endIns++;
       }
-      else if((!p1 && stop0)){
+      else if((p1 && !p2 && !stop1)){
+          nextAss[1]++;
+      }
+      else if((!p1 && !p2 && !stop0 && !stop1)){
+          nextAss[2]++;
+      }
+      else if((!p1 && p2 && !stop0)){
+          nextAss[4]++;
+      }
+      else if(((!p1 && stop0) || (!p2 && stop1))){
          return 0;
       }
    }
@@ -282,25 +264,41 @@ inline bool CheckerT0::eval_CheckerT0(bool p0, bool p1, bool p2, bool const rese
     for (size_t i = 0; i < currAss[3]; i++) {
       bool stop0 = getTimerValue(0, i, 1);
       bool stop1 = getTimerValue(1, i, 1);
-      if((!p1 && !p2 && stop0 && !stop1)){
-          nextAss[0]++;
-      }
-      else if((!p1 && !p2 && !stop0 && stop1)){
-          nextAss[2]++;
-      }
-      else if((!p1 && !p2 && !stop0 && !stop1)){
-          nextAss[3]++;
-      }
-      else if((p1 || p2)){
-         popTimerInst(0,1);
-         popTimerInst(1,1);
+      if((!p0 || (p1 && p2 && 1 && 1))){
          endIns++;
       }
-      else if((!p1 && !p2 && stop0 && stop1)){
+      else if((p0 && p1 && !p2 && 1 && 1 && !stop1)){
+         addTimerValue(1);
+          nextAss[1]++;
+      }
+      else if((p0 && !p1 && !p2 && 1 && 1 && !stop0 && !stop1)){
+         addTimerValue(0);
+         addTimerValue(1);
+          nextAss[2]++;
+      }
+      else if((p0 && !p1 && p2 && 1 && 1 && !stop0)){
+         addTimerValue(0);
+          nextAss[4]++;
+      }
+      else if(((p0 && !p1 && stop0) || (p0 && !1) || (p0 && !p2 && stop1) || (p0 && !1))){
          return 0;
       }
    }
     currAss[3]=0;
+    for (size_t i = 0; i < currAss[4]; i++) {
+      bool stop0 = getTimerValue(0, i, 1);
+      if(p1){
+         popTimerInst(0,1);
+         endIns++;
+      }
+      else if((!p1 && !stop0)){
+          nextAss[4]++;
+      }
+      else if((!p1 && stop0)){
+         return 0;
+      }
+   }
+    currAss[4]=0;
    for (size_t i = 0; i <6; i++) {
           currAss[i] = nextAss[i];
           nextAss[i] = 0;

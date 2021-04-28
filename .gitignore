@@ -7,3 +7,4 @@ setUpFiles.txt
 *.srctrldb
 *.srctrlprj
 build/*
+verification_env
