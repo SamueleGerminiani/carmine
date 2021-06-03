@@ -75,3 +75,4 @@ class Checker {
 		       (nVars * (index % values_inside));
 	}
 };
+

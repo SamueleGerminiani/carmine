@@ -8,3 +8,5 @@ setUpFiles.txt
 *.srctrlprj
 build/*
 verification_env
+.cache/*
+output/*

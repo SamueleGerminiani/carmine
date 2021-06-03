@@ -7,11 +7,12 @@
 #include <cmath>
 #include <cstdio>
 #include <dirent.h>
-#include <experimental/filesystem>
+#include <filesystem>
 #include <fstream>
 #include <numeric>
 #include <spot/tl/formula.hh>
 #include <string>
+using namespace std::filesystem;
 
 namespace timer {
 std::vector<std::pair<size_t, size_t>> timers;
@@ -40,17 +41,21 @@ bool generateCpp(
     aps.push_back(ap);
   }
 
-  std::ifstream src("code_templates/class_template.cpp");
+ std::ifstream src("src/standalone/code_templates/class_template.cpp");
+
+remove_all(path("build/output"));
+create_directories("build/output/checkers/src");
+create_directories("build/output/checkers/include");
 
   if (src.fail()) {
     std::cout << "Error: could not open class_template.cpp" << std::endl;
     return false;
   }
 
-  std::ofstream dst("output/checkers/src/" + checkerName + ".cpp");
+  std::ofstream dst("build/output/checkers/src/" + checkerName + ".cpp");
 
   if (dst.fail()) {
-    std::cout << "Error: could not open output/checkers/src/" << checkerName
+    std::cout << "Error: could not open build/output/checkers/src/" << checkerName
               << ".cpp" << std::endl;
     return false;
   }
@@ -265,16 +270,16 @@ bool generateHeader(
     std::pair<codeGenerator::SpotAutomata, codeGenerator::SpotAutomata> &fsms,
     std::vector<checkerVar> &varList, std::string &checkerName) {
   // Copy templates in new files replacing generic names
-  std::ifstream src("code_templates/header_template.hh");
+  std::ifstream src("src/standalone/code_templates/header_template.hh");
   if (src.fail()) {
     std::cout << "Error: could not open header_template.hh" << std::endl;
     return false;
   }
 
-  std::ofstream dst("output/checkers/include/" + checkerName + ".hh");
+  std::ofstream dst("build/output/checkers/include/" + checkerName + ".hh");
 
   if (dst.fail()) {
-    std::cout << "Error: could not open output/checkers/include/" << checkerName
+    std::cout << "Error: could not open build/output/checkers/include/" << checkerName
               << ".hh" << std::endl;
     return false;
   }
@@ -430,13 +435,14 @@ bool generateHeader(
 // Generate handler code
 bool generateHandler(rapidxml::XmlNodeList &checkers, int nVars[],
                      std::string handlerName, std::string migrateTo) {
-  std::ifstream src("code_templates/handler_template.cpp");
+  std::ifstream src("src/standalone/code_templates/handler_template.cpp");
   if (src.fail()) {
     std::cout << "Error: could not open handler_template.cpp" << std::endl;
     return false;
   }
 
-  std::ofstream dst("output/ver_env/src/ver_env.cpp");
+create_directories("build/output/ver_env/src");
+  std::ofstream dst("build/output/ver_env/src/ver_env.cpp");
 
   if (dst.fail()) {
     std::cout << "Error: could not open output/ver_env/src/ver_env.cpp"
@@ -614,11 +620,11 @@ bool generateHandler(rapidxml::XmlNodeList &checkers, int nVars[],
 
 // Generate include header for handler class
 bool generateHeaderHandler(rapidxml::XmlNodeList &checkers) {
-  std::ofstream dst("output/checkers/include/include_checkers.hh");
+  std::ofstream dst("build/output/checkers/include/include_checkers.hh");
 
   if (dst.fail()) {
     std::cout
-        << "Error: could not open output/checkers/include/include_checkers.hh"
+        << "Error: could not open build/output/checkers/include/include_checkers.hh"
         << std::endl;
     return false;
   }
@@ -740,7 +746,7 @@ void parseCommandLineArguments(int argc, char *args[],
   if (result.count("d")) {
     std::cout << "Adding files from directory: "
               << result["d"].as<std::string>() << "\n";
-    for (const auto &entry : std::experimental::filesystem::directory_iterator(
+    for (const auto &entry : directory_iterator(
              result["d"].as<std::string>())) {
       if (entry.path().extension() == ".xml") {
         files.push_back(entry.path().u8string());

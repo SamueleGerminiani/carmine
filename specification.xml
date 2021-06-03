@@ -13,7 +13,7 @@
 				<msgField>num</msgField>
 			</variable>
 		</checker-->
-        <checker name="CheckerT0" description="simple checker" LTLformula="G(v1 ->{$timeout(v2,2000) & $timeout(v3,5000)})">
+        <checker name="CheckerT0" description="simple checker" LTLformula="G(v1 ->$timeout(v2,2000) & $timeout(v3,5000))">
 			<variable decl="bool v1">
 				<rosTopic>V1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
