@@ -19,6 +19,7 @@ include_directories(
 
 SET(CODE_GENERATOR_SRCS
    ./src/converter.cc
+   ./src/codeGenerator.cc
     )
 #############################################
 # Sources.
