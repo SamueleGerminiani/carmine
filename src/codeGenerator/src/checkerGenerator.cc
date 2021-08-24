@@ -3,6 +3,7 @@
 #include "converter.hh"
 #include "odenCore.hh"
 #include "parserUtils.hh"
+#include "globals.hh"
 #include <cmath>
 #include <cstdio>
 #include <dirent.h>
@@ -14,12 +15,7 @@
 
 using namespace std::filesystem;
 
-namespace timer {
-std::vector<std::pair<size_t, size_t>> timers;
-}
-
 namespace codeGenerator {
-std::map<std::string, std::vector<strVariable>> bindings;
 
 std::string formulaToString(const spot::formula f) {
 
@@ -112,11 +108,14 @@ bool generateCheckerSource(
     std::string &checkerName) {
 
   std::vector<spot::formula> aps;
+  auto autAss = fsms.first;
+  auto autAnt = fsms.second;
+  auto &phToProps = parsedFormula.second;
 
   // gather all the placeholders in the formula
   //'start' and 'stop' variables are used only to handle timers, we must
   // discard them from the list of placeholders
-  for (auto ap : fsms.first->ap()) {
+  for (auto ap : autAss->ap()) {
     if (ap.ap_name().find("start", 0) != std::string::npos ||
         ap.ap_name().find("stop", 0) != std::string::npos) {
       continue;
@@ -262,7 +261,7 @@ bool generateCheckerSource(
             line += codeGenerator::ident6 + "const bool " + placeholder + " = ";
 
             std::string expression =
-                oden::prop2String(*(parsedFormula.second[placeholder]));
+                oden::prop2String(*(phToProps[placeholder]));
 
             line += expression + ";\n";
           }
@@ -272,11 +271,11 @@ bool generateCheckerSource(
         std::sort(usedPlaceholders.begin(), usedPlaceholders.end());
 
         line += codeGenerator::ident6 + "assign<bool>(pbuff, index_p";
-        line += getPbuffEntries(usedPlaceholders, parsedFormula.second.size());
+        line += getPbuffEntries(usedPlaceholders, phToProps.size());
         line += ");\n";
 
         line += codeGenerator::ident6 + "assign<bool>(order, index_p";
-        line += getOrderEntries(usedPlaceholders, parsedFormula.second.size());
+        line += getOrderEntries(usedPlaceholders, phToProps.size());
         line += ");\n";
 
         line +=
@@ -331,6 +330,9 @@ bool generateCheckerSource(
 bool generateCheckerHeader(
     std::pair<codeGenerator::SpotAutomata, codeGenerator::SpotAutomata> &fsms,
     std::vector<strVariable> &varList, std::string &checkerName) {
+  auto autAss = fsms.first;
+  auto autAnt = fsms.second;
+
   // Copy templates in new files replacing the tokens
   std::ifstream src("src/standalone/code_templates/checker_template.hh");
   if (src.fail()) {
@@ -352,7 +354,7 @@ bool generateCheckerHeader(
   std::string line;
   std::vector<spot::formula> aps;
 
-  for (auto ap : fsms.first->ap()) {
+  for (auto ap : autAss->ap()) {
     if (ap.ap_name().find("start", 0) != std::string::npos ||
         ap.ap_name().find("stop", 0) != std::string::npos) {
       continue;
@@ -364,11 +366,9 @@ bool generateCheckerHeader(
 
     while (replace(line, "$ClassName$", checkerName))
       ;
-    while (
-        replace(line, "$nStatesAss$", std::to_string(fsms.first->num_states())))
+    while (replace(line, "$nStatesAss$", std::to_string(autAss->num_states())))
       ;
-    while (replace(line, "$nStatesAnt$",
-                   std::to_string(fsms.second->num_states())))
+    while (replace(line, "$nStatesAnt$", std::to_string(autAnt->num_states())))
       ;
 
     // Code for placeholders initialization
@@ -450,7 +450,7 @@ bool generateCheckerHeader(
       }
 
       line += "#define INIT_" + checkerName + " " +
-              std::to_string(fsms.first->get_init_state_number()) + "\n";
+              std::to_string(autAss->get_init_state_number()) + "\n";
 
     }
 

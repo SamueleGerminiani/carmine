@@ -3,9 +3,6 @@
 #include "utils_functions.hpp"
 #include "xmlUtils.hh"
 using namespace oden;
-namespace timer {
-extern std::vector<std::pair<size_t, size_t>> timers;
-}
 namespace codeGenerator {
 
 bool generateCheckerSource(

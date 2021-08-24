@@ -1,3 +1,0 @@
-mkdir src include
-mv *.h include
-mv *.cpp src

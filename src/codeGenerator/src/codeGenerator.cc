@@ -5,9 +5,7 @@
 #include "parserUtils.hh"
 #include "specificationParser.hh"
 #include "types.hh"
-namespace timer {
-extern std::vector<std::pair<size_t, size_t>> timers;
-}
+#include "globals.hh"
 namespace codeGenerator {
 void generateVerEnv(const std::string &pathToSpec) {
 
@@ -29,7 +27,7 @@ void generateVerEnv(const std::string &pathToSpec) {
     // clear the timers used in the previous checkers (global var)
     timer::timers.clear();
 
-    //<<implication,antecedent>, map: placeholder -> Proposition>
+    //auto is <<implication,antecedent>, map: placeholder -> Proposition>
     auto parsedFormula = oden::parseLTLformula(ch._LTLformula, declarations, "",
                                                "", timer::timers);
 
