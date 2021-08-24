@@ -12,20 +12,21 @@ using namespace std::filesystem;
 namespace timer {
 std::vector<std::pair<size_t, size_t>> timers;
 }
-std::map<std::string, std::vector<checkerVar>> bindings;
+std::map<std::string, std::vector<strVariable>> bindings;
 
-static bool replace(std::string& str, const std::string& from, const std::string& to) {
-    size_t start_pos = str.find(from);
-    if(start_pos == std::string::npos)
-        return false;
-    str.replace(start_pos, from.length(), to);
-    return true;
+static bool replace(std::string &str, const std::string &from,
+                    const std::string &to) {
+  size_t start_pos = str.find(from);
+  if (start_pos == std::string::npos)
+    return false;
+  str.replace(start_pos, from.length(), to);
+  return true;
 }
 
 // Generate code for checker class
 bool generateCpp(
     std::pair<codeGenerator::SpotAutomata, codeGenerator::SpotAutomata> &fsms,
-    std::vector<checkerVar> &varList,
+    std::vector<strVariable> &varList,
     std::pair<std::pair<std::string, std::string>,
               std::unordered_map<std::string, oden::Proposition *>>
         &parsedFormula,
@@ -33,9 +34,9 @@ bool generateCpp(
 
   std::vector<spot::formula> aps;
 
-  //gather all the placeholders in the formula
+  // gather all the placeholders in the formula
   //'start' and 'stop' variables are used only to handle timers, we must
-  //discard them from the list of placeholders
+  // discard them from the list of placeholders
   for (auto ap : fsms.first->ap()) {
     if (ap.ap_name().find("start", 0) != std::string::npos ||
         ap.ap_name().find("stop", 0) != std::string::npos) {
@@ -63,16 +64,16 @@ bool generateCpp(
     return false;
   }
 
-
   // Read template file, and on each line replace $ClassName$
   // or generate code
 
-  std::map<std::string, std::vector<checkerVar>> parsedVars;
+  std::map<std::string, std::vector<strVariable>> parsedVars;
   groupVariablesByMsgType(parsedVars, varList);
   std::string line;
 
   while (getline(src, line)) {
-    while (replace(line,"$ClassName$",checkerName));  // To handle multiple occurences
+    while (replace(line, "$ClassName$", checkerName))
+      ; // To handle multiple occurences
 
     // Code for retrieving placeholder's values
     if (line.compare("$order_entry") == 0) {
@@ -127,8 +128,8 @@ bool generateCpp(
     else if (line.compare("$static_vars") == 0) {
       line = "";
       for (auto v : varList) {
-        line += codeGenerator::ident1 + "static " + v.type + " " + v.varName +
-                ";\n";
+        line +=
+            codeGenerator::ident1 + "static " + v._type + " " + v._name + ";\n";
       }
     }
     // Set buffer received during the migration
@@ -168,14 +169,14 @@ bool generateCpp(
         line +=
             codeGenerator::ident5 + "case " + std::to_string(count) + ":{\n";
 
-        line += codeGenerator::ident6 + v.varName + " = " + "event._value._" +
-                v.varName + ";\n";
+        line += codeGenerator::ident6 + v._name + " = " + "event._value._" +
+                v._name + ";\n";
 
         for (auto varPH : map) {
 
           // Check if a variable is in the expression replaced by the
           // placeholder
-          if (std::find(varPH.second.begin(), varPH.second.end(), v.varName) !=
+          if (std::find(varPH.second.begin(), varPH.second.end(), v._name) !=
               varPH.second.end()) {
             auto placeholder = varPH.first;
             usedPlaceholders.push_back(placeholder);
@@ -209,8 +210,8 @@ bool generateCpp(
     else if (line.compare("$addEvent") == 0) {
       line = "";
       int i = 0;
-      bindings.insert(std::pair<std::string, std::vector<checkerVar>>(
-          checkerName, std::vector<checkerVar>()));
+      bindings.insert(std::pair<std::string, std::vector<strVariable>>(
+          checkerName, std::vector<strVariable>()));
 
       for (auto v : varList) {
 
@@ -218,7 +219,7 @@ bool generateCpp(
 
         line += "void " + checkerName + "::addEvent_var" + std::to_string(i) +
                 "(ros::Time ts, ";
-        line += v.type + " value){\n";
+        line += v._type + " value){\n";
         line += codeGenerator::ident1 +
                 "if(checkerPhase == pausing && ts > timestampToReach){\n";
         line +=
@@ -250,7 +251,7 @@ bool generateCpp(
 // Generate header for checker class
 bool generateHeader(
     std::pair<codeGenerator::SpotAutomata, codeGenerator::SpotAutomata> &fsms,
-    std::vector<checkerVar> &varList, std::string &checkerName) {
+    std::vector<strVariable> &varList, std::string &checkerName) {
   // Copy templates in new files replacing the tokens
   std::ifstream src("src/standalone/code_templates/checker_template.hh");
   if (src.fail()) {
@@ -266,7 +267,7 @@ bool generateHeader(
     return false;
   }
 
-  std::map<std::string, std::vector<checkerVar>> parsedVars;
+  std::map<std::string, std::vector<strVariable>> parsedVars;
   groupVariablesByMsgType(parsedVars, varList);
 
   std::string line;
@@ -282,9 +283,14 @@ bool generateHeader(
 
   while (getline(src, line)) {
 
-    while (replace(line,"$ClassName$",checkerName)); 
-    while (replace(line,"$nStatesAss$",std::to_string(fsms.first->num_states())));  
-    while (replace(line,"$nStatesAnt$",std::to_string(fsms.second->num_states())));  
+    while (replace(line, "$ClassName$", checkerName))
+      ;
+    while (
+        replace(line, "$nStatesAss$", std::to_string(fsms.first->num_states())))
+      ;
+    while (replace(line, "$nStatesAnt$",
+                   std::to_string(fsms.second->num_states())))
+      ;
 
     // Code for placeholders initialization
     if (line.compare("$init") == 0) {
@@ -318,36 +324,36 @@ bool generateHeader(
 
       for (size_t i = 0; i < varList.size(); i++) {
         auto var = varList[i];
-        if (usedTypes.find(var.type) == usedTypes.end()) {
-          line += codeGenerator::ident2 + "Value(const " + var.type +
+        if (usedTypes.find(var._type) == usedTypes.end()) {
+          line += codeGenerator::ident2 + "Value(const " + var._type +
                   " var, size_t id)";
         }
 
         // There are at least 2 variables of the same type and the current
         // variable has not already been used
-        if (count[var.type] > 1 &&
-            usedTypes.find(var.type) == usedTypes.end()) {
+        if (count[var._type] > 1 &&
+            usedTypes.find(var._type) == usedTypes.end()) {
           line += "{\n";
           line += codeGenerator::ident3 + "switch (id) {\n";
           for (size_t j = i; j < varList.size(); j++) {
             auto var2 = varList[j];
-            if ((var2.type).compare(var.type) == 0) {
+            if ((var2._type).compare(var._type) == 0) {
               line +=
                   codeGenerator::ident4 + "case " + std::to_string(j) + ":\n";
-              line += codeGenerator::ident5 + "_" + var2.varName + " = var;\n";
+              line += codeGenerator::ident5 + "_" + var2._name + " = var;\n";
               line += codeGenerator::ident5 + "break;\n";
             }
           }
           line += codeGenerator::ident4 + "}\n";
           line += codeGenerator::ident3 + "}\n";
-          usedTypes.insert(var.type);
-        } else if (count[var.type] == 1) {
+          usedTypes.insert(var._type);
+        } else if (count[var._type] == 1) {
 
-          line += ": _" + var.varName + "(var){}\n";
+          line += ": _" + var._name + "(var){}\n";
         }
       }
       for (auto var : varList) {
-        line += codeGenerator::ident2 + var.type + " _" + var.varName + ";\n";
+        line += codeGenerator::ident2 + var._type + " _" + var._name + ";\n";
       }
 
     }
@@ -358,7 +364,7 @@ bool generateHeader(
       line = "";
       for (auto var : varList) {
         line += "#include \"";
-        auto msgType = var.msgType;
+        auto msgType = var._msgType;
         auto p = msgType.find_first_of(":");
         msgType.replace(p, 2, "/");
         line += msgType + ".h\"\n";
@@ -375,7 +381,7 @@ bool generateHeader(
       for (auto v : varList) {
         line += codeGenerator::ident1 + "void addEvent_var" +
                 std::to_string(i) + "(ros::Time ts, ";
-        line += v.type + " value);\n";
+        line += v._type + " value);\n";
         i++;
       }
     }
@@ -389,7 +395,7 @@ bool generateHeader(
 }
 
 // Generate handler code
-bool generateHandler(rapidxml::XmlNodeList &checkers, int nPhs[],
+bool generateHandler(std::vector<strChecker> &checkers, int nPhs[],
                      std::string handlerName, std::string migrateTo) {
   std::ifstream src("src/standalone/code_templates/handler_template.cpp");
   if (src.fail()) {
@@ -420,11 +426,10 @@ bool generateHandler(rapidxml::XmlNodeList &checkers, int nPhs[],
       int i = 0;
       for (auto ch : checkers) {
         bool paused = false;
-        auto checkerName = rapidxml::getAttributeValue(ch, "name", "");
         line += codeGenerator::ident1;
-        line += "chs[\"" + checkerName + "\"] = new " + checkerName + "(" +
+        line += "chs[\"" + ch._name + "\"] = new " + ch._name + "(" +
                 std::to_string(nPhs[i]) + ",1,";
-        line += std::string("handlerName, ") + "\"" + checkerName + "\"" + ",";
+        line += std::string("handlerName, ") + "\"" + ch._name + "\"" + ",";
         line += paused ? "true" : "false";
         line += ");\n";
         i++;
@@ -464,9 +469,9 @@ bool generateHandler(rapidxml::XmlNodeList &checkers, int nPhs[],
           auto vars = bindings[ch];
           std::string msgField = "";
           for (auto v : vars) {
-            if (msgType.compare(v.msgType) == 0 &&
-                topicName.compare(v.topicName) == 0) {
-              msgField = v.msgField;
+            if (msgType.compare(v._msgType) == 0 &&
+                topicName.compare(v._rosTopic) == 0) {
+              msgField = v._msgField;
               line += codeGenerator::ident4 + "ch->addEvent_var" +
                       std::to_string(i) + "(msg->header.stamp, msg->" +
                       msgField + ");\n";
@@ -576,7 +581,7 @@ bool generateHandler(rapidxml::XmlNodeList &checkers, int nPhs[],
 }
 
 // Generate include header for handler class
-bool generateHeaderHandler(rapidxml::XmlNodeList &checkers) {
+bool generateHeaderHandler(std::vector<strChecker> &checkers) {
   std::ofstream dst("build/output/checkers/include/include_checkers.hh");
 
   if (dst.fail()) {
@@ -587,8 +592,7 @@ bool generateHeaderHandler(rapidxml::XmlNodeList &checkers) {
   }
 
   for (auto ch : checkers) {
-    auto checkerName = rapidxml::getAttributeValue(ch, "name", "");
-    dst << "#include \"" << checkerName << ".hh\"\n";
+    dst << "#include \"" << ch._name << ".hh\"\n";
   }
 
   dst.close();

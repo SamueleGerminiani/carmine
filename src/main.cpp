@@ -3,22 +3,16 @@
 #include "xmlUtils.hh"
 #include <filesystem>
 using namespace std::filesystem;
-int main(int argc, char *args[]) {
 
-  if (argc < 2) {
-    std::cout << "Missing XML specification file, call as ./carmine "
-                 "<specification.xml>"
-              << std::endl;
-    return 0;
-  }
-
+strHandler parseSpecifications(const std::string &pathToSpec) {
+  strHandler tmpHandler;
   // Parse xml file
   rapidxml::file<> *_xmlFile;
   rapidxml::xml_document<> *_doc;
 
   // find root node
   try {
-    _xmlFile = new rapidxml::file<>(args[1]);
+    _xmlFile = new rapidxml::file<>(pathToSpec.c_str());
     _doc = new rapidxml::xml_document<>();
     _doc->parse<0>(_xmlFile->data());
   } catch (rapidxml::parse_error &e) {
@@ -33,61 +27,87 @@ int main(int argc, char *args[]) {
 
   // the current machine handler
   auto root = _doc->first_node("handler");
-  std::string handlerName = "";
-  std::string migrateTo = "";
-  handlerName = rapidxml::getAttributeValue(root, "name", "");
-  migrateTo = rapidxml::getAttributeValue(root, "migrateTo", "");
+  tmpHandler._name = rapidxml::getAttributeValue(root, "name", "");
+  tmpHandler._migrateTo = rapidxml::getAttributeValue(root, "migrateTo", "");
   rapidxml::XmlNodeList checkers;
 
   // the checkers in the current machine handler
   rapidxml::getNodesFromName(root, "checker", checkers);
 
-  // Each item in the array is the number o placeholders generated for each
-  // checker formula
-  int *nPhs = new int[checkers.size()];
-  int i = 0;
-  // Parse each checker and generate code
   for (auto &ch : checkers) {
-    std::vector<checkerVar> varList;
-
-    std::string formula = rapidxml::getAttributeValue(ch, "LTLformula", "");
+    strChecker tmpChecker;
+    // parse the checker's name
+    tmpChecker._name = rapidxml::getAttributeValue(ch, "name", "");
+    tmpChecker._LTLformula = rapidxml::getAttributeValue(ch, "LTLformula", "");
     rapidxml::XmlNodeList variables;
     rapidxml::getNodesFromName(ch, "variable", variables);
+    for (auto &var : variables) {
+      strVariable tmpVariable;
+      tmpVariable._decl = rapidxml::getAttributeValue(var, "decl", "");
+      rapidxml::XmlNodeList list;
+      rapidxml::getNodesFromName(var, "msgType", list);
+      tmpVariable._msgType = list[0]->value();
+      list.clear();
+      rapidxml::getNodesFromName(var, "rosTopic", list);
+      tmpVariable._rosTopic = list[0]->value();
+      list.clear();
+      rapidxml::getNodesFromName(var, "msgField", list);
+      tmpVariable._msgField = list[0]->value();
+      splitNameType(tmpVariable._name, tmpVariable._type, tmpVariable._decl);
+      tmpChecker._variables.push_back(tmpVariable);
+    }
+    tmpHandler._checkers.push_back(tmpChecker);
+  }
+
+  return tmpHandler;
+}
+
+int main(int argc, char *args[]) {
+
+  if (argc < 2) {
+    std::cout << "Missing XML specification file, call as ./carmine "
+                 "<specification.xml>"
+              << std::endl;
+    return 0;
+  }
+  strHandler spec = parseSpecifications(args[1]);
+
+  // Each item in the array is the number o placeholders generated for each
+  // checker formula
+  int *nPhs = new int[spec._checkers.size()];
+  int i = 0;
+  // Parse each checker and generate code
+  for (auto &ch : spec._checkers) {
+
     std::string declarations = "";
 
     // declarations of variables used in the formula
-    for (auto v : variables) {
-      declarations += rapidxml::getAttributeValue(v, "decl", "") + ";";
+    for (auto v : ch._variables) {
+      declarations += v._decl + ";";
     }
-    //clear the timers used in the previous checkers (global var)
+    // clear the timers used in the previous checkers (global var)
     timer::timers.clear();
 
     //<<implication,antecedent>, map: placeholder -> Proposition>
-    auto parsedFormula =
-        oden::parseLTLformula(formula, declarations, "", "", timer::timers);
+    auto parsedFormula = oden::parseLTLformula(ch._LTLformula, declarations, "",
+                                               "", timer::timers);
 
     // save the number of placeholders in this checker
     nPhs[i] = parsedFormula.second.size();
 
-    //store in varList the variables found in 'variables'
-    parseVariables(varList, variables);
-
-    //Generate two automata: one for the antecedent and one for the whole
-    //formula
+    // Generate two automata: one for the antecedent and one for the whole
+    // formula
     auto fsms = codeGenerator::converter::generateAutomata(
         parsedFormula.first.first, parsedFormula.first.second);
-   
-    //parse the checker's name
-    std::string checkerName = rapidxml::getAttributeValue(ch, "name", "");
 
-    //generate the checker's source file
-    if (generateCpp(fsms, varList, parsedFormula, checkerName) &&
-    //generate the checker's header file
-        generateHeader(fsms, varList, checkerName)) {
-      std::cout << "Successfully generated files for checker " << checkerName
+    // generate the checker's source file
+    if (generateCpp(fsms, ch._variables, parsedFormula, ch._name) &&
+        // generate the checker's header file
+        generateHeader(fsms, ch._variables, ch._name)) {
+      std::cout << "Successfully generated files for checker " << ch._name
                 << std::endl;
     } else {
-      std::cout << "Could not generate files for checker " << checkerName
+      std::cout << "Could not generate files for checker " << ch._name
                 << std::endl;
       return 1;
     }
@@ -95,14 +115,14 @@ int main(int argc, char *args[]) {
     i++;
   }
 
-  //generate include_checkers.hh
-  if (!generateHeaderHandler(checkers)) {
+  // generate include_checkers.hh
+  if (!generateHeaderHandler(spec._checkers)) {
     std::cout << "Could not generate header file for handler node" << std::endl;
     return 1;
   }
 
-  //generate ver_env.cpp
-  if (!generateHandler(checkers, nPhs, handlerName, migrateTo)) {
+  // generate ver_env.cpp
+  if (!generateHandler(spec._checkers, nPhs, spec._name, spec._migrateTo)) {
     delete[] nPhs;
     std::cout << "Could not generate handler node" << std::endl;
     return 1;

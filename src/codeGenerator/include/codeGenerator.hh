@@ -11,21 +11,21 @@ extern std::vector<std::pair<size_t, size_t>> timers;
 
 bool generateCpp(
     std::pair<codeGenerator::SpotAutomata, codeGenerator::SpotAutomata> &fsms,
-    std::vector<checkerVar> &varList,
+    std::vector<strVariable> &varList,
     std::pair<std::pair<std::string, std::string>,
               std::unordered_map<std::string, oden::Proposition *>>
         &parsedFormula,
-    std::string &checkerName); 
+    std::string &checkerName);
 
 // Generate header for checker class
 bool generateHeader(
     std::pair<codeGenerator::SpotAutomata, codeGenerator::SpotAutomata> &fsms,
-    std::vector<checkerVar> &varList, std::string &checkerName); 
+    std::vector<strVariable> &varList, std::string &checkerName);
 
 // Generate handler code
-bool generateHandler(rapidxml::XmlNodeList &checkers, int nPhs[],
-                     std::string handlerName, std::string migrateTo) ;
+bool generateHandler(std::vector<strChecker> &checkers, int nPhs[],
+                     std::string handlerName, std::string migrateTo);
 
 // Generate include header for handler class
-bool generateHeaderHandler(rapidxml::XmlNodeList &checkers) ;
+bool generateHeaderHandler(std::vector<strChecker> &checkers);
 
