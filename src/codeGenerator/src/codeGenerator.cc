@@ -1,3 +1,5 @@
+#include <filesystem>
+#include <fstream>
 #include "codeGenerator.hh"
 #include "checkerGenerator.hh"
 #include "converter.hh"
@@ -6,6 +8,7 @@
 #include "specificationParser.hh"
 #include "types.hh"
 #include "globals.hh"
+using namespace std::filesystem;
 namespace codeGenerator {
 void generateVerEnv(const std::string &pathToSpec) {
 
@@ -15,6 +18,10 @@ void generateVerEnv(const std::string &pathToSpec) {
   // checker formula
   int *nPhs = new int[handler._checkers.size()];
   int i = 0;
+  remove_all(path("build/output"));
+  create_directories("build/output/checkers/src");
+  create_directories("build/output/checkers/include");
+
   // Parse each checker and generate code
   for (auto &ch : handler._checkers) {
 

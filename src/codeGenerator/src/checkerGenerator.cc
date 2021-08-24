@@ -125,10 +125,6 @@ bool generateCheckerSource(
 
   std::ifstream src("src/standalone/code_templates/checker_template.cpp");
 
-  remove_all(path("build/output"));
-  create_directories("build/output/checkers/src");
-  create_directories("build/output/checkers/include");
-
   if (src.fail()) {
     std::cout << "Error: could not open checker_template.cpp" << std::endl;
     return false;

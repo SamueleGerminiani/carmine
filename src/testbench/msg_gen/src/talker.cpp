@@ -14,7 +14,7 @@ int main(int argc, char **argv) {
 	ros::Publisher chatter_pub4 =
 	    n.advertise<msg_gen::Num>("V3", 1000);
 	int chatter_count = 0;
-	double dur = 0.001;
+	double dur = 0.00001;
 	ros::Timer timer2 =
 	    n.createTimer(ros::Duration(dur), [&](const ros::TimerEvent &) {
                 msg_gen::Num msg2;
