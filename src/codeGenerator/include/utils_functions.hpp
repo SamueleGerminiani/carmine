@@ -1,5 +1,6 @@
 #pragma once
 #include "oden/oden.hh"
+#include "types.hh"
 #include "xmlUtils.hh"
 #include <algorithm>
 #include <iostream>
@@ -7,45 +8,6 @@
 #include <set>
 #include <unordered_map>
 #include <vector>
-struct strVariable {
-  strVariable(std::string decl, std::string name, std::string type,
-              std::string rosTopic, std::string msgType, std::string msgField)
-      : _decl(decl), _name(name), _type(type), _rosTopic(rosTopic),
-        _msgType(msgType), _msgField(msgField) {
-    // not todo
-  }
-  strVariable() {}
-  std::string _decl;
-  std::string _name;
-  std::string _type;
-  std::string _rosTopic;
-  std::string _msgType;
-  std::string _msgField;
-};
-struct strChecker {
-  strChecker(std::string name, std::string description, std::string LTLformula,
-             std::vector<strVariable> variables)
-      : _name(name), _description(description), _LTLformula(LTLformula),
-        _variables(variables) {
-    // not todo
-  }
-  strChecker() {}
-  std::string _name;
-  std::string _description;
-  std::string _LTLformula;
-  std::vector<strVariable> _variables;
-};
-struct strHandler {
-  strHandler(std::string name, std::string migrateTo,
-             std::vector<strChecker> checkers)
-      : _name(name), _migrateTo(migrateTo), _checkers(checkers) {
-    // not todo
-  }
-  strHandler() {}
-  std::string _name;
-  std::string _migrateTo;
-  std::vector<strChecker> _checkers;
-};
 
 // Map used to store the binding between the addEvent_varx function of the
 // checkers
@@ -54,8 +16,10 @@ struct strHandler {
 // Value = vector of strVariable
 // If vector[0] = "msg.a" then the function addEvent_var0 of the checker
 // will take msg.a as a parameter
-extern std::map<std::string, std::vector<strVariable>> bindings;
 
+namespace codeGenerator {
+
+extern std::map<std::string, std::vector<strVariable>> bindings;
 // Trim string
 inline std::string trim(const std::string &s) {
   auto wsfront = std::find_if_not(s.begin(), s.end(),
@@ -191,4 +155,4 @@ groupCheckersByMsgTopic(std::vector<strChecker> &checkers) {
 
   return output;
 }
-
+}

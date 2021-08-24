@@ -6,7 +6,6 @@ project(codeGenerator)
 
 
 include_directories( 
-    ./include
     ../oden/include
     ../antlr4/utils/include
     ../antlr4/propositionParser/grammar/include
@@ -18,7 +17,8 @@ include_directories(
 
 
 SET(CODE_GENERATOR_SRCS
-   ./src/converter.cc
+   ./src/checkerGenerator.cc
+   ./src/handlerGenerator.cc
    ./src/codeGenerator.cc
     )
 #############################################
