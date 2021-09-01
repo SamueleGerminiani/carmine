@@ -26,4 +26,7 @@ cp -R ./build/output/checkers/ ./verification_env/
 cp ./src/standalone/checkers/Checker.hpp ./verification_env/checkers/include
 cp -R ./build/output/ver_env/ ./verification_env/
 
+cp ./src/standalone/launchN.sh ./verification_env/
+#cp ./src/standalone/killAll.sh ./verification_env/
+
 echo "Successfully generated verification environment: output in verification_env directory"

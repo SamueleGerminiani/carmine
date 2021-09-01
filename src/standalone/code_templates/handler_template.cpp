@@ -18,7 +18,7 @@ bool keepPolling = true;
 std::map<std::string,Checker*> chs;
 $migrateTo
 
-Scheduler sched(3, chs);
+Scheduler sched(std::thread::hardware_concurrency()/2, chs);
 
 
 

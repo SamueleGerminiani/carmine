@@ -1,0 +1,3 @@
+<launch>
+        <node pkg="verification_env" type="verification_env_node" name="node1" output="screen" />
+</launch>
