@@ -3,16 +3,17 @@
 #include <cassert>
 #include <chrono>
 #include <iostream>
+
 using std::chrono::high_resolution_clock;
 using std::chrono::duration_cast;
 using std::chrono::milliseconds;
+
 std::deque<Request *> Dispatcher::requests;
-std::deque<Request *> Dispatcher::requestsLP;
 std::queue<std::pair<
     Request *, std::chrono::time_point<std::chrono::high_resolution_clock>>>
     Dispatcher::sleepers;
-std::condition_variable cv;
-std::mutex mtx;
+std::condition_variable workerNotifyNewRequest;
+std::mutex workerMutexNewRequest;
 
 std::mutex Dispatcher::requestsMutex;
 std::mutex Dispatcher::workersMutex;
@@ -23,47 +24,32 @@ std::thread *Dispatcher::sh;
 bool Dispatcher::stopSH = false;
 size_t sleeperSpeed = 1;
 size_t sleepTime = 100;
-auto t1 = high_resolution_clock::now();
-size_t rc=0;
 
-
-bool Dispatcher::init(size_t n_workers) {
+void Dispatcher::init(size_t n_workers) {
     std::thread *t = nullptr;
     Worker *w = nullptr;
-    std::cout << "Creating " << n_workers << " workers"
+    std::cout << "Scheduler: using " << n_workers << " threads"
               << "\n";
     for (size_t i = 0; i < n_workers; i++) {
-        w = new Worker(i,cv, mtx);
+        w = new Worker(i, workerNotifyNewRequest, workerMutexNewRequest);
         allWorkers.push_back(w);
         t = new std::thread(&Worker::run, w);
         threads.push_back(t);
     }
 
     sh = new std::thread(&sleepersHandler);
-
-    return true;
 }
 void Dispatcher::addRequest(Request *request) {
-    if (request->getPriority() == 2) {
-        requestsMutex.lock();
-        requests.push_back(request);
-        requestsMutex.unlock();
-    } else if (request->getPriority() == 1) {
-        requestsMutex.lock();
-        requestsLP.push_back(request);
-        requestsMutex.unlock();
-    } else {
-        assert(false);
+    if (request->_checker->_toKill) {
+        delete request;
+        return;
     }
-//    rc++;
-//    if (rc%100==0) {
-//    auto t2 = high_resolution_clock::now();
-//    auto ms_int = duration_cast<milliseconds>(t2 - t1);
-//    std::cout << (double)rc/((double)ms_int.count() / 1000) << "\n";
-        
-    //}
-    
-    cv.notify_one();
+
+    requestsMutex.lock();
+    requests.push_back(request);
+    requestsMutex.unlock();
+
+    workerNotifyNewRequest.notify_one();
 }
 void Dispatcher::addSleeper(Request *request) {
     sleepersMutex.lock();
@@ -72,24 +58,16 @@ void Dispatcher::addSleeper(Request *request) {
 }
 bool Dispatcher::addWorker(Worker *worker) {
     requestsMutex.lock();
-    if (requests.empty() && requestsLP.empty()) {
+    if (requests.empty()) {
         requestsMutex.unlock();
         return false;
     }
-    bool which_queu = !requests.empty();
-
-    if (which_queu) {
-        worker->setRequest(requests.front());
-        requests.pop_front();
-    } else {
-        worker->setRequest(requestsLP.front());
-        requestsLP.pop_front();
-    }
+    worker->setRequest(requests.front());
+    requests.pop_front();
     requestsMutex.unlock();
-
     return true;
 }
-bool Dispatcher::stop() {
+void Dispatcher::stop() {
     stopSH = true;
     sh->join();
     delete sh;
@@ -111,9 +89,6 @@ bool Dispatcher::stop() {
     }
 
     std::vector<Request *> allRequests;
-    for (auto &i : requestsLP) {
-        allRequests.push_back(i);
-    }
     for (auto &i : requests) {
         allRequests.push_back(i);
     }
@@ -133,15 +108,9 @@ bool Dispatcher::stop() {
     std::cout << "HP usage:" << (double)HPsum / (double)sum * 100.f << "\n";
     std::cout << "LP usage:" << (double)LPsum / (double)sum * 100.f << "\n";
 
-    if (allRequests.size() != 1) {
-        std::cout << "Size:" << allRequests.size() << "\n";
-        assert(0);
-    }
     for (auto &i : allRequests) {
         delete i;
     }
-
-    return true;
 }
 size_t Dispatcher::requestLeft() {
     size_t res;

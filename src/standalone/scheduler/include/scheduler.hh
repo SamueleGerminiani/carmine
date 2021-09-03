@@ -1,42 +1,32 @@
 #include <chrono>
+#include <chrono>
 #include <csignal>
 #include <iostream>
 #include <string>
 #include <thread>
+#include "Checker.hpp"
 #include "dispatcher.hh"
 #include "request.hh"
-#include "Checker.hpp"
-#include <chrono>
 class Scheduler {
-       public:
-	Scheduler(size_t nWorkers, std::map<std::string,Checker*> &checkers)
-	    : _nWorkers(nWorkers), _checkers(checkers) {
-		// not todo
-	}
-	void stop() {
-		_stop = true;
-		Dispatcher::stop();
-		std::cout << "Scheduler stopped!"
-			  << "\n";
-	}
-	void start() {
-		Dispatcher::init(_nWorkers);
-		std::cout << "Init"
-			  << "\n";
-		Request *rq = nullptr;
-		for (auto kv: _checkers) {
-			rq = new Request(kv.second->_priority,kv.second);
-			Dispatcher::addRequest(rq);
-		}
-	}
+   public:
+    Scheduler(size_t nWorkers) : _nWorkers(nWorkers) {
+        // not todo
+    }
+    void stop() {
+        _stop = true;
+        Dispatcher::stop();
+        std::cout << "Scheduler stopped!"
+                  << "\n";
+    }
+    void start() { Dispatcher::init(_nWorkers); }
 
-	void addCheckerRequest(Checker* ch){
-		Request *rq = new Request(ch->_priority,ch);
-		Dispatcher::addRequest(rq);
-	}
+    void addCheckerRequest(Checker* ch) {
+        Request* rq = new Request(ch);
+        Dispatcher::addRequest(rq);
+    }
+    void removeCheckerRequest(Checker* ch) { ch->_toKill = 1; }
 
-       private:
-	bool _stop = false;
-	size_t _nWorkers;
-	std::map<std::string,Checker*> &_checkers;
+   private:
+    bool _stop = false;
+    size_t _nWorkers;
 };

@@ -61,6 +61,11 @@ add_service_files(
    sendBuffer.srv
 )
 
+add_message_files(
+  FILES
+  su.msg
+  command.msg
+)
 
 
 #Generate added messages and services with any dependencies listed here

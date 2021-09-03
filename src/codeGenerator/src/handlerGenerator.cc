@@ -12,7 +12,7 @@ using namespace std::filesystem;
 namespace codeGenerator {
 // Generate handler code
 bool generateHandlerSource(std::vector<strChecker> &checkers, int nPhs[],
-                     std::string handlerName, std::string migrateTo) {
+                           std::string handlerName, std::string migrateTo) {
   std::ifstream src("src/standalone/code_templates/handler_template.cpp");
   if (src.fail()) {
     std::cout << "Error: could not open handler_template.cpp" << std::endl;
@@ -32,29 +32,42 @@ bool generateHandlerSource(std::vector<strChecker> &checkers, int nPhs[],
 
   int callbackNum = 0;
   std::map<std::string, std::string> callbackTopic;
+  std::map<std::string, std::string> topicEnTopic;
+
   while (getline(src, line)) {
     // Allocate checker instances
-    if (line.compare("$addCheckers") == 0) {
+    if (line.compare("$checkerToTopic") == 0) {
       line = "";
-      line += codeGenerator::ident1 + "std::string handlerName = " + "\"" +
-              handlerName + "\"" + ";\n";
+      auto checkersMsg = groupCheckersByMsgTopic(checkers);
 
-      int i = 0;
-      for (auto ch : checkers) {
-        bool paused = false;
-        line += codeGenerator::ident1;
-        line += "chs[\"" + ch._name + "\"] = new " + ch._name + "(" +
-                std::to_string(nPhs[i]) + ",1,";
-        line += std::string("handlerName, ") + "\"" + ch._name + "\"" + ",";
-        line += paused ? "true" : "false";
-        line += ");\n";
-        i++;
+      for (auto chm : checkersMsg) {
+        for (auto c : chm.second) {
+          line += "checkerToTopic[\"" + c + "\"].emplace_back(\"" +
+                  topicEnTopic.at(chm.first.second) + "\");\n";
+        }
       }
 
     }
 
-    // Generate callback functions
-    else if (line.compare("$callbacks") == 0) {
+    else if (line.compare("$callbacksMutex") == 0) {
+      line = "";
+      auto checkersMsg = groupCheckersByMsgTopic(checkers);
+      for (size_t i = 0; i < checkersMsg.size(); i++) {
+        line += "std::mutex v" + std::to_string(i) + "Mutex;\n";
+      }
+    } else if (line.compare("$pCallBacks") == 0) {
+      line = "";
+      auto checkersMsg = groupCheckersByMsgTopic(checkers);
+      for (size_t i = 0; i < checkersMsg.size(); i++) {
+        line += "v" + std::to_string(i) + "Mutex.lock();\n";
+      }
+    } else if (line.compare("$rCallBacks") == 0) {
+      line = "";
+      auto checkersMsg = groupCheckersByMsgTopic(checkers);
+      for (size_t i = 0; i < checkersMsg.size(); i++) {
+        line += "v" + std::to_string(i) + "Mutex.unlock();\n";
+      }
+    } else if (line.compare("$callbacks") == 0) {
       line = "";
       auto checkersMsg = groupCheckersByMsgTopic(checkers);
 
@@ -66,20 +79,21 @@ bool generateHandlerSource(std::vector<strChecker> &checkers, int nPhs[],
         auto topicName = e.first.second;
 
         callbackTopic[callbackName] = topicName;
+        topicEnTopic[topicName] = "V"+std::to_string(callbackNum);
         line += "//Callback for topic " + topicName + "\n";
         line += "void " + callbackName + "(const ";
 
         line += msgType + "::Ptr& msg){\n";
+        line += codeGenerator::ident1 + "std::lock_guard<std::mutex> lock{v" +
+                std::to_string(callbackNum) + "Mutex};\n\n";
         line += codeGenerator::ident1 + "for (const auto& e : chs) {\n";
         line += codeGenerator::ident2 + "auto checker = e.second;\n";
-        line += codeGenerator::ident2 +
-                "if(checker -> getPhase() != Checker::Phase::paused){\n";
 
         for (auto ch : checkerList) {
           int i = 0;
-          line += codeGenerator::ident3 + "if(dynamic_cast<" + ch +
-                  "*>(checker) != NULL){\n";
-          line += codeGenerator::ident4 + ch + " *ch = dynamic_cast<" + ch +
+          line += codeGenerator::ident2 + "if(dynamic_cast<" + ch +
+                  "*>(checker) != nullptr){\n";
+          line += codeGenerator::ident3 + ch + " *ch = dynamic_cast<" + ch +
                   "*>(checker);\n";
 
           auto vars = bindings[ch];
@@ -88,21 +102,49 @@ bool generateHandlerSource(std::vector<strChecker> &checkers, int nPhs[],
             if (msgType.compare(v._msgType) == 0 &&
                 topicName.compare(v._rosTopic) == 0) {
               msgField = v._msgField;
-              line += codeGenerator::ident4 + "ch->addEvent_var" +
+              line += codeGenerator::ident3 + "ch->addEvent_var" +
                       std::to_string(i) + "(msg->header.stamp, msg->" +
                       msgField + ");\n";
             }
             i++;
           }
-          line += codeGenerator::ident3 + "}\n";
+          line += codeGenerator::ident2 + "}\n";
         }
 
-        line += codeGenerator::ident2 + "}\n";
         line += codeGenerator::ident1 + "}\n";
         line += "}\n";
         callbackNum++;
       }
 
+    } else if (line.compare("$aCallbacks") == 0) {
+      line = "";
+      auto checkersMsg = groupCheckersByMsgTopic(checkers);
+
+      size_t i = 0;
+      for (auto e : checkersMsg) {
+        std::string callbackName = "callbackV" + std::to_string(i);
+        line += codeGenerator::ident1 + (i == 0 ? "if(" : "else if(");
+        line += "cbd._name == \"V" + std::to_string(i) + "\"){\n";
+        line += codeGenerator::ident2 + "*cbd._sub = n->subscribe(\"" +
+                callbackTopic.at(callbackName) + "\", 1000, " + callbackName +
+                ", ros::TransportHints().tcpNoDelay());\n";
+        line += codeGenerator::ident1 + "}\n";
+        i++;
+      }
+    } else if (line.compare("$iChecker") == 0) {
+      line = "";
+      size_t i = 0;
+      for (auto ch : checkers) {
+        line += codeGenerator::ident1 + (i == 0 ? "if(" : "else if(");
+        line += "name == \"" + ch._name + "\"){\n";
+        line += codeGenerator::ident2 + "chs[\"" + ch._name + "\"] = new " +
+                ch._name + "(" + std::to_string(nPhs[i]) + ",1,";
+        line +=
+            std::string("ros::this_node::getName(), ") + "\"" + ch._name + "\"" + ", false";
+        line += ");\n";
+        line += codeGenerator::ident1 + "}\n";
+        i++;
+      }
     }
 
     // Declare a spinner thread and a queue for each callback

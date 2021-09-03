@@ -18,6 +18,7 @@ fi
 
 #Move generated files
 cp -rf ./src/standalone/scheduler ./verification_env/
+cp -rf ./src/standalone/msg ./verification_env/
 cp -rf ./src/standalone/srv ./verification_env/
 cp ./src/standalone/CMakeLists.txt ./verification_env/
 cp ./src/standalone/package.xml ./verification_env/
@@ -26,7 +27,7 @@ cp -R ./build/output/checkers/ ./verification_env/
 cp ./src/standalone/checkers/Checker.hpp ./verification_env/checkers/include
 cp -R ./build/output/ver_env/ ./verification_env/
 
-cp ./src/standalone/launchN.sh ./verification_env/
+cp ./src/standalone/debugLaunchN.sh ./verification_env/
 #cp ./src/standalone/killAll.sh ./verification_env/
 
 echo "Successfully generated verification environment: output in verification_env directory"

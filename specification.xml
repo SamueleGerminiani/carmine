@@ -15,17 +15,17 @@
 		</checker-->
         <checker name="CheckerT0" description="simple checker" LTLformula="G(v1 ->$timeout(v2,2000) & $timeout(v3,5000))">
 			<variable decl="bool v1">
-				<rosTopic>V1</rosTopic>
+				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>V2</rosTopic>
+				<rosTopic>random2</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>V3</rosTopic>
+				<rosTopic>random3</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
@@ -33,17 +33,12 @@
 
         <checker name="CheckerT1" description="simple checker" LTLformula="G(v1 ->$timeout(v3,5000))">
 			<variable decl="bool v1">
-				<rosTopic>V1</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v2">
-				<rosTopic>V2</rosTopic>
+				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>V3</rosTopic>
+				<rosTopic>random3</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>

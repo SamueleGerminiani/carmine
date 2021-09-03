@@ -8,11 +8,11 @@ int main(int argc, char **argv) {
 	ros::init(argc, argv, "talker");
 	ros::NodeHandle n;
 	ros::Publisher chatter_pub2 =
-	    n.advertise<msg_gen::Num>("V1", 1000);
+	    n.advertise<msg_gen::Num>("random1", 1000);
 	ros::Publisher chatter_pub3 =
-	    n.advertise<msg_gen::Num>("V2", 1000);
+	    n.advertise<msg_gen::Num>("random2", 1000);
 	ros::Publisher chatter_pub4 =
-	    n.advertise<msg_gen::Num>("V3", 1000);
+	    n.advertise<msg_gen::Num>("random3", 1000);
 	int chatter_count = 0;
 	double dur = 0.00001;
 	ros::Timer timer2 =

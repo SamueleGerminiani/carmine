@@ -142,7 +142,7 @@ groupCheckersByMsgTopic(std::vector<strChecker> &checkers) {
 
       // If the msg type is not already in the map instert it as key and create
       // a new vector as value
-      if (output.count(make_pair(msgType, rosTopic)) == 0) {
+      if (!output.count(make_pair(msgType, rosTopic))) {
         output.insert(std::pair<std::pair<std::string, std::string>,
                                 std::set<std::string>>(
             make_pair(msgType, rosTopic), std::set<std::string>()));
