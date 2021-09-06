@@ -12,8 +12,7 @@ extern std::vector<std::pair<size_t, size_t>> timers;
 
 namespace codeGenerator {
 // Generate handler code
-bool generateHandlerSource(std::vector<strChecker> &checkers, int nPhs[],
-                     std::string handlerName, std::string migrateTo);
+bool generateHandlerSource(std::vector<strChecker> &checkers, int nPhs[]);
 
 // Generate include header for handler class
 bool generateHandlerHeader(std::vector<strChecker> &checkers);

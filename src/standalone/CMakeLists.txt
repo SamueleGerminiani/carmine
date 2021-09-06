@@ -138,7 +138,7 @@ add_subdirectory(scheduler)
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node ver_env/src/ver_env.cpp)
+add_executable(${PROJECT_NAME}_node ver_env/src/handler.cpp)
 target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES})
 target_link_libraries(${PROJECT_NAME}_node scheduler)
 

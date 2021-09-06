@@ -63,13 +63,13 @@ void generateVerEnv(const std::string &pathToSpec) {
 
   // generate include_checkers.hh
   if (!generateHandlerHeader(handler._checkers)) {
+    delete[] nPhs;
     std::cout << "Could not generate header file for handler node" << std::endl;
     exit(1);
   }
 
   // generate ver_env.cpp
-  if (!generateHandlerSource(handler._checkers, nPhs, handler._name,
-                             handler._migrateTo)) {
+  if (!generateHandlerSource(handler._checkers, nPhs)) {
     delete[] nPhs;
     std::cout << "Could not generate handler node" << std::endl;
     exit(1);

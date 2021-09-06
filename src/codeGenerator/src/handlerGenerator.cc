@@ -11,8 +11,7 @@ using namespace std::filesystem;
 
 namespace codeGenerator {
 // Generate handler code
-bool generateHandlerSource(std::vector<strChecker> &checkers, int nPhs[],
-                           std::string handlerName, std::string migrateTo) {
+bool generateHandlerSource(std::vector<strChecker> &checkers, int nPhs[]) {
   std::ifstream src("src/standalone/code_templates/handler_template.cpp");
   if (src.fail()) {
     std::cout << "Error: could not open handler_template.cpp" << std::endl;
@@ -20,10 +19,10 @@ bool generateHandlerSource(std::vector<strChecker> &checkers, int nPhs[],
   }
 
   create_directories("build/output/ver_env/src");
-  std::ofstream dst("build/output/ver_env/src/ver_env.cpp");
+  std::ofstream dst("build/output/ver_env/src/handler.cpp");
 
   if (dst.fail()) {
-    std::cout << "Error: could not open output/ver_env/src/ver_env.cpp"
+    std::cout << "Error: could not open output/ver_env/src/handler.cpp"
               << std::endl;
     return false;
   }
@@ -55,13 +54,13 @@ bool generateHandlerSource(std::vector<strChecker> &checkers, int nPhs[],
       for (size_t i = 0; i < checkersMsg.size(); i++) {
         line += "std::mutex v" + std::to_string(i) + "Mutex;\n";
       }
-    } else if (line.compare("$pCallBacks") == 0) {
+    } else if (line.compare("$pauseCallBacks") == 0) {
       line = "";
       auto checkersMsg = groupCheckersByMsgTopic(checkers);
       for (size_t i = 0; i < checkersMsg.size(); i++) {
         line += "v" + std::to_string(i) + "Mutex.lock();\n";
       }
-    } else if (line.compare("$rCallBacks") == 0) {
+    } else if (line.compare("$resumeCallBacks") == 0) {
       line = "";
       auto checkersMsg = groupCheckersByMsgTopic(checkers);
       for (size_t i = 0; i < checkersMsg.size(); i++) {
@@ -79,7 +78,7 @@ bool generateHandlerSource(std::vector<strChecker> &checkers, int nPhs[],
         auto topicName = e.first.second;
 
         callbackTopic[callbackName] = topicName;
-        topicEnTopic[topicName] = "V"+std::to_string(callbackNum);
+        topicEnTopic[topicName] = "V" + std::to_string(callbackNum);
         line += "//Callback for topic " + topicName + "\n";
         line += "void " + callbackName + "(const ";
 
@@ -116,7 +115,7 @@ bool generateHandlerSource(std::vector<strChecker> &checkers, int nPhs[],
         callbackNum++;
       }
 
-    } else if (line.compare("$aCallbacks") == 0) {
+    } else if (line.compare("$attachCallbacks") == 0) {
       line = "";
       auto checkersMsg = groupCheckersByMsgTopic(checkers);
 
@@ -131,7 +130,7 @@ bool generateHandlerSource(std::vector<strChecker> &checkers, int nPhs[],
         line += codeGenerator::ident1 + "}\n";
         i++;
       }
-    } else if (line.compare("$iChecker") == 0) {
+    } else if (line.compare("$initChecker") == 0) {
       line = "";
       size_t i = 0;
       for (auto ch : checkers) {
@@ -139,98 +138,16 @@ bool generateHandlerSource(std::vector<strChecker> &checkers, int nPhs[],
         line += "name == \"" + ch._name + "\"){\n";
         line += codeGenerator::ident2 + "chs[\"" + ch._name + "\"] = new " +
                 ch._name + "(" + std::to_string(nPhs[i]) + ",1,";
-        line +=
-            std::string("ros::this_node::getName(), ") + "\"" + ch._name + "\"" + ", false";
+        line += std::string("ros::this_node::getName(), ") + "\"" + ch._name +
+                "\"" + ", false";
         line += ");\n";
         line += codeGenerator::ident1 + "}\n";
         i++;
       }
+    }else{
+        line+="\n";
     }
-
-    // Declare a spinner thread and a queue for each callback
-    else if (line.compare("$declareSpinners") == 0) {
-      line = "";
-
-      line += codeGenerator::ident1 + "ros::CallbackQueue *queue_0";
-      for (int i = 1; i < callbackNum; i++) {
-        line += ", *queue_" + std::to_string(i);
-      }
-      line += ";\n";
-
-      line += codeGenerator::ident1 + "ros::Subscriber *sub_0";
-      for (int i = 1; i < callbackNum; i++) {
-        line += ", *sub_" + std::to_string(i);
-      }
-      line += ";\n";
-
-      line += codeGenerator::ident1 + "std::thread *thread_0";
-      for (int i = 1; i < callbackNum; i++) {
-        line += ", *thread_" + std::to_string(i);
-      }
-      line += ";\n";
-
-      line += codeGenerator::ident1 + "ros::SingleThreadedSpinner *spinner_0";
-      for (int i = 1; i < callbackNum; i++) {
-        line += ", *spinner_" + std::to_string(i);
-      }
-      line += ";\n";
-
-    }
-
-    else if (line.compare("$initQueues") == 0) {
-      line = "";
-
-      for (int i = 0; i < callbackNum; i++) {
-        std::string n = std::to_string(i);
-        std::string callbackName = "callbackV" + n;
-        line += codeGenerator::ident1 + "queue_" + n +
-                " = new ros::CallbackQueue;\n";
-        line +=
-            codeGenerator::ident1 + "n.setCallbackQueue(queue_" + n + ");\n";
-        line +=
-            codeGenerator::ident1 + "sub_" + n + " = new ros::Subscriber;\n";
-        line += codeGenerator::ident1 + "*sub_" + n + " = n.subscribe(" + "\"" +
-                callbackTopic[callbackName] + "\", ";
-        line += std::string("1000, ") + callbackName +
-                ", ros::TransportHints().tcpNoDelay());\n";
-        line += codeGenerator::ident1 + "thread_" + n +
-                " = new std::thread([&queue_" + n + ", &spinner_" + n +
-                "]() {\n";
-        line += codeGenerator::ident2 + "spinner_" + n +
-                " = new ros::SingleThreadedSpinner;\n";
-        line += codeGenerator::ident2 + "spinner_" + n + "->spin(queue_" + n +
-                ");\n";
-        line += codeGenerator::ident1 + "});\n\n";
-      }
-    }
-
-    else if (line.compare("$deleteAll") == 0) {
-      line = "";
-      for (int i = 0; i < callbackNum; i++) {
-        line += codeGenerator::ident1 + "thread_" + std::to_string(i) +
-                "->join();\n";
-      }
-      line += codeGenerator::ident1 + "keepPolling = false;\n\n";
-
-      for (int i = 0; i < callbackNum; i++) {
-        line += codeGenerator::ident1 + "delete thread_" + std::to_string(i) +
-                ";\n";
-        line +=
-            codeGenerator::ident1 + "delete sub_" + std::to_string(i) + ";\n";
-        line += codeGenerator::ident1 + "delete spinner_" + std::to_string(i) +
-                ";\n";
-        line += codeGenerator::ident1 + "delete queue_" + std::to_string(i) +
-                ";\n\n";
-      }
-
-    }
-
-    else if (line.compare("$migrateTo") == 0) {
-      line = "";
-      line += "std::string migrateTo = \"" + migrateTo + "\";\n";
-    }
-
-    dst << line << '\n';
+    dst<<line;
   }
 
   src.close();

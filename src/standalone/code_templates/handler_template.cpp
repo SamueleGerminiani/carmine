@@ -55,17 +55,17 @@ $callbacks
 
 
 void pauseCallBacks() {
-$pCallBacks
+$pauseCallBacks
 }
 void resumeCallBacks() {
-$rCallBacks
+$resumeCallBacks
 }
 
 void attachCallback(CallbackData &cbd) {
     cbd._queue = new ros::CallbackQueue;
     n->setCallbackQueue(cbd._queue);
     cbd._sub = new ros::Subscriber;
-$aCallbacks
+$attachCallbacks
 
     cbd._thread = new std::thread([&cbd]() {
         cbd._spinner = new ros::SingleThreadedSpinner;
@@ -74,7 +74,7 @@ $aCallbacks
 }
 void initChecker(const std::string &name) {
     pauseCallBacks();
-$iChecker
+$initChecker
 
     resumeCallBacks();
 }
@@ -140,35 +140,73 @@ void cooCommandsCB(const verification_env::command &msg) {
             break;
     }
 }
-void coordinator() {
-    std::unordered_map<std::string, ros::Publisher> nameToPublisher;
-    for (auto nn : nodes) {
-        if (ros::this_node::getName() == nn.second) {
-            nameToPublisher[nn.second];
-        } else {
-            nameToPublisher[nn.second] =
-                n->advertise<verification_env::command>(nn.second, 100, 1);
-        }
+void sendToNode(int command, std::string node, std::string checker,
+                std::string pubName, ros::Publisher &pub) {
+    while (ros::this_node::getName() != pubName && pub.getNumSubscribers() == 0) {
+        ros::Duration(0.1).sleep();
     }
-
-    std::cout << "c): Running..."
+    verification_env::command msg;
+    msg.command = command;
+    msg.header.stamp = ros::Time::now();
+    msg.checker = checker;
+    msg.node = node;
+    if (ros::this_node::getName() == pubName) {
+        cooCommandsCB(msg);
+    } else {
+        pub.publish(msg);
+    }
+}
+void cooAddPublisher(
+    std::string nodeName,
+    std::unordered_map<std::string, ros::Publisher> &nameToPublisher) {
+    if (ros::this_node::getName() == nodeName) {
+        nameToPublisher[nodeName];
+    } else {
+        std::cout << "c) Pub to " << nodeName << "\n";
+        nameToPublisher[nodeName] =
+            n->advertise<verification_env::command>(nodeName, 100, 1);
+    }
+}
+#define OFF 0
+#define RUNNING 1
+#define MIGRATING 2
+void coordinator() {
+    // Wait for nodes to sync
+    std::unordered_map<std::string, ros::Publisher> nameToPublisher;
+    std::unordered_map<std::string, int> checkerToStatus;
+    for (auto &ch : checkerToTopic) {
+        checkerToStatus[ch.first] = 0;
+    }
+    std::cout << "c) Running..."
               << "\n";
 
-    ros::Duration(1).sleep();
-    for (auto &c : checkerToTopic) {
-        verification_env::command msg;
-        msg.command = EXEC;
-        msg.header.stamp = ros::Time::now();
-        msg.checker = c.first;
-        for (auto &p : nameToPublisher) {
-            if (ros::this_node::getName() == p.first) {
-                cooCommandsCB(msg);
-            } else {
-                p.second.publish(msg);
+    while (ros::ok()) {
+        ros::Duration(0.2).sleep();
+
+        // 1) add new nodes (if any) to the network
+        for (auto nn : nodes) {
+            if (!nameToPublisher.count(nn.second)) {
+                cooAddPublisher(nn.second, nameToPublisher);
             }
         }
+
+        // 2) gather the statistics from the nodes
+
+        // 3) run the algorithm to find the best allocation
+
+        // 4) coordinate the nodes
+        for (auto &c : checkerToTopic) {
+            for (auto &p : nameToPublisher) {
+                if (checkerToStatus.at(c.first) == 0) {
+                    std::cout << "c) EXEC(" << c.first << ") to node "
+                              << p.first << "\n";
+                    sendToNode(EXEC, "", c.first, p.first, p.second);
+                    checkerToStatus[c.first] = 1;
+                }
+            }
+        }
+        ros::spinOnce();
     }
-    ros::spinOnce();
     ros::waitForShutdown();
 }
 void sigint_handler(int signal) {
