@@ -14,148 +14,205 @@
 #include "include_checkers.hh"
 #include "ros/ros.h"
 #include "scheduler.hh"
-#include "std_msgs/String.h"
 #include "verification_env/command.h"
 #include "verification_env/su.h"
 
+// command types sent by the coordinator to the nodes
 #define EXEC 0
-#define MIGRATE_TO 1
-#define MIGRATE_FROM 2
-#define SHUDOWN 3
-struct CallbackData {
-    CallbackData(const std::string &name, ros::CallbackQueue *queue = nullptr,
-                 ros::Subscriber *sub = nullptr, std::thread *thread = nullptr,
-                 ros::SingleThreadedSpinner *spinner = nullptr)
-        : _name(name),
-          _queue(queue),
-          _sub(sub),
-          _thread(thread),
-          _spinner(spinner) {
-        // not todo
-    }
-    std::string _name;
-    ros::CallbackQueue *_queue;
-    ros::Subscriber *_sub;
-    std::thread *_thread;
-    ros::SingleThreadedSpinner *_spinner;
-};
-
+#define MIGRATE_FROM 1
+// this function is called by the client Ros service (migrateFrom)
+bool migrateTo(verification_env::migrate::Request &req,
+               verification_env::migrate::Response &res);
+// it contains the checkers currently executed by this node
 std::map<std::string, Checker *> chs;
-$callbacksMutex
+// it contains the checkers deleted by this node
+std::map<std::string, Checker *> chsDeleted;
+
 ros::NodeHandle *n;
 
-Scheduler sched(std::thread::hardware_concurrency() / 2);
+Scheduler sched(1);
+
+// the nodes currently executing in the network
 std::vector<std::pair<ros::Time, std::string>> nodes;
+
 std::unordered_map<std::string, std::vector<std::string>> checkerToTopic;
-std::unordered_map<std::string, CallbackData> attachedTopics;
+std::unordered_map<std::string, ros::ServiceServer> checkerToSS;
+std::unordered_map<std::string, ros::Subscriber> attachedTopics;
+std::unordered_map<std::string, ros::Publisher> nameToPublisher;
 
 $callbacks
 
 
-
-
-void pauseCallBacks() {
-$pauseCallBacks
-}
-void resumeCallBacks() {
-$resumeCallBacks
-}
-
-void attachCallback(CallbackData &cbd) {
-    cbd._queue = new ros::CallbackQueue;
-    n->setCallbackQueue(cbd._queue);
-    cbd._sub = new ros::Subscriber;
+void attachCallback(const std::string &name) {
 $attachCallbacks
-
-    cbd._thread = new std::thread([&cbd]() {
-        cbd._spinner = new ros::SingleThreadedSpinner;
-        cbd._spinner->spin(cbd._queue);
-    });
 }
 void initChecker(const std::string &name) {
-    pauseCallBacks();
+    if (chsDeleted.count(name)) {
+        chs[name] = chsDeleted.at(name);
+        chsDeleted.erase(name);
+        return;
+    }
 $initChecker
+}
+void pubService(const std::string &name) {
+    if (checkerToSS.count(name)) {
+        return;
+    }
+$pubService
+}
+void removeService(const std::string &name) { checkerToSS.erase(name); }
+void removeChecker(const std::string &name) {
+    if (chs.count(name)) {
+        chsDeleted[name] = chs.at(name);
+        chs.erase(name);
+        return;
+    } else {
+        assert(0);
+        exit(1);
+    }
+}
 
-    resumeCallBacks();
-}
-void detachCallback(CallbackData &cbd) {
-    cbd._sub->shutdown();
-    delete cbd._queue;
-    delete cbd._sub;
-    delete cbd._spinner;
-    cbd._thread->join();
-    delete cbd._thread;
-}
-void removeCheckerCallbacks(const std::string &name) {
-    pauseCallBacks();
+void removeCheckerCallbacks(const std::string &checkerName) {
     std::unordered_set<std::string> usedTopics;
+    // find the topics that are still necessary after removing the checker
     for (auto &ch : chs) {
-        if (ch.first != name) {
+        if (ch.first != checkerName) {
             for (auto &topic : checkerToTopic.at(ch.first)) {
                 usedTopics.insert(topic);
             }
         }
     }
-    resumeCallBacks();
-    for (auto &topic : checkerToTopic.at(name)) {
+    // the callbacks are removed only if no other checker is using them
+    for (auto &topic : checkerToTopic.at(checkerName)) {
         if (!usedTopics.count(topic) && attachedTopics.count(topic)) {
-            detachCallback(attachedTopics.at(topic));
-            attachedTopics.erase(topic);
+            //            attachedTopics.erase(topic);
         }
     }
 }
-void addCheckerCallbacks(const std::string &name) {
-    for (auto &topic : checkerToTopic.at(name)) {
+void addCheckerCallbacks(const std::string &checkerName) {
+    for (auto &topic : checkerToTopic.at(checkerName)) {
         if (attachedTopics.count(topic)) {
             continue;
         }
-        attachedTopics.insert({{topic, CallbackData(topic)}});
-        attachCallback(attachedTopics.at(topic));
+        attachCallback(topic);
     }
 }
-void addCheckerToScheduler(const std::string &name) {
-    sched.addCheckerRequest(chs.at(name));
+// this function should be called only when a checker is created for the first
+// time
+void execChecker(const std::string &checkerName) {
+    initChecker(checkerName);
+    addCheckerCallbacks(checkerName);
+    sched.addCheckerRequest(chs.at(checkerName));
+    pubService(checkerName);
 }
-void execChecker(const std::string &name) {
-    addCheckerCallbacks(name);
-    initChecker(name);
-    addCheckerToScheduler(name);
-}
+// callback function to receive messages from starting nodes
 void start_upCB(const verification_env::su &msg) {
     nodes.push_back(std::make_pair(msg.header.stamp, msg.name));
 }
-void cooCommandsCB(const verification_env::command &msg) {
-    switch (msg.command) {
-        case EXEC:
-            std::cout << ros::this_node::getName() << ": EXEC(" << msg.checker
-                      << ")"
-                      << "\n";
-            execChecker(msg.checker);
-            break;
-        case MIGRATE_TO:
-            break;
-        case MIGRATE_FROM:
-            break;
-        case SHUDOWN:
-            break;
+// messages sent by the coordinator to the node
+std::deque<verification_env::command> msgs;
+// mutex to protect the messages' container
+std::mutex msgsMutex;
+//avoid concurrency between migrateTo and migrateFrom
+std::mutex migrateMutex;
+
+// callback function to receive messages from the coordinator
+void receiveCooMSGS(const verification_env::command &msg) {
+    msgsMutex.lock();
+    msgs.push_back(msg);
+    msgsMutex.unlock();
+}
+// the main loop function of a node
+void nodeHandler() {
+    while (ros::ok()) {
+        // 1) periodically checks if there are new messages to be served
+        ros::Duration(0.01).sleep();
+        msgsMutex.lock();
+        if (!msgs.empty()) {
+            // 2) retrieve the next message
+            verification_env::command msg = msgs.front();
+            msgs.pop_front();
+            msgsMutex.unlock();
+            // 3) serve the corresponding command
+            switch (msg.command) {
+                Checker *ch;
+                case EXEC:
+                    // execute a checker: only for the first time
+                    std::cout << ros::this_node::getName() << ": EXEC("
+                              << msg.checker << ")"
+                              << "\n";
+                    execChecker(msg.checker);
+                    break;
+                case MIGRATE_FROM:
+                    const std::lock_guard<std::mutex> lock(migrateMutex);
+                    // migrate a checker: this command is served by the node
+                    // receiving the checker
+                    std::cout << ros::this_node::getName() << ": MIGRATE_FROM("
+                              << msg.checker << ", " << msg.node << ")"
+                              << "\n";
+
+                    initChecker(msg.checker);
+                    addCheckerCallbacks(msg.checker);
+                    ch = chs.at(msg.checker);
+                    // execute the migration
+                    ch->migrateFrom(msg.node, n);
+                    // put the checker on the scheduler
+                    sched.addCheckerRequest(ch);
+                    // publish the migration service on this node
+                    pubService(msg.checker);
+                    std::cout << ros::this_node::getName() << " MF_ended"
+                              << "\n";
+                    break;
+            }
+        } else {
+            msgsMutex.unlock();
+        }
     }
 }
-void sendToNode(int command, std::string node, std::string checker,
-                std::string pubName, ros::Publisher &pub) {
-    while (ros::this_node::getName() != pubName && pub.getNumSubscribers() == 0) {
+bool migrateTo(verification_env::migrate::Request &req,
+               verification_env::migrate::Response &res) {
+    const std::lock_guard<std::mutex> lock(migrateMutex);
+    std::cout << ros::this_node::getName() << ": MIGRATE_TO(" << req.checkerName
+              << ")"
+              << "\n";
+    Checker *ch = chs.at(req.checkerName);
+    // remove the checker from the scheduler
+    sched.removeCheckerRequest(ch);
+    // call the function implementing the migration logic in the checker
+    ch->migrateTo(req, res);
+    removeCheckerCallbacks(req.checkerName);
+    removeChecker(req.checkerName);
+    std::cout << ros::this_node::getName() << " MT_ended"
+              << "\n";
+    return 1;
+}
+// function used by the coordinator to send a command to a node
+void sendToNode(std::string pubName, int command, std::string node,
+                std::string checker) {
+    ros::Publisher &pub = nameToPublisher.at(pubName);
+    // wait that the receiving node is ready to receive the message
+    while (ros::this_node::getName() != pubName &&
+           pub.getNumSubscribers() == 0) {
         ros::Duration(0.1).sleep();
     }
+    // prepare the message
     verification_env::command msg;
     msg.command = command;
     msg.header.stamp = ros::Time::now();
     msg.checker = checker;
     msg.node = node;
+    //  send the message
+    //  n.b.  if the receiving now is in the same process of the coordinator,
+    //  simply add the message to "msgs" instead of using a publisher
     if (ros::this_node::getName() == pubName) {
-        cooCommandsCB(msg);
+        msgsMutex.lock();
+        msgs.push_back(msg);
+        msgsMutex.unlock();
     } else {
         pub.publish(msg);
     }
 }
+// used by the coordinator to create a new publisher
 void cooAddPublisher(
     std::string nodeName,
     std::unordered_map<std::string, ros::Publisher> &nameToPublisher) {
@@ -167,21 +224,13 @@ void cooAddPublisher(
             n->advertise<verification_env::command>(nodeName, 100, 1);
     }
 }
-#define OFF 0
-#define RUNNING 1
-#define MIGRATING 2
+// the coordinator main loop
 void coordinator() {
-    // Wait for nodes to sync
-    std::unordered_map<std::string, ros::Publisher> nameToPublisher;
-    std::unordered_map<std::string, int> checkerToStatus;
-    for (auto &ch : checkerToTopic) {
-        checkerToStatus[ch.first] = 0;
-    }
     std::cout << "c) Running..."
               << "\n";
 
     while (ros::ok()) {
-        ros::Duration(0.2).sleep();
+        ros::Duration(0.01).sleep();
 
         // 1) add new nodes (if any) to the network
         for (auto nn : nodes) {
@@ -195,22 +244,45 @@ void coordinator() {
         // 3) run the algorithm to find the best allocation
 
         // 4) coordinate the nodes
-        for (auto &c : checkerToTopic) {
-            for (auto &p : nameToPublisher) {
-                if (checkerToStatus.at(c.first) == 0) {
-                    std::cout << "c) EXEC(" << c.first << ") to node "
-                              << p.first << "\n";
-                    sendToNode(EXEC, "", c.first, p.first, p.second);
-                    checkerToStatus[c.first] = 1;
-                }
-            }
+        //======================================================================
+        // this is just an example to check if all works correctly
+        //======================================================================
+        //           std::cout << "c) EXEC(" << "CheckerT0" << ") to node " <<
+        //           "/my_node1" << "\n";
+        sendToNode("/my_node1", EXEC, "", "CheckerT0");
+        sendToNode("/my_node1", EXEC, "", "CheckerT1");
+        while (1) {
+            ros::Duration(3).sleep();
+            sendToNode("/my_node2", MIGRATE_FROM, "/my_node1", "CheckerT0");
+            std::cout << "c) 1->2"
+                      << "\n";
+
+            std::cout << "c) ok!"
+                      << "\n";
+            ros::Duration(3).sleep();
+            sendToNode("/my_node3", MIGRATE_FROM, "/my_node2", "CheckerT0");
+            std::cout << "c) 2->1"
+                      << "\n";
+
+            std::cout << "c) ok!"
+                      << "\n";
+            ros::Duration(3).sleep();
+            sendToNode("/my_node1", MIGRATE_FROM, "/my_node3", "CheckerT0");
+            std::cout << "c) 3->1"
+                      << "\n";
+            std::cout << "c) ok!"
+                      << "\n";
+
+            std::cout << "----------------------"
+                      << "\n";
         }
-        ros::spinOnce();
+        ros::waitForShutdown();
     }
-    ros::waitForShutdown();
 }
 void sigint_handler(int signal) {
-    ROS_INFO("Execution interrupted by the user!");
+    std::cout << ros::this_node::getName() +
+                     ": Execution interrupted by the user!"
+              << "\n";
     ros::shutdown();
 }
 
@@ -218,33 +290,32 @@ int main(int argc, char **argv) {
     signal(SIGINT, sigint_handler);
     ros::init(argc, argv, "handler", ros::init_options::NoSigintHandler);
     n = new ros::NodeHandle();
+    ros::AsyncSpinner spinner(1);
+    spinner.start();
 
+    // store which topic is used by each checker
 $checkerToTopic
 
+    // The following code is used to decide which node will contain the
+    // coordinator
+    // 1) broadcast to the network the existence of this
+    // node and discover the existence of the other nodes: all the new nodes
+    // will send their name to the "start_up" topic and
+    // receive all the messages from the same topic
     ros::Publisher chatter_pub2 =
         n->advertise<verification_env::su>("start_up", 1, 1);
     verification_env::su msg2;
     msg2.name = ros::this_node::getName();
     msg2.header.stamp = ros::Time::now();
     chatter_pub2.publish(msg2);
-    ros::spinOnce();
 
-    ros::CallbackQueue *queue_su;
-    ros::Subscriber *sub_su;
-    std::thread *thread_su;
-    ros::SingleThreadedSpinner *spinner_su;
-    queue_su = new ros::CallbackQueue;
-    n->setCallbackQueue(queue_su);
-    sub_su = new ros::Subscriber;
-    *sub_su = n->subscribe("start_up", 100, start_upCB,
-                           ros::TransportHints().tcpNoDelay());
-    thread_su = new std::thread([&queue_su, &spinner_su]() {
-        spinner_su = new ros::SingleThreadedSpinner;
-        spinner_su->spin(queue_su);
-    });
+    ros::Subscriber sub_su = n->subscribe("start_up", 100, start_upCB,
+                                          ros::TransportHints().tcpNoDelay());
+    // 2) wait for th seconds to receive the messages from the nodes
     double th = 1;
     ros::Duration(th).sleep();
 
+    // find the node who sent the first message
     ros::Time min = ros::Time::now();
     std::string minName = "";
     for (auto &n : nodes) {
@@ -253,6 +324,10 @@ $checkerToTopic
             minName = n.second;
         }
     }
+    // find the node that comes first in lexicographic order
+    //  consider only the nodes that sent a message in the time window
+    //  [timestamp -
+    //  min]
     std::string maxName = "";
     for (auto &n : nodes) {
         if ((n.first - min).toSec() < (th * 0.7) && maxName < n.second) {
@@ -262,38 +337,38 @@ $checkerToTopic
     std::cout << ros::this_node::getName() << ": the coordinator is " << maxName
               << "\n";
 
-    sub_su->shutdown();
+    sub_su.shutdown();
+    std::thread *ct = nullptr;
+    std::thread *nht = nullptr;
 
-    std::thread *ct;
-    ros::CallbackQueue *queue_cc;
-    ros::Subscriber *sub_cc;
-    std::thread *thread_cc;
-    ros::SingleThreadedSpinner *spinner_cc;
+    ros::Subscriber sub_cc;
 
     if (maxName == ros::this_node::getName()) {
+        // if this node is the chosen one, start the coordinator here
         std::cout << ros::this_node::getName() << ": Starting coordinator..."
                   << "\n";
+        // independent thread containing the coordinator main loop
         ct = new std::thread(coordinator);
     } else {
-        queue_cc = new ros::CallbackQueue;
-        n->setCallbackQueue(queue_cc);
-        sub_cc = new ros::Subscriber;
-        *sub_cc = n->subscribe(ros::this_node::getName(), 100, cooCommandsCB,
-                               ros::TransportHints().tcpNoDelay());
-        thread_cc = new std::thread([&queue_cc, &spinner_cc]() {
-            spinner_cc = new ros::SingleThreadedSpinner;
-            spinner_cc->spin(queue_cc);
-        });
+        // otherwise, initialise the infrastructure used to receiving messages
+        // from the coordinator
+        // queue_cc = new ros::CallbackQueue;
+        // n->setCallbackQueue(queue_cc);
+        sub_cc = n->subscribe(ros::this_node::getName(), 100, receiveCooMSGS,
+                              ros::TransportHints().tcpNoDelay());
     }
 
+    // independent thread containing the node main loop
+    nht = new std::thread(nodeHandler);
+
+    spinner.stop();
     sched.start();
-    ros::waitForShutdown();
+
+    ros::spin();
+
     sched.stop();
 
-
-    for (auto &t : attachedTopics) {
-        detachCallback(t.second);
-    }
+    // free memory
 
     for (auto e : chs) {
         delete e.second;
@@ -303,17 +378,10 @@ $checkerToTopic
         ct->join();
         delete ct;
     } else {
-        delete queue_cc;
-        delete sub_cc;
-        delete spinner_cc;
-        thread_cc->join();
-        delete thread_cc;
+        sub_cc.shutdown();
     }
-    delete queue_su;
-    delete sub_su;
-    delete spinner_su;
-    thread_su->join();
-    delete thread_su;
+    nht->join();
+    delete nht;
 
     delete n;
     return 0;

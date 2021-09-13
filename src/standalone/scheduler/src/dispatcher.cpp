@@ -12,8 +12,12 @@ std::deque<Request *> Dispatcher::requests;
 std::queue<std::pair<
     Request *, std::chrono::time_point<std::chrono::high_resolution_clock>>>
     Dispatcher::sleepers;
-std::condition_variable workerNotifyNewRequest;
-std::mutex workerMutexNewRequest;
+
+std::condition_variable Dispatcher::workerNotifyNewRequest;
+std::mutex Dispatcher::workerMutexNewRequest;
+
+std::condition_variable Dispatcher::notifyRequestKilled;
+std::mutex Dispatcher::toKillMutex;
 
 std::mutex Dispatcher::requestsMutex;
 std::mutex Dispatcher::workersMutex;
@@ -42,6 +46,7 @@ void Dispatcher::init(size_t n_workers) {
 void Dispatcher::addRequest(Request *request) {
     if (request->_checker->_toKill) {
         delete request;
+        notifyRequestKilled.notify_all();
         return;
     }
 
@@ -61,6 +66,16 @@ bool Dispatcher::addWorker(Worker *worker) {
     if (requests.empty()) {
         requestsMutex.unlock();
         return false;
+    }
+    if (requests.front()->_checker->_toKill) {
+        Request *r = requests.front();
+        requests.pop_front();
+        delete r;
+        notifyRequestKilled.notify_all();
+        if (requests.empty()) {
+            requestsMutex.unlock();
+            return false;
+        }
     }
     worker->setRequest(requests.front());
     requests.pop_front();
@@ -97,17 +112,6 @@ void Dispatcher::stop() {
         sleepers.pop();
     }
 
-    size_t HPsum = 0;
-    size_t LPsum = 0;
-
-    for (auto &i : allRequests) {
-        HPsum += i->_checker->_evaluationsHP;
-        LPsum += i->_checker->_evaluationsLP;
-    }
-    size_t sum = HPsum + LPsum;
-    std::cout << "HP usage:" << (double)HPsum / (double)sum * 100.f << "\n";
-    std::cout << "LP usage:" << (double)LPsum / (double)sum * 100.f << "\n";
-
     for (auto &i : allRequests) {
         delete i;
     }
@@ -134,4 +138,10 @@ void Dispatcher::sleepersHandler() {
 
         sleepersMutex.unlock();
     }
+}
+void Dispatcher::killRequest(Checker *ch) {
+    std::unique_lock<std::mutex> ulock(Dispatcher::toKillMutex);
+
+    ch->_toKill = 1;
+    Dispatcher::notifyRequestKilled.wait(ulock);
 }

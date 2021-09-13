@@ -2,6 +2,7 @@
 #include <chrono>
 #include <csignal>
 #include <iostream>
+#include <mutex>
 #include <string>
 #include <thread>
 #include "Checker.hpp"
@@ -24,9 +25,13 @@ class Scheduler {
         Request* rq = new Request(ch);
         Dispatcher::addRequest(rq);
     }
-    void removeCheckerRequest(Checker* ch) { ch->_toKill = 1; }
+    void removeCheckerRequest(Checker* ch) {
+        const std::lock_guard<std::mutex> lock(_removeCheckerRequestMutex);
+        Dispatcher::killRequest(ch);
+    }
 
    private:
     bool _stop = false;
     size_t _nWorkers;
+    std::mutex _removeCheckerRequestMutex;
 };

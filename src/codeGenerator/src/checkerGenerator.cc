@@ -1,9 +1,9 @@
 
 #include "checkerGenerator.hh"
 #include "converter.hh"
+#include "globals.hh"
 #include "odenCore.hh"
 #include "parserUtils.hh"
-#include "globals.hh"
 #include <cmath>
 #include <cstdio>
 #include <dirent.h>
@@ -148,6 +148,10 @@ bool generateCheckerSource(
   while (getline(src, line)) {
     while (replace(line, "$ClassName$", checkerName))
       ; // To handle multiple occurences
+    while (replace(line, "$nStatesAss$", std::to_string(autAss->num_states())))
+      ;
+    while (replace(line, "$nStatesAnt$", std::to_string(autAnt->num_states())))
+      ;
 
     // Code for retrieving placeholder's values
     if (line.compare("$order_entry") == 0) {
@@ -155,24 +159,24 @@ bool generateCheckerSource(
       for (unsigned int i = 0; i < aps.size(); i++) {
         line += codeGenerator::ident1 + "if (order_entry & (1ULL << " +
                 std::to_string(i) + ")) {\n";
-        line += codeGenerator::ident2 + "last_" + (aps[i]).ap_name() +
+        line += codeGenerator::ident2 + "_last_" + (aps[i]).ap_name() +
                 "= pbuff_entry & (1ULL << " + std::to_string(i) + ");\n";
         line += codeGenerator::ident1 + "}\n";
       }
-    }
-
-    // Code for calling eval() and resetting checker
-    else if (line.compare("$call_eval") == 0) {
+    } else if (line.compare("$clearData") == 0) {
       line = "";
-      line += codeGenerator::ident1 + "if (!eval_" + checkerName + "(last_" +
+      for (auto prop : aps) {
+        line += codeGenerator::ident1 + "_last_" + prop.ap_name() + " = 0;\n";
+      } // Code for calling eval() and resetting checker
+    } else if (line.compare("$call_eval") == 0) {
+      line = "";
+      line += codeGenerator::ident1 + "if (!eval_" + checkerName + "(_last_" +
               (aps[0]).ap_name();
       for (unsigned int i = 1; i < aps.size(); i++) {
-        line += ",last_" + (aps[i]).ap_name();
+        line += ",_last_" + (aps[i]).ap_name();
       }
       line += ")){\n";
-      line += codeGenerator::ident2 + "notify_mutex.lock();\n";
       line += codeGenerator::ident2 + "notifyFailure();\n";
-      line += codeGenerator::ident2 + "notify_mutex.unlock();\n";
       line += codeGenerator::ident2 + "eval_" + checkerName + "(";
       for (unsigned int i = 0; i < aps.size(); i++) {
         line += "0,";
@@ -216,17 +220,31 @@ bool generateCheckerSource(
         placeholders += " ,p" + std::to_string(i);
       }
 
-      line += codeGenerator::ident3 + "assign<bool>(pbuff, index_p" +
+      line += codeGenerator::ident3 + "assign<bool>(_pbuff, _index_p" +
               placeholders + ");\n";
-      line += codeGenerator::ident3 + "val = (req.buffer_o)[i];\n";
+      line += codeGenerator::ident3 + "val = (srv.response.buffer_o)[i];\n";
 
       for (unsigned int i = 0; i < aps.size(); i++) {
         line += codeGenerator::ident3 + "p" + std::to_string(i) +
                 " = val & (1ULL << " + std::to_string(i) + ");\n";
       }
 
-      line += codeGenerator::ident3 + "assign<bool>(order, index_p" +
+      line += codeGenerator::ident3 + "assign<bool>(_order, _index_p" +
               placeholders + ");\n";
+
+    } else if (line.compare("$setInit_p_MF") == 0) {
+      line = "";
+      for (auto prop : aps) {
+        line += codeGenerator::ident1 + "_last_" + prop.ap_name() +
+                " = srv.response.last_" + prop.ap_name() + ";\n";
+      }
+
+    } else if (line.compare("$setInit_p_MT") == 0) {
+      line = "";
+      for (auto prop : aps) {
+        line += codeGenerator::ident1 + "res.last_" + prop.ap_name() +
+                " = _last_" + prop.ap_name() + ";\n";
+      }
 
     }
 
@@ -266,11 +284,11 @@ bool generateCheckerSource(
         // Alphabetically sort placeholders, e.g. p1,p2,p0 => p0,p1,p2
         std::sort(usedPlaceholders.begin(), usedPlaceholders.end());
 
-        line += codeGenerator::ident6 + "assign<bool>(pbuff, index_p";
+        line += codeGenerator::ident6 + "assign<bool>(_pbuff, _index_p";
         line += getPbuffEntries(usedPlaceholders, phToProps.size());
         line += ");\n";
 
-        line += codeGenerator::ident6 + "assign<bool>(order, index_p";
+        line += codeGenerator::ident6 + "assign<bool>(_order, _index_p";
         line += getOrderEntries(usedPlaceholders, phToProps.size());
         line += ");\n";
 
@@ -294,21 +312,13 @@ bool generateCheckerSource(
         line += "void " + checkerName + "::addEvent_var" + std::to_string(i) +
                 "(ros::Time ts, ";
         line += v._type + " value){\n";
-        line += codeGenerator::ident1 +
-                "if(checkerPhase == pausing && ts > timestampToReach){\n";
-        line +=
-            codeGenerator::ident2 + "sendBufferClient(_remoteHandlerName);\n";
-        line += codeGenerator::ident2 + "checkerPhase = paused;\n";
-        line += codeGenerator::ident1 + "}\n";
-        line += codeGenerator::ident1 + "else{\n";
-        line += codeGenerator::ident2 + "addEvent_mutex.lock();\n";
+        line += codeGenerator::ident2 + "_addEvent_mutex.lock();\n";
+        line += codeGenerator::ident2 + "_last_msg_ts = ts;\n";
         line += codeGenerator::ident2 +
-                "vbuff.push_back(Event(ts, Value(value, " + std::to_string(i) +
+                "_vbuff.push_back(Event(ts, Value(value, " + std::to_string(i) +
                 "),";
         line += std::to_string(i) + "));\n";
-        line += codeGenerator::ident2 + "reorder();\n";
-        line += codeGenerator::ident2 + "addEvent_mutex.unlock();\n";
-        line += codeGenerator::ident1 + "}\n";
+        line += codeGenerator::ident2 + "_addEvent_mutex.unlock();\n";
         line += "}\n";
         i++;
       }
@@ -368,10 +378,10 @@ bool generateCheckerHeader(
       ;
 
     // Code for placeholders initialization
-    if (line.compare("$init") == 0) {
+    if (line.compare("$init_p") == 0) {
       line = "";
       for (auto prop : aps) {
-        line += codeGenerator::ident1 + "bool last_" + prop.ap_name() +
+        line += codeGenerator::ident1 + "bool _last_" + prop.ap_name() +
                 " = false;\n";
       }
     }
@@ -500,7 +510,7 @@ void generateEvalFunction(
   const spot::bdd_dict_ptr &dict = autAss->get_dict();
   unsigned num_states = autAss->num_states();
 
-  outstream << codeGenerator::ident1 << " currAss["
+  outstream << codeGenerator::ident1 << " _currAss["
             << autAss->get_init_state_number() << "]++;\n";
   // ass
   for (unsigned state = 0; state < num_states; state++) {
@@ -517,7 +527,7 @@ void generateEvalFunction(
     delete it;
 
     outstream << codeGenerator::ident1 << " for (size_t i = 0; i < "
-              << "currAss[" << state << "]; i++) {\n";
+              << "_currAss[" << state << "]; i++) {\n";
 
     // gather stop clauses
     std::set<size_t> timers;
@@ -559,7 +569,7 @@ void generateEvalFunction(
             }
           }
 
-          outstream << codeGenerator::ident3 << "endIns++;" << std::endl;
+          outstream << codeGenerator::ident3 << "_endIns++;" << std::endl;
           // outstream << codeGenerator::ident3 << "endIns+="
           //          << "currAss[" << state << "];" << std::endl;
           // outstream << codeGenerator::ident3 << "break;" << std::endl;
@@ -576,24 +586,24 @@ void generateEvalFunction(
           }
         }
 
-        outstream << codeGenerator::ident3 << " nextAss[" << edge.dst
+        outstream << codeGenerator::ident3 << " _nextAss[" << edge.dst
                   << "]++;\n";
       }
       delete it;
       outstream << codeGenerator::ident2 << "}\n";
     }
     outstream << codeGenerator::ident1 << "}\n";
-    outstream << codeGenerator::ident1 << " currAss[" << state << "]=0;\n";
+    outstream << codeGenerator::ident1 << " _currAss[" << state << "]=0;\n";
   }
   outstream << codeGenerator::ident1 << "for (size_t i = 0; i <"
             << autAss->num_states() << "; i++) {\n";
-  outstream << codeGenerator::ident2 << "    currAss[i] = nextAss[i];\n";
-  outstream << codeGenerator::ident2 << "    nextAss[i] = 0;\n";
+  outstream << codeGenerator::ident2 << "    _currAss[i] = _nextAss[i];\n";
+  outstream << codeGenerator::ident2 << "    _nextAss[i] = 0;\n";
   outstream << codeGenerator::ident1 << "}\n";
 
   // ant
 
-  outstream << codeGenerator::ident1 << " currAnt["
+  outstream << codeGenerator::ident1 << " _currAnt["
             << autAnt->get_init_state_number() << "]++;\n";
   num_states = autAnt->num_states();
   for (unsigned state = 0; state < num_states; state++) {
@@ -610,7 +620,7 @@ void generateEvalFunction(
     delete it;
 
     outstream << codeGenerator::ident1 << " for (size_t i = 0; i < "
-              << "currAnt[" << state << "]; i++) {\n";
+              << "_currAnt[" << state << "]; i++) {\n";
 
     // gather stop clauses
     std::set<size_t> timers;
@@ -647,35 +657,35 @@ void generateEvalFunction(
           //  outstream << codeGenerator::ident3 << "conIns+="
           //            << "currAnt[" << state << "];" << std::endl;
           //  outstream << codeGenerator::ident3 << "break;" << std::endl;
-          outstream << codeGenerator::ident3 << "conIns++;" << std::endl;
+          outstream << codeGenerator::ident3 << "_conIns++;" << std::endl;
         } else {
           // outstream << codeGenerator::ident3 << "endIns-="
           //          << "currAnt[" << state << "];" << std::endl;
           // outstream << codeGenerator::ident3 << "break;" << std::endl;
 
-          outstream << codeGenerator::ident3 << "endIns--;" << std::endl;
+          outstream << codeGenerator::ident3 << "_endIns--;" << std::endl;
         }
       } else {
         // non terminal
 
-        outstream << codeGenerator::ident3 << " nextAnt[" << edge.dst
+        outstream << codeGenerator::ident3 << " _nextAnt[" << edge.dst
                   << "]++;\n";
       }
       delete it;
       outstream << codeGenerator::ident2 << "}\n";
     }
     outstream << codeGenerator::ident1 << "}\n";
-    outstream << codeGenerator::ident1 << " currAnt[" << state << "]=0;\n";
+    outstream << codeGenerator::ident1 << " _currAnt[" << state << "]=0;\n";
   }
   outstream << codeGenerator::ident1 << "for (size_t i = 0; i <"
             << autAnt->num_states() << "; i++) {\n";
-  outstream << codeGenerator::ident2 << "    currAnt[i] = nextAnt[i];\n";
-  outstream << codeGenerator::ident2 << "    nextAnt[i] = 0;\n";
+  outstream << codeGenerator::ident2 << "    _currAnt[i] = _nextAnt[i];\n";
+  outstream << codeGenerator::ident2 << "    _nextAnt[i] = 0;\n";
   outstream << codeGenerator::ident1 << "}\n";
 
-  outstream << codeGenerator::ident1 << "if (conIns - endIns > 0) {\n";
+  outstream << codeGenerator::ident1 << "if (_conIns - _endIns > 0) {\n";
   outstream << codeGenerator::ident2 << "_priority = 2;\n";
-  outstream << codeGenerator::ident1 << "} else if (conIns - endIns <= 0) {\n";
+  outstream << codeGenerator::ident1 << "} else if (_conIns - _endIns <= 0) {\n";
   outstream << codeGenerator::ident2 << "_priority = 1;\n";
   outstream << codeGenerator::ident1 << "}\n";
 

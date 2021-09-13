@@ -1,4 +1,5 @@
 #include "handlerGenerator.hh"
+#include "types.hh"
 #include <cmath>
 #include <cstdio>
 #include <dirent.h>
@@ -83,8 +84,7 @@ bool generateHandlerSource(std::vector<strChecker> &checkers, int nPhs[]) {
         line += "void " + callbackName + "(const ";
 
         line += msgType + "::Ptr& msg){\n";
-        line += codeGenerator::ident1 + "std::lock_guard<std::mutex> lock{v" +
-                std::to_string(callbackNum) + "Mutex};\n\n";
+//        line += codeGenerator::ident1 + "std::lock_guard<std::mutex> lock{v" + std::to_string(callbackNum) + "Mutex};\n\n";
         line += codeGenerator::ident1 + "for (const auto& e : chs) {\n";
         line += codeGenerator::ident2 + "auto checker = e.second;\n";
 
@@ -123,13 +123,15 @@ bool generateHandlerSource(std::vector<strChecker> &checkers, int nPhs[]) {
       for (auto e : checkersMsg) {
         std::string callbackName = "callbackV" + std::to_string(i);
         line += codeGenerator::ident1 + (i == 0 ? "if(" : "else if(");
-        line += "cbd._name == \"V" + std::to_string(i) + "\"){\n";
-        line += codeGenerator::ident2 + "*cbd._sub = n->subscribe(\"" +
+        line += "name == \"V" + std::to_string(i) + "\"){\n";
+        line += codeGenerator::ident2 + "attachedTopics[name] = n->subscribe(\"" +
                 callbackTopic.at(callbackName) + "\", 1000, " + callbackName +
                 ", ros::TransportHints().tcpNoDelay());\n";
         line += codeGenerator::ident1 + "}\n";
         i++;
       }
+        line += codeGenerator::ident1 + "else{\n"+codeGenerator::ident1+" assert(0);}\n";
+
     } else if (line.compare("$initChecker") == 0) {
       line = "";
       size_t i = 0;
@@ -139,8 +141,18 @@ bool generateHandlerSource(std::vector<strChecker> &checkers, int nPhs[]) {
         line += codeGenerator::ident2 + "chs[\"" + ch._name + "\"] = new " +
                 ch._name + "(" + std::to_string(nPhs[i]) + ",1,";
         line += std::string("ros::this_node::getName(), ") + "\"" + ch._name +
-                "\"" + ", false";
+                "\"";
         line += ");\n";
+        line += codeGenerator::ident1 + "}\n";
+        i++;
+      }
+    } else if (line.compare("$pubService") == 0) {
+      line = "";
+      size_t i = 0;
+      for (auto ch : checkers) {
+        line += codeGenerator::ident1 + (i == 0 ? "if(" : "else if(");
+        line += "name == \"" + ch._name + "\"){\n";
+        line += codeGenerator::ident2 + "checkerToSS[\"" + ch._name + "\"] = n->advertiseService( ros::this_node::getName() + \"/migrate/\" + \""+ch._name+"\", migrateTo);\n";
         line += codeGenerator::ident1 + "}\n";
         i++;
       }
