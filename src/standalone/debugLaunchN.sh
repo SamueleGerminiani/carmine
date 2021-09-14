@@ -5,8 +5,10 @@ rosrun msg_gen msg_gen_node &
 
 i=1
 while [ "$i" -le "$1" ]; do
-  rosrun verification_env verification_env_node __name:="my_node$i" &
-  i=$(($i + 1))
+#./devel/lib/verification_env/verification_env_node __name:="my_node$i" &
+gdb -ex run -ex backtrace --args ./devel/lib/verification_env/verification_env_node __name:="my_node$i" &
+#valgrind --tool=helgrind --quiet ./devel/lib/verification_env/verification_env_node __name:="my_node$i" &
+i=$(($i + 1))
 done
 
 read -n1 -r -p "" key
