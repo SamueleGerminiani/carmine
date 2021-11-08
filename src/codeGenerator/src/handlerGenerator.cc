@@ -132,7 +132,7 @@ bool generateHandlerSource(std::vector<strChecker> &checkers, int nPhs[]) {
       }
         line += codeGenerator::ident1 + "else{\n"+codeGenerator::ident1+" assert(0);}\n";
 
-    } else if (line.compare("$initChecker") == 0) {
+    } else if (line.compare("$initCheckers") == 0) {
       line = "";
       size_t i = 0;
       for (auto ch : checkers) {

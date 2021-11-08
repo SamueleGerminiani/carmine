@@ -141,8 +141,6 @@ bool generateCheckerSource(
   // Read template file, and on each line replace $ClassName$
   // or generate code
 
-  std::map<std::string, std::vector<strVariable>> parsedVars;
-  groupVariablesByMsgType(parsedVars, varList);
   std::string line;
 
   while (getline(src, line)) {
@@ -222,7 +220,7 @@ bool generateCheckerSource(
 
       line += codeGenerator::ident3 + "assign<bool>(_pbuff, _index_p" +
               placeholders + ");\n";
-      line += codeGenerator::ident3 + "val = (srv.response.buffer_o)[i];\n";
+      line += codeGenerator::ident3 + "val = (res.buffer_o)[i];\n";
 
       for (unsigned int i = 0; i < aps.size(); i++) {
         line += codeGenerator::ident3 + "p" + std::to_string(i) +
@@ -234,16 +232,16 @@ bool generateCheckerSource(
 
     } else if (line.compare("$setInit_p_MF") == 0) {
       line = "";
+      size_t i=0;
       for (auto prop : aps) {
         line += codeGenerator::ident1 + "_last_" + prop.ap_name() +
-                " = srv.response.last_" + prop.ap_name() + ";\n";
+                " = res.last_p[" + std::to_string(i++) + "];\n";
       }
 
     } else if (line.compare("$setInit_p_MT") == 0) {
       line = "";
       for (auto prop : aps) {
-        line += codeGenerator::ident1 + "res.last_" + prop.ap_name() +
-                " = _last_" + prop.ap_name() + ";\n";
+        line += codeGenerator::ident1 + "res.last_p.push_back(" + "_last_" + prop.ap_name() + ");\n";
       }
 
     }
@@ -314,6 +312,7 @@ bool generateCheckerSource(
         line += v._type + " value){\n";
         line += codeGenerator::ident2 + "_addEvent_mutex.lock();\n";
         line += codeGenerator::ident2 + "_last_msg_ts = ts;\n";
+        line += codeGenerator::ident2 + "_numberOfAddEvent++;\n";
         line += codeGenerator::ident2 +
                 "_vbuff.push_back(Event(ts, Value(value, " + std::to_string(i) +
                 "),";
@@ -353,9 +352,6 @@ bool generateCheckerHeader(
               << checkerName << ".hh" << std::endl;
     return false;
   }
-
-  std::map<std::string, std::vector<strVariable>> parsedVars;
-  groupVariablesByMsgType(parsedVars, varList);
 
   std::string line;
   std::vector<spot::formula> aps;
@@ -447,16 +443,20 @@ bool generateCheckerHeader(
     // initial state
     else if (line.compare("$msgHeaders") == 0) {
       line = "";
+      std::unordered_set<std::string> alreadyIncluded;
       for (auto var : varList) {
-        line += "#include \"";
+          std::string toInclude="";
+        toInclude += "#include \"";
         auto msgType = var._msgType;
         auto p = msgType.find_first_of(":");
         msgType.replace(p, 2, "/");
-        line += msgType + ".h\"\n";
+        toInclude += msgType + ".h\"\n";
+        if (alreadyIncluded.count(toInclude)) {
+            continue;
+        }
+        alreadyIncluded.insert(toInclude);
+        line+=toInclude;
       }
-
-      line += "#define INIT_" + checkerName + " " +
-              std::to_string(autAss->get_init_state_number()) + "\n";
 
     }
 

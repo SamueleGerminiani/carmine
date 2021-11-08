@@ -25,7 +25,7 @@ class Scheduler {
         Request* rq = new Request(ch);
         Dispatcher::addRequest(rq);
     }
-    void removeCheckerRequest(Checker* ch) {
+    void removeCheckerRequest(std::vector<Checker*> &ch) {
         const std::lock_guard<std::mutex> lock(_removeCheckerRequestMutex);
         Dispatcher::killRequest(ch);
     }

@@ -1,0 +1,6 @@
+string[] checkers
+time[] stamp
+---
+checkerData[] cd
+---
+bool progress

@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(verification_env)
 
+include(FindPackageHandleStandardArgs)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+
+
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
 
@@ -8,6 +12,8 @@ project(verification_env)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  actionlib_msgs
+  actionlib
   roscpp
   rospy
   std_msgs
@@ -16,7 +22,6 @@ find_package(catkin REQUIRED COMPONENTS
   message_runtime
   msg_gen
 )
-
 
 
 ## System dependencies are found with CMake's conventions
@@ -52,18 +57,17 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * uncomment the generate_messages entry below
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
+add_action_files(DIRECTORY action FILES migrate.action)
 
 
-## Generate services in the 'srv' folder
-add_service_files(
-   FILES
-   migrate.srv
-)
 
 add_message_files(
   FILES
+  stat.msg
   su.msg
   command.msg
+  ack.msg
+  checkerData.msg
 )
 
 
@@ -71,6 +75,7 @@ add_message_files(
 generate_messages(
    DEPENDENCIES
    std_msgs
+   actionlib_msgs
 )
 
 ################################################
@@ -102,12 +107,12 @@ generate_messages(
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
-catkin_package(
+#catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES verification_env
 #  CATKIN_DEPENDS roscpp rospy std_msgs
 #  DEPENDS system_lib
-)
+#)
 
 ###########
 ## Build ##
@@ -120,9 +125,15 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   scheduler/include
   checkers/include
+  lib/z3/include
+  commandLineParser/include/
+  lib/clp/include/
 )
 
+add_subdirectory(commandLineParser)
 add_subdirectory(scheduler)
+
+find_package(Z3 REQUIRED)
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -137,12 +148,18 @@ add_subdirectory(scheduler)
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node ver_env/src/handler.cpp)
-target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES})
+
+add_executable(${PROJECT_NAME}_node ver_env/src/handler.cpp
+    ver_env/src/coordinator.cpp
+    ver_env/src/globals.cpp)
 target_link_libraries(${PROJECT_NAME}_node scheduler)
+target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}_node ${Z3_LIBRARY})
+target_link_libraries(${PROJECT_NAME}_node commandLineParser)
 
 include_directories(
 # include
+ver_env/src/
   ${catkin_INCLUDE_DIRS}
 )
 

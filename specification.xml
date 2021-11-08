@@ -30,7 +30,6 @@
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
         <checker name="CheckerT1" description="simple checker" LTLformula="G(v1 ->$timeout(v2,2000) & $timeout(v3,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
@@ -48,4 +47,5 @@
 				<msgField>num</msgField>
 			</variable>
 		</checker>
+
 </handler>

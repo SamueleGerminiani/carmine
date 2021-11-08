@@ -16,8 +16,6 @@ std::queue<std::pair<
 std::condition_variable Dispatcher::workerNotifyNewRequest;
 std::mutex Dispatcher::workerMutexNewRequest;
 
-std::condition_variable Dispatcher::notifyRequestKilled;
-std::mutex Dispatcher::toKillMutex;
 
 std::mutex Dispatcher::requestsMutex;
 std::mutex Dispatcher::workersMutex;
@@ -25,6 +23,7 @@ std::vector<Worker *> Dispatcher::allWorkers;
 std::vector<std::thread *> Dispatcher::threads;
 std::mutex Dispatcher::sleepersMutex;
 std::thread *Dispatcher::sh;
+Semaphore *Dispatcher::killSema;
 bool Dispatcher::stopSH = false;
 size_t sleeperSpeed = 1;
 size_t sleepTime = 100;
@@ -46,7 +45,7 @@ void Dispatcher::init(size_t n_workers) {
 void Dispatcher::addRequest(Request *request) {
     if (request->_checker->_toKill) {
         delete request;
-        notifyRequestKilled.notify_all();
+        killSema->notify();
         return;
     }
 
@@ -66,16 +65,6 @@ bool Dispatcher::addWorker(Worker *worker) {
     if (requests.empty()) {
         requestsMutex.unlock();
         return false;
-    }
-    if (requests.front()->_checker->_toKill) {
-        Request *r = requests.front();
-        requests.pop_front();
-        delete r;
-        notifyRequestKilled.notify_all();
-        if (requests.empty()) {
-            requestsMutex.unlock();
-            return false;
-        }
     }
     worker->setRequest(requests.front());
     requests.pop_front();
@@ -139,9 +128,14 @@ void Dispatcher::sleepersHandler() {
         sleepersMutex.unlock();
     }
 }
-void Dispatcher::killRequest(Checker *ch) {
-    std::unique_lock<std::mutex> ulock(Dispatcher::toKillMutex);
+void Dispatcher::killRequest(std::vector<Checker *> &chs) {
+    killSema = new Semaphore(0);
+    for (auto &ch : chs) {
+        ch->_toKill = 1;
+    }
 
-    ch->_toKill = 1;
-    Dispatcher::notifyRequestKilled.wait(ulock);
+    for (auto &ch : chs) {
+        killSema->wait();
+    }
+    delete killSema;
 }

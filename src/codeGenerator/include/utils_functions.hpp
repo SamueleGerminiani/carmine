@@ -56,24 +56,6 @@ countVarTypes(std::vector<strVariable> &varList) {
   return res;
 }
 
-// Given a XmlNodeList of variable nodes return a map having the msgType as key
-// and as value a vector of strVariable representing the variables that are
-// updated from that topic
-inline void groupVariablesByMsgType(
-    std::map<std::string, std::vector<strVariable>> &parsedVars,
-    std::vector<strVariable> &varList) {
-
-  for (auto var : varList) {
-
-    if (parsedVars.count(var._msgType) == 0) {
-      parsedVars.insert(std::pair<std::string, std::vector<strVariable>>(
-          var._msgType, std::vector<strVariable>()));
-    }
-
-    parsedVars[var._msgType].push_back(var);
-  }
-}
-
 // Return a map with a placeholder as key and a vector of variables names as
 // value
 inline void groupVariablesByPlaceholders(
@@ -125,7 +107,12 @@ inline std::string getPbuffEntries(std::vector<std::string> &placeholders,
   return ret;
 }
 
-// Return a map having a pair <message type,topic> as key and as value a vector
+inline std::string toLowerCase(std::string data) {
+  std::transform(data.begin(), data.end(), data.begin(),
+                 [](unsigned char c) { return std::tolower(c); });
+  return data;
+}
+// Return a map having a pair <message type,topic> as key and as value a set
 // of the checkers that
 // listen to that type and topic
 inline std::map<std::pair<std::string, std::string>, std::set<std::string>>

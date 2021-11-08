@@ -8,6 +8,7 @@
 #include "specificationParser.hh"
 #include "types.hh"
 #include "globals.hh"
+#include "ver_EnvGenerator.hh"
 using namespace std::filesystem;
 namespace codeGenerator {
 void generateVerEnv(const std::string &pathToSpec) {
@@ -68,13 +69,25 @@ void generateVerEnv(const std::string &pathToSpec) {
     exit(1);
   }
 
-  // generate ver_env.cpp
-  if (!generateHandlerSource(handler._checkers, nPhs)) {
-    delete[] nPhs;
-    std::cout << "Could not generate handler node" << std::endl;
+  // generate ver_env
+  if (!generateCallbackHeader(handler._checkers)){
+    std::cout << "Could not generate CallbackHeader" << std::endl;
+    exit(1);
+  }
+  if (!generateCheckerHelperHeader(handler._checkers, nPhs)) {
+    std::cout << "Could not generate CheckerHelperHeader" << std::endl;
     exit(1);
   }
 
+  if (!generateGlobalsHeader(handler._checkers)) {
+    std::cout << "Could not generate GlobalsHeader" << std::endl;
+    exit(1);
+  }
+
+  if (!generateGlobalsSource(handler._checkers)) {
+    std::cout << "Could not generate GlobalsSource" << std::endl;
+    exit(1);
+  }
   delete[] nPhs;
 }
 }

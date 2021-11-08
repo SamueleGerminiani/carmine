@@ -1,7 +1,8 @@
 #pragma once
 #include <mutex>
-#include <string>
 #include <thread>
+#include <condition_variable>
+#include <string>
 
 #include "Checker.hpp"
 class Request {
@@ -12,6 +13,8 @@ class Request {
     std::mutex lockMutex;
     std::unique_lock<std::mutex> lock{lockMutex};
     std::thread* tt;
+    std::condition_variable reqNotifyAbruptEnd;
+    std::mutex reqAbruptEndMutex;
     void timer();
 
    public:

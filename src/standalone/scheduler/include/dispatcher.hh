@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "request.hh"
+#include "semaphore.hh"
 #include "worker.hh"
 
 class Dispatcher {
@@ -18,7 +19,7 @@ class Dispatcher {
     static void addSleeper(Request *request);
     static size_t requestLeft();
     static void sleepersHandler();
-    static void killRequest(Checker *ch);
+    static void killRequest(std::vector<Checker*> &chs);
 
    private:
     static std::deque<Request *> requests;
@@ -28,11 +29,10 @@ class Dispatcher {
     static std::vector<Worker *> allWorkers;
     static std::vector<std::thread *> threads;
 
-    static std::condition_variable notifyRequestKilled;
-    static std::mutex toKillMutex;
-
     static std::condition_variable workerNotifyNewRequest;
     static std::mutex workerMutexNewRequest;
+
+    static Semaphore* killSema;
 
     static size_t HPsum;
     static size_t LPsum;
