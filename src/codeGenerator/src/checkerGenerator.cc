@@ -307,7 +307,7 @@ bool generateCheckerSource(
 
         bindings[checkerName].push_back(v);
 
-        line += "void " + checkerName + "::addEvent_var" + std::to_string(i) +
+        line += "void " + checkerName + "::addEvent_" + v._name +
                 "(ros::Time ts, ";
         line += v._type + " value){\n";
         line += codeGenerator::ident2 + "_addEvent_mutex.lock();\n";
@@ -462,12 +462,10 @@ bool generateCheckerHeader(
 
     else if (line.compare("$addEvent") == 0) {
       line = "";
-      int i = 0;
       for (auto v : varList) {
-        line += codeGenerator::ident1 + "void addEvent_var" +
-                std::to_string(i) + "(ros::Time ts, ";
+        line += codeGenerator::ident1 + "void addEvent_" +
+                v._name + "(ros::Time ts, ";
         line += v._type + " value);\n";
-        i++;
       }
     }
 

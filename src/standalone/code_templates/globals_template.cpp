@@ -15,9 +15,8 @@
 
 #include <verification_env/migrateAction.h>
 #include <unordered_set>
-#include "include_checkers.hh"
 #include "ros/ros.h"
-#include "scheduler.hh"
+#include "globals.hh"
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
@@ -26,6 +25,8 @@
 #include "verification_env/command.h"
 #include "verification_env/stat.h"
 #include "verification_env/su.h"
+
+
 // this function is called by the client Ros service (migrateFrom)
 // it contains the checkers currently executed by this node
 std::unordered_map<std::string, Checker *> chsActive;

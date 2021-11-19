@@ -3,7 +3,6 @@
 #include "codeGenerator.hh"
 #include "checkerGenerator.hh"
 #include "converter.hh"
-#include "handlerGenerator.hh"
 #include "parserUtils.hh"
 #include "specificationParser.hh"
 #include "types.hh"
@@ -60,13 +59,6 @@ void generateVerEnv(const std::string &pathToSpec) {
     }
 
     i++;
-  }
-
-  // generate include_checkers.hh
-  if (!generateHandlerHeader(handler._checkers)) {
-    delete[] nPhs;
-    std::cout << "Could not generate header file for handler node" << std::endl;
-    exit(1);
   }
 
   // generate ver_env

@@ -1,6 +1,6 @@
 
-#include "handlerGenerator.hh"
 #include "types.hh"
+#include "ver_EnvGenerator.hh"
 #include <cmath>
 #include <cstdio>
 #include <dirent.h>
@@ -11,9 +11,96 @@
 #include <spot/tl/formula.hh>
 #include <string>
 #include <utility>
+#include <vector>
 using namespace std::filesystem;
 
 namespace codeGenerator {
+
+std::unordered_map<std::string, std::vector<std::string>>
+get_topicToCheckers(std::vector<strChecker> &checkers) {
+  std::unordered_map<std::string, std::vector<std::string>> ret;
+  for (auto &ch : checkers) {
+    for (auto &var : ch._variables) {
+      ret[var._rosTopic].push_back(ch._name);
+    }
+  }
+
+  for (auto &t_cc : ret) {
+    auto &vec = t_cc.second;
+    std::sort(vec.begin(), vec.end());
+    vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
+  }
+  return ret;
+}
+
+std::unordered_map<std::string, std::string>
+get_topicToEnTopic(std::vector<strChecker> &checkers) {
+
+  std::vector<std::string> topics;
+  for (auto &ch : checkers) {
+    for (auto &var : ch._variables) {
+      topics.push_back(var._rosTopic);
+    }
+  }
+
+  std::sort(topics.begin(), topics.end());
+  topics.erase(std::unique(topics.begin(), topics.end()), topics.end());
+  std::unordered_map<std::string, std::string> ret;
+  for (size_t i = 0; i < topics.size(); i++) {
+    ret[topics[i]] = "T" + std::to_string(i);
+  }
+
+  return ret;
+}
+std::unordered_map<std::string, std::string>
+get_enTopicToTopic(std::vector<strChecker> &checkers) {
+
+  std::vector<std::string> topics;
+  for (auto &ch : checkers) {
+    for (auto &var : ch._variables) {
+      topics.push_back(var._rosTopic);
+    }
+  }
+
+  std::sort(topics.begin(), topics.end());
+  topics.erase(std::unique(topics.begin(), topics.end()), topics.end());
+  std::unordered_map<std::string, std::string> ret;
+  for (size_t i = 0; i < topics.size(); i++) {
+    ret["T" + std::to_string(i)] = topics[i];
+  }
+
+  return ret;
+}
+std::unordered_map<std::string, std::string>
+get_topicToMsgType(std::vector<strChecker> &checkers) {
+
+  std::unordered_map<std::string, std::string> ret;
+  for (auto &ch : checkers) {
+    for (auto &var : ch._variables) {
+      ret[var._rosTopic] = var._msgType;
+    }
+  }
+
+  return ret;
+}
+std::map<std::pair<std::string, std::string>,
+         std::vector<std::pair<std::string, std::string>>>
+get_CheckerTopicToVarField(std::vector<strChecker> &checkers) {
+
+  std::map<std::pair<std::string, std::string>,
+           std::vector<std::pair<std::string, std::string>>>
+      ret;
+
+  for (auto &ch : checkers) {
+    for (auto &var : ch._variables) {
+      ret[std::make_pair(ch._name, var._rosTopic)].push_back(
+          std::make_pair(var._name, var._msgField));
+    }
+  }
+
+  return ret;
+}
+
 bool generateCallbackHeader(std::vector<strChecker> &checkers) {
   std::ifstream src("src/standalone/code_templates/callback_template.hh");
   if (src.fail()) {
@@ -32,92 +119,61 @@ bool generateCallbackHeader(std::vector<strChecker> &checkers) {
 
   std::string line;
 
-  int callbackNum = 0;
-  std::map<std::string, std::string> callbackToTopic;
-  std::map<std::string, std::string> callbackToEnTopic;
-  std::map<std::string, std::string> enTopicToCallback;
-  std::map<std::string, std::string> topicToCallback;
-  std::map<std::string, std::string> topicToEnTopic;
-  std::map<std::string, size_t> chNameToIndexInCheckers;
-  std::map<std::pair<std::string, std::string>, std::set<std::string>>
-      checkersMsg = groupCheckersByMsgTopic(checkers);
-  std::map<std::pair<std::string, std::string>, std::pair<strVariable, size_t>>
-      ch_enTp_ToVarEn;
-
-  for (auto e : checkersMsg) {
-    std::string callbackName = "callbackV" + std::to_string(callbackNum);
-    auto topicName = e.first.second;
-    callbackToTopic[callbackName] = topicName;
-    topicToCallback[topicName] = callbackName;
-    callbackToEnTopic[callbackName] = "V" + std::to_string(callbackNum);
-    enTopicToCallback["V" + std::to_string(callbackNum)] = callbackName;
-    topicToEnTopic[topicName] = "V" + std::to_string(callbackNum);
-    callbackNum++;
-  }
-  for (size_t i = 0; i < checkers.size(); i++) {
-    chNameToIndexInCheckers[checkers[i]._name] = i;
-  }
-
-  for (auto &cm : checkersMsg) {
-    std::string topicName = cm.first.second;
-    for (auto &chName : cm.second) {
-      auto &vars = checkers[chNameToIndexInCheckers.at(chName)]._variables;
-      auto it = std::find_if(vars.begin(), vars.end(), [&topicName](auto &e) {
-        return e._rosTopic == topicName;
-      });
-      ch_enTp_ToVarEn[std::make_pair(chName, topicToEnTopic.at(topicName))] =
-          std::make_pair(*it, std::distance(vars.begin(), it));
-    }
-  }
+  auto topicToEnTopic = get_topicToEnTopic(checkers);
+  auto topicToCheckers = get_topicToCheckers(checkers);
+  auto topicToMsgType = get_topicToMsgType(checkers);
+  auto checkerTopicToVarField = get_CheckerTopicToVarField(checkers);
 
   // parse and substitute
   while (getline(src, line)) {
     if (line.compare("$callbacks") == 0) {
       line = "";
-      for (auto e : checkersMsg) {
-        auto checkerList = e.second;
-        auto msgType = e.first.first;
-        auto topicName = e.first.second;
-        std::string callbackName = topicToCallback.at(topicName);
+      for (auto &t_et : topicToEnTopic) {
+        auto msgType = topicToMsgType.at(t_et.first);
+        auto topicName = t_et.first;
+        std::string callbackName = "callback" + t_et.second;
 
         line += "//Callback for topic " + topicName + "\n";
         line += "inline void " + callbackName + "(const ";
         line += msgType + "::Ptr& msg){\n";
-        line += codeGenerator::ident1 + "const std::lock_guard<std::mutex> lock(" +
+        line += codeGenerator::ident1 +
+                "const std::lock_guard<std::mutex> lock(" +
                 toLowerCase(topicToEnTopic.at(topicName)) + "Mutex);\n\n";
         line += codeGenerator::ident1 + "for (auto& fp : " +
                 toLowerCase(topicToEnTopic.at(topicName)) + "AddEvent) {\n";
-        line +=
-            codeGenerator::ident2 +
-            "fp.second.second(fp.second.first, msg->header.stamp, msg->num);\n";
+        line += codeGenerator::ident2 +
+                "fp.second.second(fp.second.first, msg->header.stamp, msg);\n";
         line += codeGenerator::ident1 + "}\n";
         line += "}\n";
       }
 
     } else if (line.compare("$addVars") == 0) {
       line = "";
-      for (auto &c_et_vl : ch_enTp_ToVarEn) {
-        line += "//" + c_et_vl.second.first._name + "\n";
-        line += "inline void addVar" + c_et_vl.first.first + "_" +
-                c_et_vl.first.second + "(Checker *ch, ros::Time ts, " +
-                c_et_vl.second.first._type + " val) {\n";
-        line += codeGenerator::ident1 + "dynamic_cast<" + c_et_vl.first.first +
-                " *>(ch)->addEvent_var" +
-                std::to_string(c_et_vl.second.second) + "(ts, val);\n";
+      for (auto &ct_vf : checkerTopicToVarField) {
+        line += "inline void addVar" + ct_vf.first.first + "_" +
+                topicToEnTopic.at(ct_vf.first.second) +
+                "(Checker *ch, ros::Time ts, const " +
+                topicToMsgType.at(ct_vf.first.second) + "::Ptr& msg) {\n";
+        for (auto &vf : ct_vf.second) {
+
+          line += codeGenerator::ident1 + "dynamic_cast<" + ct_vf.first.first +
+                  " *>(ch)->addEvent_" + vf.first + "(ts, msg->" + vf.second +
+                  ");\n";
+        }
         line += "}\n";
       }
 
     } else if (line.compare("$attachCallbacks") == 0) {
       line = "";
       size_t i = 0;
-      for (auto e : checkersMsg) {
-        std::string callbackName = "callbackV" + std::to_string(i);
+      for (auto t_cc : topicToCheckers) {
+        std::string callbackName = "callback" + topicToEnTopic.at(t_cc.first);
         line += (i == 0 ? codeGenerator::ident1 + "if(" : "else if(");
-        line += "name == \"V" + std::to_string(i) + "\"){\n";
+        line += "name == \"" + topicToEnTopic.at(t_cc.first) + "\"){\n";
         line += codeGenerator::ident2 +
-                "attachedTopics[name] = n->subscribe(\"" +
-                callbackToTopic.at(callbackName) + "\", 10000, " +
-                callbackName + ", ros::TransportHints().tcpNoDelay());\n";
+                "attachedTopics[name] = n->subscribe(\"" + t_cc.first +
+                "\", 10000, " + callbackName +
+                ", ros::TransportHints().tcpNoDelay()); \n ";
         line += codeGenerator::ident1 + "}";
         i++;
       }
@@ -126,37 +182,37 @@ bool generateCallbackHeader(std::vector<strChecker> &checkers) {
 
     } else if (line.compare("$removeTopicFPs") == 0) {
       line = "";
-      size_t i = 0;
-      for (auto e : checkersMsg) {
+      for (size_t i = 0; i < topicToCheckers.size(); i++) {
+
         line += (i == 0 ? codeGenerator::ident1 + "if(" : "else if(");
-        line += "topic == \"V" + std::to_string(i) + "\"){\n";
+        line += "topic == \"T" + std::to_string(i) + "\"){\n";
         line += codeGenerator::ident2 +
-                "const std::lock_guard<std::mutex> lock(v" + std::to_string(i) +
+                "const std::lock_guard<std::mutex> lock(t" + std::to_string(i) +
                 "Mutex);\n";
-        line += codeGenerator::ident2 + "v" + std::to_string(i) +
+        line += codeGenerator::ident2 + "t" + std::to_string(i) +
                 "AddEvent.erase(checker);\n";
         line += codeGenerator::ident1 + "}";
-        i++;
       }
       line += "else{\n" + codeGenerator::ident2 + "assert(0);\n" +
               codeGenerator::ident1 + "}\n";
     } else if (line.compare("$addTopicFPs") == 0) {
       line = "";
       size_t i = 0;
-      for (auto e : checkersMsg) {
+      for (auto e : topicToCheckers) {
         line += (i == 0 ? codeGenerator::ident1 + "if(" : "else if(");
-        line += "topic == \"V" + std::to_string(i) + "\"){\n";
+        line += "topic == \"" + topicToEnTopic.at(e.first) + "\"){\n";
         line += codeGenerator::ident2 +
-                "const std::lock_guard<std::mutex> lock(v" + std::to_string(i) +
-                "Mutex);\n";
+                "const std::lock_guard<std::mutex> lock(" +
+                toLowerCase(topicToEnTopic.at(e.first)) + "Mutex);\n";
 
         size_t j = 0;
         for (auto &ch : e.second) {
           line += (j == 0 ? codeGenerator::ident2 + "if(" : "else if(");
           line += "checker == \"" + ch + "\"){\n";
-          line += codeGenerator::ident3 + "v" + std::to_string(i) +
-                  "AddEvent[\"" + ch + "\"] = std::make_pair(chsAll.at(\"" +
-                  ch + "\"), &addVar" + ch + "_V" + std::to_string(i) + ");\n";
+          line += codeGenerator::ident3 +
+                  toLowerCase(topicToEnTopic.at(e.first)) + "AddEvent[\"" + ch +
+                  "\"] = std::make_pair(chsAll.at(\"" + ch + "\"), &addVar" +
+                  ch + "_" + topicToEnTopic.at(e.first) + ");\n";
 
           line += codeGenerator::ident2 + "}";
           j++;
@@ -173,14 +229,14 @@ bool generateCallbackHeader(std::vector<strChecker> &checkers) {
     } else if (line.compare("$pingTopics") == 0) {
       line = "";
       size_t i = 0;
-      for (auto e : checkersMsg) {
-        auto msgType = e.first.first;
-        std::string callbackName = "callbackV" + std::to_string(i);
+      for (auto e : topicToCheckers) {
+        auto msgType = topicToMsgType.at(e.first);
+        std::string callbackName = "callback" + topicToEnTopic.at(e.first);
         line += (i == 0 ? codeGenerator::ident1 + "if(" : "else if(");
-        line += "topic == \"V" + std::to_string(i) + "\"){\n";
+        line += "topic == \"" + topicToEnTopic.at(e.first) + "\"){\n";
         line += codeGenerator::ident2 + "boost::shared_ptr<" + msgType +
                 " const> msg = ros::topic::waitForMessage<" + msgType + ">(\"" +
-                callbackToTopic.at(callbackName) + "\", *n);\n";
+                e.first + "\", *n);\n";
         line +=
             codeGenerator::ident2 + "ttlInsert(topic, msg->header.stamp);\n";
         line += codeGenerator::ident1 + "}";
@@ -217,44 +273,10 @@ bool generateCheckerHelperHeader(std::vector<strChecker> &checkers,
   }
 
   std::string line;
-
-  int callbackNum = 0;
-  std::map<std::string, std::string> callbackToTopic;
-  std::map<std::string, std::string> callbackToEnTopic;
-  std::map<std::string, std::string> enTopicToCallback;
-  std::map<std::string, std::string> topicToCallback;
-  std::map<std::string, std::string> topicToEnTopic;
-  std::map<std::string, size_t> chNameToIndexInCheckers;
-  std::map<std::pair<std::string, std::string>, std::set<std::string>>
-      checkersMsg = groupCheckersByMsgTopic(checkers);
-  std::map<std::pair<std::string, std::string>, std::pair<strVariable, size_t>>
-      ch_enTp_ToVarEn;
-
-  for (auto e : checkersMsg) {
-    std::string callbackName = "callbackV" + std::to_string(callbackNum);
-    auto topicName = e.first.second;
-    callbackToTopic[callbackName] = topicName;
-    topicToCallback[topicName] = callbackName;
-    callbackToEnTopic[callbackName] = "V" + std::to_string(callbackNum);
-    enTopicToCallback["V" + std::to_string(callbackNum)] = callbackName;
-    topicToEnTopic[topicName] = "V" + std::to_string(callbackNum);
-    callbackNum++;
-  }
-  for (size_t i = 0; i < checkers.size(); i++) {
-    chNameToIndexInCheckers[checkers[i]._name] = i;
-  }
-
-  for (auto &cm : checkersMsg) {
-    std::string topicName = cm.first.second;
-    for (auto &chName : cm.second) {
-      auto &vars = checkers[chNameToIndexInCheckers.at(chName)]._variables;
-      auto it = std::find_if(vars.begin(), vars.end(), [&topicName](auto &e) {
-        return e._rosTopic == topicName;
-      });
-      ch_enTp_ToVarEn[std::make_pair(chName, topicToEnTopic.at(topicName))] =
-          std::make_pair(*it, std::distance(vars.begin(), it));
-    }
-  }
+  auto topicToEnTopic = get_topicToEnTopic(checkers);
+  auto topicToCheckers = get_topicToCheckers(checkers);
+  auto topicToMsgType = get_topicToMsgType(checkers);
+  auto checkerTopicToVarField = get_CheckerTopicToVarField(checkers);
 
   // parse and substitute
   while (getline(src, line)) {
@@ -276,14 +298,13 @@ bool generateCheckerHelperHeader(std::vector<strChecker> &checkers,
       }
     } else if (line.compare("$initCheckerTopicRelations") == 0) {
       line = "";
-      for (auto e : checkersMsg) {
+      for (auto e : topicToCheckers) {
         for (auto &ch : e.second) {
           line += codeGenerator::ident1 + "checkerToTopic[\"" + ch +
-                  "\"].emplace_back(\"" + topicToEnTopic.at(e.first.second) +
-                  "\");\n";
+                  "\"].emplace_back(\"" + topicToEnTopic.at(e.first) + "\");\n";
           line += codeGenerator::ident1 + "topicToChecker[\"" +
-                  topicToEnTopic.at(e.first.second) + "\"].emplace_back(\"" +
-                  ch + "\");\n";
+                  topicToEnTopic.at(e.first) + "\"].emplace_back(\"" + ch +
+                  "\");\n";
         }
       }
     } else {
@@ -312,60 +333,53 @@ bool generateGlobalsHeader(std::vector<strChecker> &checkers) {
   }
 
   std::string line;
-
-  int callbackNum = 0;
-  std::map<std::string, std::string> callbackToTopic;
-  std::map<std::string, std::string> callbackToEnTopic;
-  std::map<std::string, std::string> enTopicToCallback;
-  std::map<std::string, std::string> enTopicVarType;
-  std::map<std::string, std::string> topicToCallback;
-  std::map<std::string, std::string> topicToEnTopic;
-  std::map<std::string, size_t> chNameToIndexInCheckers;
-  std::map<std::pair<std::string, std::string>, std::set<std::string>>
-      checkersMsg = groupCheckersByMsgTopic(checkers);
-  std::map<std::pair<std::string, std::string>, std::pair<strVariable, size_t>>
-      ch_enTp_ToVarEn;
-
-  for (auto e : checkersMsg) {
-    std::string callbackName = "callbackV" + std::to_string(callbackNum);
-    auto topicName = e.first.second;
-    callbackToTopic[callbackName] = topicName;
-    topicToCallback[topicName] = callbackName;
-    callbackToEnTopic[callbackName] = "V" + std::to_string(callbackNum);
-    enTopicToCallback["V" + std::to_string(callbackNum)] = callbackName;
-    topicToEnTopic[topicName] = "V" + std::to_string(callbackNum);
-    callbackNum++;
-  }
-  for (size_t i = 0; i < checkers.size(); i++) {
-    chNameToIndexInCheckers[checkers[i]._name] = i;
-  }
-
-  for (auto &cm : checkersMsg) {
-    std::string topicName = cm.first.second;
-    for (auto &chName : cm.second) {
-      auto &vars = checkers[chNameToIndexInCheckers.at(chName)]._variables;
-      auto it = std::find_if(vars.begin(), vars.end(), [&topicName](auto &e) {
-        return e._rosTopic == topicName;
-      });
-      ch_enTp_ToVarEn[std::make_pair(chName, topicToEnTopic.at(topicName))] =
-          std::make_pair(*it, std::distance(vars.begin(), it));
-    }
-  }
-  for (auto &c : ch_enTp_ToVarEn) {
-      enTopicVarType[c.first.second]=c.second.first._type;
-  }
+  auto topicToEnTopic = get_topicToEnTopic(checkers);
+  auto topicToCheckers = get_topicToCheckers(checkers);
+  auto topicToMsgType = get_topicToMsgType(checkers);
+  auto checkerTopicToVarField = get_CheckerTopicToVarField(checkers);
 
   // parse and substitute
   while (getline(src, line)) {
     if (line.compare("$vMutexs") == 0) {
       line = "";
-      for (size_t i = 0; i < checkersMsg.size(); i++) {
-        line += "extern std::mutex v" + std::to_string(i) + "Mutex;\n";
+      for (size_t i = 0; i < topicToCheckers.size(); i++) {
+        line += "extern std::mutex t" + std::to_string(i) + "Mutex;\n";
       }
+    } else if (line.compare("$includeCheckers") == 0) {
+      line = "";
+      for (auto &ch : checkers) {
+        line += "#include \"" + ch._name + ".hh\"\n";
+      }
+    } else if (line.compare("$msgHeaders") == 0) {
+      line = "";
+      std::unordered_set<std::string> alreadyIncluded;
+      std::vector<strVariable> varList;
+      for (auto &ch : checkers) {
+        for (auto v : ch._variables) {
+          varList.push_back(v);
+        }
+      }
+      for (auto var : varList) {
+        std::string toInclude = "";
+        toInclude += "#include \"";
+        auto msgType = var._msgType;
+        auto p = msgType.find_first_of(":");
+        msgType.replace(p, 2, "/");
+        toInclude += msgType + ".h\"\n";
+        if (alreadyIncluded.count(toInclude)) {
+          continue;
+        }
+        alreadyIncluded.insert(toInclude);
+        line += toInclude;
+      }
+
     } else if (line.compare("$vAddEvents") == 0) {
       line = "";
-      for (auto &et_vt : enTopicVarType) {
-          line+="extern std::unordered_map<std::string,std::pair<Checker*,void (*)(Checker*, ros::Time, "+et_vt.second+")>> "+toLowerCase(et_vt.first)+"AddEvent;\n";
+      for (auto &t_m : topicToMsgType) {
+        line += "extern std::unordered_map<std::string,std::pair<Checker*,void "
+                "(*)(Checker*, ros::Time, const " +
+                topicToMsgType.at(t_m.first) + "::Ptr&)>> " +
+                toLowerCase(topicToEnTopic.at(t_m.first)) + "AddEvent;\n";
       }
     } else {
       line += "\n";
@@ -393,60 +407,25 @@ bool generateGlobalsSource(std::vector<strChecker> &checkers) {
   }
 
   std::string line;
-
-  int callbackNum = 0;
-  std::map<std::string, std::string> callbackToTopic;
-  std::map<std::string, std::string> callbackToEnTopic;
-  std::map<std::string, std::string> enTopicToCallback;
-  std::map<std::string, std::string> enTopicVarType;
-  std::map<std::string, std::string> topicToCallback;
-  std::map<std::string, std::string> topicToEnTopic;
-  std::map<std::string, size_t> chNameToIndexInCheckers;
-  std::map<std::pair<std::string, std::string>, std::set<std::string>>
-      checkersMsg = groupCheckersByMsgTopic(checkers);
-  std::map<std::pair<std::string, std::string>, std::pair<strVariable, size_t>>
-      ch_enTp_ToVarEn;
-
-  for (auto e : checkersMsg) {
-    std::string callbackName = "callbackV" + std::to_string(callbackNum);
-    auto topicName = e.first.second;
-    callbackToTopic[callbackName] = topicName;
-    topicToCallback[topicName] = callbackName;
-    callbackToEnTopic[callbackName] = "V" + std::to_string(callbackNum);
-    enTopicToCallback["V" + std::to_string(callbackNum)] = callbackName;
-    topicToEnTopic[topicName] = "V" + std::to_string(callbackNum);
-    callbackNum++;
-  }
-  for (size_t i = 0; i < checkers.size(); i++) {
-    chNameToIndexInCheckers[checkers[i]._name] = i;
-  }
-
-  for (auto &cm : checkersMsg) {
-    std::string topicName = cm.first.second;
-    for (auto &chName : cm.second) {
-      auto &vars = checkers[chNameToIndexInCheckers.at(chName)]._variables;
-      auto it = std::find_if(vars.begin(), vars.end(), [&topicName](auto &e) {
-        return e._rosTopic == topicName;
-      });
-      ch_enTp_ToVarEn[std::make_pair(chName, topicToEnTopic.at(topicName))] =
-          std::make_pair(*it, std::distance(vars.begin(), it));
-    }
-  }
-  for (auto &c : ch_enTp_ToVarEn) {
-      enTopicVarType[c.first.second]=c.second.first._type;
-  }
+  auto topicToEnTopic = get_topicToEnTopic(checkers);
+  auto topicToCheckers = get_topicToCheckers(checkers);
+  auto topicToMsgType = get_topicToMsgType(checkers);
+  auto checkerTopicToVarField = get_CheckerTopicToVarField(checkers);
 
   // parse and substitute
   while (getline(src, line)) {
     if (line.compare("$vMutexs") == 0) {
       line = "";
-      for (size_t i = 0; i < checkersMsg.size(); i++) {
-        line += "std::mutex v" + std::to_string(i) + "Mutex;\n";
+      for (size_t i = 0; i < topicToCheckers.size(); i++) {
+        line += "std::mutex t" + std::to_string(i) + "Mutex;\n";
       }
     } else if (line.compare("$vAddEvents") == 0) {
       line = "";
-      for (auto &et_vt : enTopicVarType) {
-          line+="std::unordered_map<std::string,std::pair<Checker*,void (*)(Checker*, ros::Time, "+et_vt.second+")>> "+toLowerCase(et_vt.first)+"AddEvent;\n";
+      for (auto &t_m : topicToMsgType) {
+        line += "std::unordered_map<std::string,std::pair<Checker*,void "
+                "(*)(Checker*, ros::Time, const " +
+                topicToMsgType.at(t_m.first) + "::Ptr&)>> " +
+                toLowerCase(topicToEnTopic.at(t_m.first)) + "AddEvent;\n";
       }
     } else {
       line += "\n";

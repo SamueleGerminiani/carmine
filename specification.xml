@@ -1,51 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <handler name ="handler0" migrateTo="handler1">
-		<!--checker name="CheckerT0" description="simple checker" LTLformula="G(v1 && v2 -> 0)">
-			<variable decl="bool v2">
-				<rosTopic>V2</rosTopic>
+        <checker name="Checker0" description="simple checker" LTLformula="G(v1 ->$timeout(v2,2000) & $timeout(v3 ,5000))">
+			<variable decl="bool v1">
+				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
+			<variable decl="bool v2">
+				<rosTopic>random2</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v3">
+				<rosTopic>random3</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+		</checker>
+        <checker name="Checker1" description="simple checker" LTLformula="G(v1 ->$timeout(v2,2000))">
+			<variable decl="bool v1">
+				<rosTopic>random1</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v2">
+				<rosTopic>random2</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+		</checker>
 
-			<variable decl="bool v1">
-				<rosTopic>V1</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-		</checker-->
-        <checker name="CheckerT0" description="simple checker" LTLformula="G(v1 ->$timeout(v2,2000) & $timeout(v3,5000))">
-			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-		</checker>
-        <checker name="CheckerT1" description="simple checker" LTLformula="G(v1 ->$timeout(v2,2000) & $timeout(v3,5000))">
-			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-		</checker>
 
 </handler>

@@ -112,34 +112,4 @@ inline std::string toLowerCase(std::string data) {
                  [](unsigned char c) { return std::tolower(c); });
   return data;
 }
-// Return a map having a pair <message type,topic> as key and as value a set
-// of the checkers that
-// listen to that type and topic
-inline std::map<std::pair<std::string, std::string>, std::set<std::string>>
-groupCheckersByMsgTopic(std::vector<strChecker> &checkers) {
-  std::map<std::pair<std::string, std::string>, std::set<std::string>> output;
-
-  for (auto ch : checkers) {
-    std::string name = ch._name;
-
-    for (auto v : ch._variables) {
-
-      std::string msgType = v._msgType;
-      std::string rosTopic = v._rosTopic;
-
-      // If the msg type is not already in the map instert it as key and create
-      // a new vector as value
-      if (!output.count(make_pair(msgType, rosTopic))) {
-        output.insert(std::pair<std::pair<std::string, std::string>,
-                                std::set<std::string>>(
-            make_pair(msgType, rosTopic), std::set<std::string>()));
-      }
-
-      // Add checker's name to the vector
-      output[make_pair(msgType, rosTopic)].insert(name);
-    }
-  }
-
-  return output;
-}
 }

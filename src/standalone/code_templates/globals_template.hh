@@ -14,7 +14,6 @@
 
 #include <verification_env/migrateAction.h>
 #include <unordered_set>
-#include "include_checkers.hh"
 #include "ros/ros.h"
 #include "scheduler.hh"
 #include "stdio.h"
@@ -26,6 +25,10 @@
 #include "verification_env/command.h"
 #include "verification_env/stat.h"
 #include "verification_env/su.h"
+#include "Checker.hpp"
+$includeCheckers
+$msgHeaders
+
 #define EXEC 0
 #define REMOVE 1
 #define MIGRATE_FROM 2

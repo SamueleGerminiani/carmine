@@ -19,7 +19,6 @@ include_directories(
 SET(CODE_GENERATOR_SRCS
    ./src/globals.cc
    ./src/checkerGenerator.cc
-   ./src/handlerGenerator.cc
    ./src/ver_envGenerator.cc
    ./src/codeGenerator.cc
     )
