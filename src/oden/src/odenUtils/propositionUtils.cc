@@ -16,6 +16,9 @@ std::vector<std::string> prop2Vars(Proposition &prop) {
   prop.acceptVisitor(extractor);
   return extractor.get();
 }
+bool isConstant(Proposition &prop) {
+    return prop2Vars(prop).empty();
+}
 std::vector<std::pair<std::string,VarType>> prop2VarsWithType(Proposition &prop) {
   VarsExtractVisitor extractor;
   prop.acceptVisitor(extractor);

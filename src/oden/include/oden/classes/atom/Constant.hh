@@ -32,7 +32,6 @@ public:
 
   T _getValue() { return _value; }
 
-protected:
   ///  @brief Stores the constant value
   T _value;
 };

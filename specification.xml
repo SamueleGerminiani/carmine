@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <handler name ="handler0" migrateTo="handler1">
-        <checker name="Checker0" description="simple checker" LTLformula="G(v1 ->$timeout(v2,2000) & $timeout(v3 ,5000))">
+    <!--
+    <checker name="Checker0" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -17,7 +18,8 @@
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-        <checker name="Checker1" description="simple checker" LTLformula="G(v1 ->$timeout(v2,2000))">
+    -->
+        <checker name="Checker0" description="simple checker" LTLformula="G({v1[->1];v2[->1]:1}|->{$timeout(v3,5000)})">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -25,6 +27,11 @@
 			</variable>
 			<variable decl="bool v2">
 				<rosTopic>random2</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v3">
+				<rosTopic>random3</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>

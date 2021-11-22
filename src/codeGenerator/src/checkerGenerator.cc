@@ -17,14 +17,18 @@ using namespace std::filesystem;
 
 namespace codeGenerator {
 
-std::string formulaToString(const spot::formula f) {
+bool isConst(const std::string &n) { return n[0] == 'c'; }
+
+std::string formulaToString(
+    const spot::formula f,
+    std::unordered_map<std::string, oden::Proposition *> &phToProps) {
 
   // And
   if (f.is(spot::op::And)) {
     std::string ret = "";
-    ret = "(" + formulaToString(f[0]);
+    ret = "(" + formulaToString(f[0], phToProps);
     for (size_t i = 1; i < f.size(); i++) {
-      ret += " && " + formulaToString(f[i]);
+      ret += " && " + formulaToString(f[i], phToProps);
     }
     ret += ")";
     return ret;
@@ -33,9 +37,9 @@ std::string formulaToString(const spot::formula f) {
   // Or
   if (f.is(spot::op::Or)) {
     std::string ret = "";
-    ret = "(" + formulaToString(f[0]);
+    ret = "(" + formulaToString(f[0], phToProps);
     for (size_t i = 1; i < f.size(); i++) {
-      ret += " || " + formulaToString(f[i]);
+      ret += " || " + formulaToString(f[i], phToProps);
     }
     ret += ")";
     return ret;
@@ -43,13 +47,16 @@ std::string formulaToString(const spot::formula f) {
 
   // Not
   if (f.is(spot::op::Not)) {
-    return "!" + formulaToString(f[0]);
+    return "!" + formulaToString(f[0], phToProps);
   }
 
   // Atomic proposition
   if (f.is(spot::op::ap)) {
     if (f.is_tt() || f.ap_name().find("start", 0) != std::string::npos) {
       return "1";
+    }
+    if (isConst(f.ap_name())) {
+      return oden::prop2String(*phToProps.at(f.ap_name()));
     }
     return f.ap_name();
   }
@@ -107,21 +114,10 @@ bool generateCheckerSource(
         &parsedFormula,
     std::string &checkerName) {
 
-  std::vector<spot::formula> aps;
   auto autAss = fsms.first;
   auto autAnt = fsms.second;
   auto &phToProps = parsedFormula.second;
 
-  // gather all the placeholders in the formula
-  //'start' and 'stop' variables are used only to handle timers, we must
-  // discard them from the list of placeholders
-  for (auto ap : autAss->ap()) {
-    if (ap.ap_name().find("start", 0) != std::string::npos ||
-        ap.ap_name().find("stop", 0) != std::string::npos) {
-      continue;
-    }
-    aps.push_back(ap);
-  }
 
   std::ifstream src("src/standalone/code_templates/checker_template.cpp");
 
@@ -154,30 +150,47 @@ bool generateCheckerSource(
     // Code for retrieving placeholder's values
     if (line.compare("$order_entry") == 0) {
       line = "";
-      for (unsigned int i = 0; i < aps.size(); i++) {
+      size_t i = 0;
+      for (auto &ph : phToProps) {
+        if (isConst(ph.first))
+          continue;
+
         line += codeGenerator::ident1 + "if (order_entry & (1ULL << " +
                 std::to_string(i) + ")) {\n";
-        line += codeGenerator::ident2 + "_last_" + (aps[i]).ap_name() +
-                "= pbuff_entry & (1ULL << " + std::to_string(i) + ");\n";
+        line += codeGenerator::ident2 + "_last_p" + std::to_string(i) +
+                "= pbuff_entry & (1ULL << " +  std::to_string(i) + ");\n";
         line += codeGenerator::ident1 + "}\n";
+        i++;
       }
     } else if (line.compare("$clearData") == 0) {
       line = "";
-      for (auto prop : aps) {
-        line += codeGenerator::ident1 + "_last_" + prop.ap_name() + " = 0;\n";
+      size_t i = 0;
+      for (auto &ph : phToProps) {
+        if (isConst(ph.first))
+          continue;
+
+        line +=
+            codeGenerator::ident1 + "_last_p" + std::to_string(i++) + " = 0;\n";
       } // Code for calling eval() and resetting checker
     } else if (line.compare("$call_eval") == 0) {
       line = "";
-      line += codeGenerator::ident1 + "if (!eval_" + checkerName + "(_last_" +
-              (aps[0]).ap_name();
-      for (unsigned int i = 1; i < aps.size(); i++) {
-        line += ",_last_" + (aps[i]).ap_name();
+      line += codeGenerator::ident1 + "if (!eval_" + checkerName + "(";
+
+      size_t i = 0;
+      for (auto &ph : phToProps) {
+        if (isConst(ph.first))
+          continue;
+
+        line += "_last_p" + std::to_string(i++) + ", ";
       }
-      line += ")){\n";
+      line += "0)){\n";
       line += codeGenerator::ident2 + "notifyFailure();\n";
       line += codeGenerator::ident2 + "eval_" + checkerName + "(";
-      for (unsigned int i = 0; i < aps.size(); i++) {
-        line += "0,";
+      for (auto &ph : phToProps) {
+        if (isConst(ph.first))
+          continue;
+
+        line += "0, ";
       }
       line += "1);\n";
       line += codeGenerator::ident1 + "}\n";
@@ -187,7 +200,7 @@ bool generateCheckerSource(
     // Checker FSM
     else if (line.compare("$FSM") == 0) {
       line = "";
-      generateEvalFunction(fsms, checkerName, dst);
+      generateEvalFunction(fsms, checkerName, dst, phToProps);
     } else if (line.compare("$initTimers$") == 0) {
       line = "";
       for (size_t i = 0; i < timer::timers.size(); i++) {
@@ -212,19 +225,31 @@ bool generateCheckerSource(
     else if (line.compare("$setBuffer") == 0) {
       line = "";
       std::string placeholders = "";
-      for (unsigned int i = 0; i < aps.size(); i++) {
-        line += codeGenerator::ident3 + "bool p" + std::to_string(i) +
-                " = val & (1ULL << " + std::to_string(i) + ");\n";
-        placeholders += " ,p" + std::to_string(i);
+      size_t j = 0;
+      for (auto &ph : phToProps) {
+        if (isConst(ph.first))
+          continue;
+
+
+        line += codeGenerator::ident3 + "bool p" + std::to_string(j) +
+                " = val & (1ULL << " + std::to_string(j) + ");\n";
+        placeholders += " , p" + std::to_string(j);
+        j++;
       }
 
       line += codeGenerator::ident3 + "assign<bool>(_pbuff, _index_p" +
               placeholders + ");\n";
       line += codeGenerator::ident3 + "val = (res.buffer_o)[i];\n";
 
-      for (unsigned int i = 0; i < aps.size(); i++) {
-        line += codeGenerator::ident3 + "p" + std::to_string(i) +
-                " = val & (1ULL << " + std::to_string(i) + ");\n";
+      size_t i = 0;
+      for (auto &ph : phToProps) {
+        if (isConst(ph.first))
+          continue;
+
+
+        line += codeGenerator::ident3 + ph.first + " = val & (1ULL << " +
+                std::to_string(i) + ");\n";
+        i++;
       }
 
       line += codeGenerator::ident3 + "assign<bool>(_order, _index_p" +
@@ -232,16 +257,26 @@ bool generateCheckerSource(
 
     } else if (line.compare("$setInit_p_MF") == 0) {
       line = "";
-      size_t i=0;
-      for (auto prop : aps) {
-        line += codeGenerator::ident1 + "_last_" + prop.ap_name() +
-                " = res.last_p[" + std::to_string(i++) + "];\n";
+      size_t i = 0;
+      for (auto &ph : phToProps) {
+        if (isConst(ph.first))
+          continue;
+
+
+        line += codeGenerator::ident1 + "_last_p" + std::to_string(i) +
+                " = res.last_p[" + std::to_string(i) + "];\n";
+        i++;
       }
 
     } else if (line.compare("$setInit_p_MT") == 0) {
       line = "";
-      for (auto prop : aps) {
-        line += codeGenerator::ident1 + "res.last_p.push_back(" + "_last_" + prop.ap_name() + ");\n";
+      size_t i = 0;
+      for (auto &ph : phToProps) {
+        if (isConst(ph.first))
+          continue;
+
+        line += codeGenerator::ident1 + "res.last_p.push_back(" + "_last_p" +
+                std::to_string(i++) + ");\n";
       }
 
     }
@@ -279,15 +314,25 @@ bool generateCheckerSource(
           }
         }
 
+        // count n of consts
+        size_t nConstants = 0;
+        for (auto &ph : phToProps) {
+          if (isConst(ph.first)) {
+            nConstants++;
+          }
+        }
+
         // Alphabetically sort placeholders, e.g. p1,p2,p0 => p0,p1,p2
         std::sort(usedPlaceholders.begin(), usedPlaceholders.end());
 
         line += codeGenerator::ident6 + "assign<bool>(_pbuff, _index_p";
-        line += getPbuffEntries(usedPlaceholders, phToProps.size());
+        line +=
+            getPbuffEntries(usedPlaceholders, phToProps.size() - nConstants);
         line += ");\n";
 
         line += codeGenerator::ident6 + "assign<bool>(_order, _index_p";
-        line += getOrderEntries(usedPlaceholders, phToProps.size());
+        line +=
+            getOrderEntries(usedPlaceholders, phToProps.size() - nConstants);
         line += ");\n";
 
         line +=
@@ -307,8 +352,8 @@ bool generateCheckerSource(
 
         bindings[checkerName].push_back(v);
 
-        line += "void " + checkerName + "::addEvent_" + v._name +
-                "(ros::Time ts, ";
+        line +=
+            "void " + checkerName + "::addEvent_" + v._name + "(ros::Time ts, ";
         line += v._type + " value){\n";
         line += codeGenerator::ident2 + "_addEvent_mutex.lock();\n";
         line += codeGenerator::ident2 + "_last_msg_ts = ts;\n";
@@ -334,9 +379,14 @@ bool generateCheckerSource(
 // Generate header for checker class
 bool generateCheckerHeader(
     std::pair<codeGenerator::SpotAutomata, codeGenerator::SpotAutomata> &fsms,
-    std::vector<strVariable> &varList, std::string &checkerName) {
+    std::vector<strVariable> &varList, std::string &checkerName,
+    std::pair<std::pair<std::string, std::string>,
+              std::unordered_map<std::string, oden::Proposition *>>
+        &parsedFormula) {
+
   auto autAss = fsms.first;
   auto autAnt = fsms.second;
+  auto &phToProps = parsedFormula.second;
 
   // Copy templates in new files replacing the tokens
   std::ifstream src("src/standalone/code_templates/checker_template.hh");
@@ -354,15 +404,7 @@ bool generateCheckerHeader(
   }
 
   std::string line;
-  std::vector<spot::formula> aps;
 
-  for (auto ap : autAss->ap()) {
-    if (ap.ap_name().find("start", 0) != std::string::npos ||
-        ap.ap_name().find("stop", 0) != std::string::npos) {
-      continue;
-    }
-    aps.push_back(ap);
-  }
 
   while (getline(src, line)) {
 
@@ -376,8 +418,12 @@ bool generateCheckerHeader(
     // Code for placeholders initialization
     if (line.compare("$init_p") == 0) {
       line = "";
-      for (auto prop : aps) {
-        line += codeGenerator::ident1 + "bool _last_" + prop.ap_name() +
+      size_t i = 0;
+      for (auto &ph : phToProps) {
+        if (isConst(ph.first))
+          continue;
+
+        line += codeGenerator::ident1 + "bool _last_p" + std::to_string(i++) +
                 " = false;\n";
       }
     }
@@ -386,8 +432,12 @@ bool generateCheckerHeader(
     else if (line.compare("$eval") == 0) {
       line = "";
       line = codeGenerator::ident1 + "bool eval_" + checkerName + "(";
-      for (auto ap : aps) {
-        line += "bool " + ap.ap_name() + ",";
+      size_t i = 0;
+      for (auto &ph : phToProps) {
+        if (isConst(ph.first))
+          continue;
+
+        line += "bool p" + std::to_string(i++) + ",";
       }
       line += "bool reset = false);\n";
     }
@@ -445,17 +495,17 @@ bool generateCheckerHeader(
       line = "";
       std::unordered_set<std::string> alreadyIncluded;
       for (auto var : varList) {
-          std::string toInclude="";
+        std::string toInclude = "";
         toInclude += "#include \"";
         auto msgType = var._msgType;
         auto p = msgType.find_first_of(":");
         msgType.replace(p, 2, "/");
         toInclude += msgType + ".h\"\n";
         if (alreadyIncluded.count(toInclude)) {
-            continue;
+          continue;
         }
         alreadyIncluded.insert(toInclude);
-        line+=toInclude;
+        line += toInclude;
       }
 
     }
@@ -463,8 +513,8 @@ bool generateCheckerHeader(
     else if (line.compare("$addEvent") == 0) {
       line = "";
       for (auto v : varList) {
-        line += codeGenerator::ident1 + "void addEvent_" +
-                v._name + "(ros::Time ts, ";
+        line += codeGenerator::ident1 + "void addEvent_" + v._name +
+                "(ros::Time ts, ";
         line += v._type + " value);\n";
       }
     }
@@ -479,7 +529,8 @@ bool generateCheckerHeader(
 
 void generateEvalFunction(
     std::pair<codeGenerator::SpotAutomata, codeGenerator::SpotAutomata> &fsms,
-    const std::string checkerName, std::ofstream &outstream) {
+    const std::string checkerName, std::ofstream &outstream,
+    std::unordered_map<std::string, oden::Proposition *> &phToProps) {
 
   std::string initState = "INIT_" + checkerName;
   outstream << "//Return true if checker did not fail" << std::endl;
@@ -493,7 +544,9 @@ void generateEvalFunction(
         f.ap_name().find("stop", 0) != std::string::npos) {
       continue;
     }
-    outstream << "bool " << f << ", ";
+    if (f.ap_name()[0] != 'c') {
+      outstream << "bool " << f << ", ";
+    }
   }
 
   outstream << "bool const reset";
@@ -544,7 +597,7 @@ void generateEvalFunction(
       spot::formula f =
           spot::parse_formula(spot::bdd_format_formula(dict, edge.cond));
       // Convert formula to string format
-      std::string stringF = formulaToString(f);
+      std::string stringF = formulaToString(f, phToProps);
       if (firstEdge) {
         outstream << codeGenerator::ident2 << "if(" << stringF << "){\n";
         firstEdge = 0;
@@ -637,7 +690,7 @@ void generateEvalFunction(
       spot::formula f =
           spot::parse_formula(spot::bdd_format_formula(dict, edge.cond));
       // Convert formula to string format
-      std::string stringF = formulaToString(f);
+      std::string stringF = formulaToString(f, phToProps);
       if (firstEdge) {
         outstream << codeGenerator::ident2 << "if(" << stringF << "){\n";
         firstEdge = 0;
@@ -683,7 +736,8 @@ void generateEvalFunction(
 
   outstream << codeGenerator::ident1 << "if (_conIns - _endIns > 0) {\n";
   outstream << codeGenerator::ident2 << "_priority = 2;\n";
-  outstream << codeGenerator::ident1 << "} else if (_conIns - _endIns <= 0) {\n";
+  outstream << codeGenerator::ident1
+            << "} else if (_conIns - _endIns <= 0) {\n";
   outstream << codeGenerator::ident2 << "_priority = 1;\n";
   outstream << codeGenerator::ident1 << "}\n";
 

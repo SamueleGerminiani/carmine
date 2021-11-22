@@ -11,6 +11,7 @@ namespace oden {
 /// @param prop The proposition
 std::string prop2String(Proposition &prop);
 std::vector<std::string> prop2Vars(Proposition &prop);
+bool isConstant(Proposition &prop) ;
 std::vector<std::pair<std::string,VarType>> prop2VarsWithType(Proposition &prop);
 
 std::string logicExp2String(LogicExpression &le);

@@ -34,7 +34,7 @@ public:
   /// @brief Assing operator
   TypeCast &operator=(const TypeCast &other) = delete;
 
-private:
+public:
   ET *_e;
 };
 using LogicToNumeric = TypeCast<LogicExpression, NumericExpression>;

@@ -60,6 +60,7 @@ private:
   size_t logicStack = 0;
   size_t numeriStack = 0;
   size_t placeholdN=0;
+  size_t constantsN=0;
   size_t timerN=0;
   std::unordered_map<std::string,Proposition*> _phToProp;
   std::vector<std::pair<size_t,size_t>> _timers;

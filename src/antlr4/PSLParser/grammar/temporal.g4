@@ -6,52 +6,38 @@ implication: ALWAYS '(' tformula IMPL tformula ')'
     | ALWAYS '(' tformula IMPL2 tformula   ')'
 	| ALWAYS '(' LGPAREN sere RGPAREN LCPAREN  RCPAREN IMPL tformula ')'
 	| ALWAYS '(' LGPAREN sere RGPAREN LCPAREN  RCPAREN IMPL2 tformula ')'
-	| ALWAYS '(' LGPAREN sere RGPAREN BIND1 tformula ')'
-	| ALWAYS '(' LGPAREN sere RGPAREN BIND2 tformula ')';
+	| ALWAYS '(' LGPAREN sere RGPAREN SEREIMPL1 tformula ')'
+	| ALWAYS '(' LGPAREN sere RGPAREN SEREIMPL2 tformula ')';
 
 sere : boolean
      | TIMER '(' boolean ',' NUMERIC ')'
 	 | LPAREN sere RPAREN
 	 | LGPAREN sere RGPAREN
-	 | LCPAREN TIMES NUMERIC DOTS NUMERIC RCPAREN
-	 | LCPAREN PLUS RCPAREN
-	 | sere LCPAREN TIMES NUMERIC DOTS NUMERIC RCPAREN
-	 | sere LCPAREN PLUS RCPAREN
-	 | sere LCPAREN COL TIMES NUMERIC DOTS NUMERIC RCPAREN
-	 | sere LCPAREN COL PLUS RCPAREN
-	 | sere LCPAREN ASS NUMERIC DOTS NUMERIC RCPAREN
-	 | sere LCPAREN IMPL NUMERIC DOTS NUMERIC RCPAREN
-	 | sere AND sere
-	 | sere BAND sere
-	 | sere OR sere
 	 | sere BOR sere
-	 | DSYM1 NUMERIC sere
-	 | DSYM1 LCPAREN NUMERIC DOTS NUMERIC RCPAREN sere
-	 | sere DSYM1 NUMERIC sere
-	 | sere DSYM1 LCPAREN NUMERIC DOTS NUMERIC RCPAREN sere
-	 | sere COL sere
+	 | sere BAND sere
+	 | sere AND sere
 	 | sere SCOL sere
-	 | FIRST_MATCH LPAREN sere RPAREN
+	 | sere COL sere
+	 | sere LCPAREN TIMES NUMERIC? DOTS? NUMERIC? RCPAREN
+	 | sere LCPAREN PLUS RCPAREN
+	 | sere LCPAREN ASS NUMERIC DOTS? NUMERIC? RCPAREN
+	 | sere LCPAREN IMPL NUMERIC DOTS? NUMERIC? RCPAREN
+	 | DELAY LCPAREN? NUMERIC DOTS? NUMERIC? RCPAREN? sere
+	 | sere DELAY LCPAREN? NUMERIC? DOTS? NUMERIC? RCPAREN? sere
 	 ;
 
 tformula: boolean
     | TIMER '(' boolean ',' NUMERIC ')'
 	| LPAREN tformula RPAREN 
-	| LGPAREN sere RGPAREN
-	| LGPAREN sere RGPAREN NOT
 	| NOT tformula 
-	| NEXT tformula 
-	| NEXT LCPAREN NUMERIC DOTS NUMERIC RCPAREN tformula 
-	| NEXT LCPAREN NUMERIC DOTS NUMERIC NOT RCPAREN tformula 
-	| tformula UNTIL tformula 
-	| tformula WUNTIL tformula 
-	| tformula SRELEASE tformula
-	| tformula RELEASE tformula
 	| tformula AND tformula 
-	| tformula BAND tformula 
 	| tformula OR tformula 
-	| tformula BOR tformula 
 	| tformula XOR tformula 
+	| tformula UNTIL tformula 
+	| tformula RELEASE tformula
+	| NEXT LCPAREN NUMERIC RCPAREN tformula 
+	| NEXT tformula 
+	| LGPAREN sere RGPAREN
 	;
 
 TIMER
@@ -97,6 +83,14 @@ IMPL2
     : '=>'
     ;
 
+SEREIMPL1
+    : '|->'
+    ;
+
+SEREIMPL2
+    : '|=>'
+    ;
+
 IFF
     : '<->'
     ;
@@ -117,9 +111,6 @@ ASS
     : '='
     ;
 
-DSYM1
-    : '##'
-    ;
 
 SCOL
     : ';'
@@ -134,3 +125,6 @@ FIRST_MATCH
 'first_match'
 	;
 	
+DELAY
+    : '##'
+    ;
