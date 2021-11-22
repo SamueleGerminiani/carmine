@@ -19,7 +19,7 @@
 			</variable>
 		</checker>
     -->
-        <checker name="Checker0" description="simple checker" LTLformula="G({v1[->1];v2[->1]:1}|->{$timeout(v3,5000)})">
+        <checker name="Checker0" description="simple checker" LTLformula="G({v1[->1];v2[->1]:1}|=>{$timeout(v3,2000)})">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>

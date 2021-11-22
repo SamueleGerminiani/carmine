@@ -118,7 +118,6 @@ bool generateCheckerSource(
   auto autAnt = fsms.second;
   auto &phToProps = parsedFormula.second;
 
-
   std::ifstream src("src/standalone/code_templates/checker_template.cpp");
 
   if (src.fail()) {
@@ -158,7 +157,7 @@ bool generateCheckerSource(
         line += codeGenerator::ident1 + "if (order_entry & (1ULL << " +
                 std::to_string(i) + ")) {\n";
         line += codeGenerator::ident2 + "_last_p" + std::to_string(i) +
-                "= pbuff_entry & (1ULL << " +  std::to_string(i) + ");\n";
+                "= pbuff_entry & (1ULL << " + std::to_string(i) + ");\n";
         line += codeGenerator::ident1 + "}\n";
         i++;
       }
@@ -230,7 +229,6 @@ bool generateCheckerSource(
         if (isConst(ph.first))
           continue;
 
-
         line += codeGenerator::ident3 + "bool p" + std::to_string(j) +
                 " = val & (1ULL << " + std::to_string(j) + ");\n";
         placeholders += " , p" + std::to_string(j);
@@ -246,7 +244,6 @@ bool generateCheckerSource(
         if (isConst(ph.first))
           continue;
 
-
         line += codeGenerator::ident3 + ph.first + " = val & (1ULL << " +
                 std::to_string(i) + ");\n";
         i++;
@@ -261,7 +258,6 @@ bool generateCheckerSource(
       for (auto &ph : phToProps) {
         if (isConst(ph.first))
           continue;
-
 
         line += codeGenerator::ident1 + "_last_p" + std::to_string(i) +
                 " = res.last_p[" + std::to_string(i) + "];\n";
@@ -404,7 +400,6 @@ bool generateCheckerHeader(
   }
 
   std::string line;
-
 
   while (getline(src, line)) {
 
@@ -577,9 +572,6 @@ void generateEvalFunction(
     }
     delete it;
 
-    outstream << codeGenerator::ident1 << " for (size_t i = 0; i < "
-              << "_currAss[" << state << "]; i++) {\n";
-
     // gather stop clauses
     std::set<size_t> timers;
     for (auto &edge : autAss->out(state)) {
@@ -587,63 +579,111 @@ void generateEvalFunction(
           spot::parse_formula(spot::bdd_format_formula(dict, edge.cond));
       formulaToGetTimers(f, timers);
     }
-    for (auto t : timers) {
-      outstream << codeGenerator::ident2 << "bool stop" << t
-                << " = getTimerValue(" << t << ", i, 1);\n";
-    }
 
-    bool firstEdge = true;
-    for (auto &edge : autAss->out(state)) {
-      spot::formula f =
-          spot::parse_formula(spot::bdd_format_formula(dict, edge.cond));
-      // Convert formula to string format
-      std::string stringF = formulaToString(f, phToProps);
-      if (firstEdge) {
-        outstream << codeGenerator::ident2 << "if(" << stringF << "){\n";
-        firstEdge = 0;
-      } else {
-        outstream << codeGenerator::ident2 << "else if(" << stringF << "){\n";
+    if (!timers.empty()) {
+
+      outstream << codeGenerator::ident1 << " for (size_t i = 0; i < "
+                << "_currAss[" << state << "]; i++) {\n";
+
+      for (auto t : timers) {
+        outstream << codeGenerator::ident2 << "bool stop" << t
+                  << " = getTimerValue(" << t << ", i, 1);\n";
       }
 
-      // term edges
-      auto nextState = autAss->state_from_number(edge.dst);
-      auto it = autAss->succ_iter(nextState);
-      if (it->first() && (it->dst()->hash() == nextState->hash()) &&
-          !it->next()) {
-        if (autAss->state_is_accepting(nextState)) {
-          for (auto t : timers) {
-            if (!tokenExists(f, "start" + std::to_string(t))) {
-              // outstream << codeGenerator::ident3 << "popTimerInst(" << t <<
-              // "," << "currAss[" << state << "]);" << std::endl;
-              outstream << codeGenerator::ident3 << "popTimerInst(" << t << ","
-                        << "1);" << std::endl;
+      bool firstEdge = true;
+      for (auto &edge : autAss->out(state)) {
+        spot::formula f =
+            spot::parse_formula(spot::bdd_format_formula(dict, edge.cond));
+        // Convert formula to string format
+        std::string stringF = formulaToString(f, phToProps);
+        if (firstEdge) {
+          outstream << codeGenerator::ident2 << "if(" << stringF << "){\n";
+          firstEdge = 0;
+        } else {
+          outstream << codeGenerator::ident2 << "else if(" << stringF << "){\n";
+        }
+
+        // term edges
+        auto nextState = autAss->state_from_number(edge.dst);
+        auto it = autAss->succ_iter(nextState);
+        if (it->first() && (it->dst()->hash() == nextState->hash()) &&
+            !it->next()) {
+          if (autAss->state_is_accepting(nextState)) {
+            for (auto t : timers) {
+              if (!tokenExists(f, "start" + std::to_string(t))) {
+                // outstream << codeGenerator::ident3 << "popTimerInst(" << t <<
+                // "," << "currAss[" << state << "]);" << std::endl;
+                outstream << codeGenerator::ident3 << "popTimerInst(" << t
+                          << ","
+                          << "1);" << std::endl;
+              }
+            }
+
+            outstream << codeGenerator::ident3 << "_endIns++;" << std::endl;
+            // outstream << codeGenerator::ident3 << "endIns+="
+            //          << "currAss[" << state << "];" << std::endl;
+            // outstream << codeGenerator::ident3 << "break;" << std::endl;
+          } else {
+            outstream << codeGenerator::ident3 << "return 0;" << std::endl;
+          }
+        } else {
+          // non terminal
+          for (size_t i = 0; i < timer::timers.size(); i++) {
+            if (tokenExists(f, "start" + std::to_string(i)) &&
+                tokenExists(f, "stop" + std::to_string(i))) {
+              outstream << codeGenerator::ident3 << "addTimerValue(" << i
+                        << ");" << std::endl;
             }
           }
 
-          outstream << codeGenerator::ident3 << "_endIns++;" << std::endl;
-          // outstream << codeGenerator::ident3 << "endIns+="
-          //          << "currAss[" << state << "];" << std::endl;
-          // outstream << codeGenerator::ident3 << "break;" << std::endl;
-        } else {
-          outstream << codeGenerator::ident3 << "return 0;" << std::endl;
+          outstream << codeGenerator::ident3 << " _nextAss[" << edge.dst
+                    << "]++;\n";
         }
-      } else {
-        // non terminal
-        for (size_t i = 0; i < timer::timers.size(); i++) {
-          if (tokenExists(f, "start" + std::to_string(i)) &&
-              tokenExists(f, "stop" + std::to_string(i))) {
-            outstream << codeGenerator::ident3 << "addTimerValue(" << i << ");"
-                      << std::endl;
-          }
+        delete it;
+        outstream << codeGenerator::ident2 << "}\n";
+      }
+      outstream << codeGenerator::ident1 << "}\n";
+    } else { // timer empty
+
+      bool firstEdge = true;
+      for (auto &edge : autAss->out(state)) {
+        spot::formula f =
+            spot::parse_formula(spot::bdd_format_formula(dict, edge.cond));
+        // Convert formula to string format
+        std::string stringF = formulaToString(f, phToProps);
+        if (firstEdge) {
+          outstream << codeGenerator::ident2 << "if(" << stringF << "){\n";
+          firstEdge = 0;
+        } else {
+          outstream << codeGenerator::ident2 << "else if(" << stringF << "){\n";
         }
 
-        outstream << codeGenerator::ident3 << " _nextAss[" << edge.dst
-                  << "]++;\n";
+        // term edges
+        auto nextState = autAss->state_from_number(edge.dst);
+        auto it = autAss->succ_iter(nextState);
+        if (it->first() && (it->dst()->hash() == nextState->hash()) &&
+            !it->next()) {
+          if (autAss->state_is_accepting(nextState)) {
+
+            outstream << codeGenerator::ident3 << "_endIns+="
+                      << "_currAss[" << state << "];" << std::endl;
+            // outstream << codeGenerator::ident3 << "endIns+="
+            //          << "currAss[" << state << "];" << std::endl;
+            // outstream << codeGenerator::ident3 << "break;" << std::endl;
+          } else {
+            outstream << codeGenerator::ident3 << "return 0;" << std::endl;
+          }
+        } else {
+          // non terminal
+
+          outstream << codeGenerator::ident3 << " _nextAss[" << edge.dst
+                    << "]+="
+                    << "_currAss[" << state << "];\n";
+        }
+        delete it;
+        outstream << codeGenerator::ident2 << "}\n";
       }
-      delete it;
-      outstream << codeGenerator::ident2 << "}\n";
     }
-    outstream << codeGenerator::ident1 << "}\n";
     outstream << codeGenerator::ident1 << " _currAss[" << state << "]=0;\n";
   }
   outstream << codeGenerator::ident1 << "for (size_t i = 0; i <"
@@ -653,7 +693,7 @@ void generateEvalFunction(
   outstream << codeGenerator::ident1 << "}\n";
 
   // ant
-
+  outstream<<"\n\n// ---------ANT-------------\n\n\n";
   outstream << codeGenerator::ident1 << " _currAnt["
             << autAnt->get_init_state_number() << "]++;\n";
   num_states = autAnt->num_states();
@@ -670,9 +710,6 @@ void generateEvalFunction(
     }
     delete it;
 
-    outstream << codeGenerator::ident1 << " for (size_t i = 0; i < "
-              << "_currAnt[" << state << "]; i++) {\n";
-
     // gather stop clauses
     std::set<size_t> timers;
     for (auto &edge : autAnt->out(state)) {
@@ -680,52 +717,91 @@ void generateEvalFunction(
           spot::parse_formula(spot::bdd_format_formula(dict, edge.cond));
       formulaToGetTimers(f, timers);
     }
-    for (auto t : timers) {
-      outstream << codeGenerator::ident2 << "bool stop" << t
-                << " = getTimerValue(" << t << ", i, 0);\n";
-    }
 
-    bool firstEdge = true;
-    for (auto &edge : autAnt->out(state)) {
-      spot::formula f =
-          spot::parse_formula(spot::bdd_format_formula(dict, edge.cond));
-      // Convert formula to string format
-      std::string stringF = formulaToString(f, phToProps);
-      if (firstEdge) {
-        outstream << codeGenerator::ident2 << "if(" << stringF << "){\n";
-        firstEdge = 0;
-      } else {
-        outstream << codeGenerator::ident2 << "else if(" << stringF << "){\n";
+    if (!timers.empty()) {
+      outstream << codeGenerator::ident1 << " for (size_t i = 0; i < "
+                << "_currAnt[" << state << "]; i++) {\n";
+      for (auto t : timers) {
+        outstream << codeGenerator::ident2 << "bool stop" << t
+                  << " = getTimerValue(" << t << ", i, 0);\n";
       }
 
-      // term edges
-      auto nextState = autAnt->state_from_number(edge.dst);
-      auto it = autAnt->succ_iter(nextState);
-      if (it->first() && (it->dst()->hash() == nextState->hash()) &&
-          !it->next()) {
-        if (autAnt->state_is_accepting(nextState)) {
-
-          //  outstream << codeGenerator::ident3 << "conIns+="
-          //            << "currAnt[" << state << "];" << std::endl;
-          //  outstream << codeGenerator::ident3 << "break;" << std::endl;
-          outstream << codeGenerator::ident3 << "_conIns++;" << std::endl;
+      bool firstEdge = true;
+      for (auto &edge : autAnt->out(state)) {
+        spot::formula f =
+            spot::parse_formula(spot::bdd_format_formula(dict, edge.cond));
+        // Convert formula to string format
+        std::string stringF = formulaToString(f, phToProps);
+        if (firstEdge) {
+          outstream << codeGenerator::ident2 << "if(" << stringF << "){\n";
+          firstEdge = 0;
         } else {
-          // outstream << codeGenerator::ident3 << "endIns-="
-          //          << "currAnt[" << state << "];" << std::endl;
-          // outstream << codeGenerator::ident3 << "break;" << std::endl;
-
-          outstream << codeGenerator::ident3 << "_endIns--;" << std::endl;
+          outstream << codeGenerator::ident2 << "else if(" << stringF << "){\n";
         }
-      } else {
-        // non terminal
 
-        outstream << codeGenerator::ident3 << " _nextAnt[" << edge.dst
-                  << "]++;\n";
+        // term edges
+        auto nextState = autAnt->state_from_number(edge.dst);
+        auto it = autAnt->succ_iter(nextState);
+        if (it->first() && (it->dst()->hash() == nextState->hash()) &&
+            !it->next()) {
+          if (autAnt->state_is_accepting(nextState)) {
+
+            outstream << codeGenerator::ident3 << "_conIns++;" << std::endl;
+          } else {
+
+            outstream << codeGenerator::ident3 << "_endIns--;" << std::endl;
+          }
+        } else {
+          // non terminal
+
+          outstream << codeGenerator::ident3 << " _nextAnt[" << edge.dst
+                    << "]++;\n";
+        }
+        delete it;
+        outstream << codeGenerator::ident2 << "}\n";
       }
-      delete it;
-      outstream << codeGenerator::ident2 << "}\n";
+      outstream << codeGenerator::ident1 << "}\n";
+    } else{ //ant timers empty
+
+      bool firstEdge = true;
+      for (auto &edge : autAnt->out(state)) {
+        spot::formula f =
+            spot::parse_formula(spot::bdd_format_formula(dict, edge.cond));
+        // Convert formula to string format
+        std::string stringF = formulaToString(f, phToProps);
+        if (firstEdge) {
+          outstream << codeGenerator::ident2 << "if(" << stringF << "){\n";
+          firstEdge = 0;
+        } else {
+          outstream << codeGenerator::ident2 << "else if(" << stringF << "){\n";
+        }
+
+        // term edges
+        auto nextState = autAnt->state_from_number(edge.dst);
+        auto it = autAnt->succ_iter(nextState);
+        if (it->first() && (it->dst()->hash() == nextState->hash()) &&
+            !it->next()) {
+          if (autAnt->state_is_accepting(nextState)) {
+
+            outstream << codeGenerator::ident3 << "_conIns+="
+                      << "_currAnt[" << state << "];" << std::endl;
+          } else {
+
+            outstream << codeGenerator::ident3 << "_endIns-="
+                      << "_currAnt[" << state << "];" << std::endl;
+          }
+        } else {
+          // non terminal
+
+          outstream << codeGenerator::ident3 << " _nextAnt[" << edge.dst
+                    << "]+="
+                    << "_currAnt[" << state << "];\n";
+        }
+        delete it;
+        outstream << codeGenerator::ident2 << "}\n";
+      }
     }
-    outstream << codeGenerator::ident1 << "}\n";
+
     outstream << codeGenerator::ident1 << " _currAnt[" << state << "]=0;\n";
   }
   outstream << codeGenerator::ident1 << "for (size_t i = 0; i <"
