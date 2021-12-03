@@ -25,7 +25,7 @@ inline std::pair<SpotAutomata, SpotAutomata> generateAutomata(const PSLformula &
   resAnt = post.run(resAnt);
 
   //    DEBUG
-   print_hoa(std::cout, res) << '\n';
+   //print_hoa(std::cout, res) << '\n';
 
 
   // Check if automata is deterministic

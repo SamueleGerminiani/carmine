@@ -10,6 +10,7 @@
 #include <numeric>
 #include <spot/tl/formula.hh>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 using namespace std::filesystem;
@@ -84,23 +85,25 @@ get_topicToMsgType(std::vector<strChecker> &checkers) {
   return ret;
 }
 std::map<std::pair<std::string, std::string>,
-         std::vector<std::pair<std::string, std::string>>>
-get_CheckerTopicToVarField(std::vector<strChecker> &checkers) {
+         std::vector<std::tuple<std::string, std::string, std::string,
+                                std::pair<std::string, std::string>>>>
+get_CheckerTopicToVarFieldTypeFilter(std::vector<strChecker> &checkers) {
 
   std::map<std::pair<std::string, std::string>,
-           std::vector<std::pair<std::string, std::string>>>
+           std::vector<std::tuple<std::string, std::string, std::string,
+                                  std::pair<std::string, std::string>>>>
       ret;
 
   for (auto &ch : checkers) {
     for (auto &var : ch._variables) {
-      ret[std::make_pair(ch._name, var._rosTopic)].push_back(
-          std::make_pair(var._name, var._msgField));
+      ret[std::make_pair(ch._name, var._rosTopic)].push_back(std::make_tuple(
+          var._name, var._msgField, var._type,
+          std::make_pair(var._filter.first, var._filter.second)));
     }
   }
 
   return ret;
 }
-
 bool generateCallbackHeader(std::vector<strChecker> &checkers) {
   std::ifstream src("src/standalone/code_templates/callback_template.hh");
   if (src.fail()) {
@@ -122,7 +125,7 @@ bool generateCallbackHeader(std::vector<strChecker> &checkers) {
   auto topicToEnTopic = get_topicToEnTopic(checkers);
   auto topicToCheckers = get_topicToCheckers(checkers);
   auto topicToMsgType = get_topicToMsgType(checkers);
-  auto checkerTopicToVarField = get_CheckerTopicToVarField(checkers);
+  auto checkerTopicToVarField = get_CheckerTopicToVarFieldTypeFilter(checkers);
 
   // parse and substitute
   while (getline(src, line)) {
@@ -154,11 +157,24 @@ bool generateCallbackHeader(std::vector<strChecker> &checkers) {
                 topicToEnTopic.at(ct_vf.first.second) +
                 "(Checker *ch, ros::Time ts, const " +
                 topicToMsgType.at(ct_vf.first.second) + "::Ptr& msg) {\n";
-        for (auto &vf : ct_vf.second) {
+        for (auto &vff : ct_vf.second) {
 
-          line += codeGenerator::ident1 + "dynamic_cast<" + ct_vf.first.first +
-                  " *>(ch)->addEvent_" + vf.first + "(ts, msg->" + vf.second +
-                  ");\n";
+          if (std::get<3>(vff).first != "none") {
+
+            if (std::get<3>(vff).first == "ma") {
+              line += "static std::deque<" + std::get<2>(vff) + "> window(" +
+                      std::get<3>(vff).second + ",0);\n";
+              line += "window.pop_front(); window.push_back(msg->" +
+                      std::get<1>(vff) + ");\n";
+              line += codeGenerator::ident1 + "dynamic_cast<" +
+                      ct_vf.first.first + " *>(ch)->addEvent_" +
+                      std::get<0>(vff) + "(ts,std::accumulate(window.begin(), window.end(), 0)/window.size());\n";
+            }
+          } else {
+            line += codeGenerator::ident1 + "dynamic_cast<" +
+                    ct_vf.first.first + " *>(ch)->addEvent_" +
+                    std::get<0>(vff) + "(ts, msg->" + std::get<1>(vff) + ");\n";
+          }
         }
         line += "}\n";
       }
@@ -171,8 +187,8 @@ bool generateCallbackHeader(std::vector<strChecker> &checkers) {
         line += (i == 0 ? codeGenerator::ident1 + "if(" : "else if(");
         line += "name == \"" + topicToEnTopic.at(t_cc.first) + "\"){\n";
         line += codeGenerator::ident2 +
-                "attachedTopics[name] = n->subscribe(\"" + t_cc.first +
-                "\", 10000, " + callbackName +
+                "attachedTopics[name] = n->subscribe(topicPrefix + \"" +
+                t_cc.first + "\", 10000, " + callbackName +
                 ", ros::TransportHints().tcpNoDelay()); \n ";
         line += codeGenerator::ident1 + "}";
         i++;
@@ -235,8 +251,8 @@ bool generateCallbackHeader(std::vector<strChecker> &checkers) {
         line += (i == 0 ? codeGenerator::ident1 + "if(" : "else if(");
         line += "topic == \"" + topicToEnTopic.at(e.first) + "\"){\n";
         line += codeGenerator::ident2 + "boost::shared_ptr<" + msgType +
-                " const> msg = ros::topic::waitForMessage<" + msgType + ">(\"" +
-                e.first + "\", *n);\n";
+                " const> msg = ros::topic::waitForMessage<" + msgType + ">(" +
+                "topicPrefix + \"" + e.first + "\", *n);\n";
         line +=
             codeGenerator::ident2 + "ttlInsert(topic, msg->header.stamp);\n";
         line += codeGenerator::ident1 + "}";
@@ -276,7 +292,6 @@ bool generateCheckerHelperHeader(std::vector<strChecker> &checkers,
   auto topicToEnTopic = get_topicToEnTopic(checkers);
   auto topicToCheckers = get_topicToCheckers(checkers);
   auto topicToMsgType = get_topicToMsgType(checkers);
-  auto checkerTopicToVarField = get_CheckerTopicToVarField(checkers);
 
   // parse and substitute
   while (getline(src, line)) {
@@ -336,7 +351,6 @@ bool generateGlobalsHeader(std::vector<strChecker> &checkers) {
   auto topicToEnTopic = get_topicToEnTopic(checkers);
   auto topicToCheckers = get_topicToCheckers(checkers);
   auto topicToMsgType = get_topicToMsgType(checkers);
-  auto checkerTopicToVarField = get_CheckerTopicToVarField(checkers);
 
   // parse and substitute
   while (getline(src, line)) {
@@ -410,7 +424,6 @@ bool generateGlobalsSource(std::vector<strChecker> &checkers) {
   auto topicToEnTopic = get_topicToEnTopic(checkers);
   auto topicToCheckers = get_topicToCheckers(checkers);
   auto topicToMsgType = get_topicToMsgType(checkers);
-  auto checkerTopicToVarField = get_CheckerTopicToVarField(checkers);
 
   // parse and substitute
   while (getline(src, line)) {

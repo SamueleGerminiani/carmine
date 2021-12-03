@@ -35,9 +35,9 @@ $eval
 
     ros::Time migrateFromHandleTSbefore() override;
     void migrateFromHandleTSAfter(const ros::Time &ts) override;
-    void migrateFromHandleData(verification_env::checkerData &res) override;
+    void migrateFromHandleData(ver_env::checkerData &res) override;
     ros::Time migrateToHandleTS(const ros::Time &ts) override;
-    void migrateToHandleData(verification_env::checkerData &res) override;
+    void migrateToHandleData(ver_env::checkerData &res) override;
 
     union Value {
 $value

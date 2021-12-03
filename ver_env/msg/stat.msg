@@ -1,0 +1,11 @@
+Header header
+string node
+string[] topicList
+float32[] topicLatency
+string[] checkerList
+float32[] checkerUsage
+float32 wholeNodeUsage
+float32 wholeMachineUsage
+float32 availableUsage
+int64 machineCPUfreq
+int64 nAttachedTopics

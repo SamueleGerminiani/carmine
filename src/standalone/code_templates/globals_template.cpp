@@ -13,7 +13,7 @@
 #include <unordered_map>
 #include <utility>
 
-#include <verification_env/migrateAction.h>
+#include <ver_env/migrateAction.h>
 #include <unordered_set>
 #include "ros/ros.h"
 #include "globals.hh"
@@ -22,9 +22,9 @@
 #include "string.h"
 #include "sys/times.h"
 #include "sys/vtimes.h"
-#include "verification_env/command.h"
-#include "verification_env/stat.h"
-#include "verification_env/su.h"
+#include "ver_env/command.h"
+#include "ver_env/stat.h"
+#include "ver_env/su.h"
 
 
 // this function is called by the client Ros service (migrateFrom)
@@ -55,11 +55,11 @@ std::unordered_map<std::string, ros::Publisher> nameToPublisher;
 std::unordered_set<std::string> allTopics;
 std::unordered_set<std::string> allCheckers;
 // messages sent by the coordinator to the node
-std::deque<verification_env::command> msgs;
+std::deque<ver_env::command> msgs;
 // mutex to protect the messages' container
 // avoid concurrency between migrateTo and migrateFrom
 // messages sent by the coordinator to the node
-std::deque<verification_env::stat> stat_msgs;
+std::deque<ver_env::stat> stat_msgs;
 // mutex to protect the messages' container
 
 std::mutex cbMutex;
@@ -74,11 +74,11 @@ std::mutex addPublisherMutex;
 $vMutexs
 
 $vAddEvents
-
 double thisMachineMaxUsage = ((double)std::thread::hardware_concurrency()) * 100.0f;
 double wholeNodeUsage=0.f;
 double wholeMachineUsage=0.f;
 int machineCPUfreq=0;
 double milpUsageThreshold=0;
 double milpResponsivnessThreshold=0;
+std::string topicPrefix;
 size_t windowMaxSize=5;

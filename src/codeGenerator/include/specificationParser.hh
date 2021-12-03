@@ -44,6 +44,24 @@ inline strHandler parseSpecifications(const std::string &pathToSpec) {
       strVariable tmpVariable;
       tmpVariable._decl = rapidxml::getAttributeValue(var, "decl", "");
       rapidxml::XmlNodeList list;
+      rapidxml::getNodesFromName(var, "filter", list);
+      if (!list.empty()) {
+        std::string val = list[0]->value();
+        std::string option = "";
+        if (val == "ma") {
+          tmpVariable._filter.second =
+              rapidxml::getAttributeValue(list[0], "window", "10");
+          tmpVariable._filter.first = "ma";
+        }
+      } else {
+        tmpVariable._filter.first = "none";
+      }
+      messageErrorIf(list.size() > 1, "Multiple filters defines for variable " +
+                                          tmpVariable._decl);
+      messageErrorIf(tmpVariable._filter.first != "ma" &&
+                         tmpVariable._filter.first != "none",
+                     "Uknown filter option");
+      list.clear();
       rapidxml::getNodesFromName(var, "msgType", list);
       tmpVariable._msgType = list[0]->value();
       list.clear();

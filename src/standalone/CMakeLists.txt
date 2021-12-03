@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(verification_env)
+project(ver_env)
 
 include(FindPackageHandleStandardArgs)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
@@ -109,7 +109,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 #catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES verification_env
+#  LIBRARIES ver_env
 #  CATKIN_DEPENDS roscpp rospy std_msgs
 #  DEPENDS system_lib
 #)
@@ -137,7 +137,7 @@ find_package(Z3 REQUIRED)
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/verification_env.cpp
+#   src/${PROJECT_NAME}/ver_env.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -149,9 +149,9 @@ find_package(Z3 REQUIRED)
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 
-add_executable(${PROJECT_NAME}_node ver_env/src/handler.cpp
-    ver_env/src/coordinator.cpp
-    ver_env/src/globals.cpp)
+add_executable(${PROJECT_NAME}_node handler/src/handler.cpp
+    handler/src/coordinator.cpp
+    handler/src/globals.cpp)
 target_link_libraries(${PROJECT_NAME}_node scheduler)
 target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES})
 target_link_libraries(${PROJECT_NAME}_node ${Z3_LIBRARY})
@@ -159,7 +159,7 @@ target_link_libraries(${PROJECT_NAME}_node commandLineParser)
 
 include_directories(
 # include
-ver_env/src/
+handler/src/
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -225,7 +225,7 @@ add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catk
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_verification_env.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_ver_env.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

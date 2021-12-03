@@ -1,6 +1,6 @@
 #include "$ClassName$.hh"
 #include "ros/time.h"
-#include "verification_env/checkerData.h"
+#include "ver_env/checkerData.h"
 
 void $ClassName$::notifyFailure() {
     std::cout << ros::this_node::getName() << ": Checker " << _checkerName
@@ -221,7 +221,7 @@ void $ClassName$::migrateFromHandleTSAfter(const ros::Time &ts) {
         ros::Duration(0.01).sleep();
     }
 }
-void $ClassName$::migrateFromHandleData(verification_env::checkerData &res) {
+void $ClassName$::migrateFromHandleData(ver_env::checkerData &res) {
     // buff
 
     _addEvent_mutex.lock();
@@ -300,7 +300,7 @@ ros::Time $ClassName$::migrateToHandleTS(const ros::Time &ts) {
     _addEvent_mutex.unlock();
     return lmts;
 }
-void $ClassName$::migrateToHandleData(verification_env::checkerData &res) {
+void $ClassName$::migrateToHandleData(ver_env::checkerData &res) {
     // buffers
     if (_evalIndex_p <= _index_p) {
         for (int i = _evalIndex_p; i < _index_p; i++) {

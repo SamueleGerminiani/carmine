@@ -1,6 +1,6 @@
 #pragma once
 #include <actionlib/client/simple_action_client.h>
-#include <verification_env/migrateAction.h>
+#include <ver_env/migrateAction.h>
 #include "ros/ros.h"
 
 #include <algorithm>
@@ -16,7 +16,7 @@
 #include <vector>
 #define REORDER_TH 10
 #define BUFF_SIZE 1'000'000
-typedef actionlib::SimpleActionClient<verification_env::migrateAction> Client;
+typedef actionlib::SimpleActionClient<ver_env::migrateAction> Client;
 class Checker {
    public:
     virtual bool eval() = 0;
@@ -27,9 +27,9 @@ class Checker {
     virtual void clearData() = 0;
     virtual ros::Time migrateFromHandleTSbefore() = 0;
     virtual void migrateFromHandleTSAfter(const ros::Time &ts) = 0;
-    virtual void migrateFromHandleData(verification_env::checkerData &res) = 0;
+    virtual void migrateFromHandleData(ver_env::checkerData &res) = 0;
     virtual ros::Time migrateToHandleTS(const ros::Time &ts)=0;
-    virtual void migrateToHandleData(verification_env::checkerData &res)=0;
+    virtual void migrateToHandleData(ver_env::checkerData &res)=0;
 
     size_t getNvars() { return nVars; }
 

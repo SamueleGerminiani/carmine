@@ -39,6 +39,7 @@ struct strVariable {
   std::string _rosTopic;
   std::string _msgType;
   std::string _msgField;
+  std::pair<std::string,std::string> _filter;
 };
 struct strChecker {
   strChecker(std::string name, std::string description, std::string LTLformula,

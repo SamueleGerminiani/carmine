@@ -24,6 +24,7 @@
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
+				<!--filter window="5">ma</filter-->
 			</variable>
 			<variable decl="bool v2">
 				<rosTopic>random2</rosTopic>

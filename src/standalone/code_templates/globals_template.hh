@@ -12,7 +12,7 @@
 #include <unordered_map>
 #include <utility>
 
-#include <verification_env/migrateAction.h>
+#include <ver_env/migrateAction.h>
 #include <unordered_set>
 #include "ros/ros.h"
 #include "scheduler.hh"
@@ -21,10 +21,10 @@
 #include "string.h"
 #include "sys/times.h"
 #include "sys/vtimes.h"
-#include "verification_env/ack.h"
-#include "verification_env/command.h"
-#include "verification_env/stat.h"
-#include "verification_env/su.h"
+#include "ver_env/ack.h"
+#include "ver_env/command.h"
+#include "ver_env/stat.h"
+#include "ver_env/su.h"
 #include "Checker.hpp"
 $includeCheckers
 $msgHeaders
@@ -33,7 +33,7 @@ $msgHeaders
 #define REMOVE 1
 #define MIGRATE_FROM 2
 
-typedef actionlib::SimpleActionServer<verification_env::migrateAction> Server;
+typedef actionlib::SimpleActionServer<ver_env::migrateAction> Server;
 // this function is called by the client Ros service (migrateFrom)
 // it contains the checkers currently executed by this node
 extern std::unordered_map<std::string, Checker *> chsActive;
@@ -60,11 +60,11 @@ extern std::unordered_map<std::string, ros::Publisher> nameToPublisher;
 extern std::unordered_set<std::string> allTopics;
 extern std::unordered_set<std::string> allCheckers;
 // messages sent by the coordinator to the node
-extern std::deque<verification_env::command> msgs;
+extern std::deque<ver_env::command> msgs;
 // mutex to protect the messages' container
 // avoid concurrency between migrateTo and migrateFrom
 // messages sent by the coordinator to the node
-extern std::deque<verification_env::stat> stat_msgs;
+extern std::deque<ver_env::stat> stat_msgs;
 // mutex to protect the messages' container
 
 extern std::mutex cbMutex;
@@ -86,6 +86,7 @@ extern int machineCPUfreq;
 extern double thisMachineMaxUsage;
 extern double milpUsageThreshold;
 extern double milpResponsivnessThreshold;
+extern std::string topicPrefix;
 extern size_t windowMaxSize;
 
 void nodeHandler();
@@ -100,10 +101,10 @@ void removeCheckerCallbacks(const std::string &checkerName);
 void removeCheckerCallbacks(std::unordered_set<std::string> &chsToBeRemoved) ;
 void addTopicFP(const std::string &topic, const std::string &checker) ;
 void removeTopicFP(const std::string &topic, const std::string &checker) ;
-void start_upCB(const verification_env::su &msg);
-void receiveNodeMSGS(const verification_env::command &msg);
-void receiveStatMSGS(const verification_env::stat &msg);
-void acksCB(const verification_env::ack &msg);
+void start_upCB(const ver_env::su &msg);
+void receiveNodeMSGS(const ver_env::command &msg);
+void receiveStatMSGS(const ver_env::stat &msg);
+void acksCB(const ver_env::ack &msg);
 
 // checkerhelp
 void fillAllTopics();
@@ -118,7 +119,7 @@ void sendToNode(std::string pubName, int command, std::string node,
                 std::string checker);
 void sendStatToCoordinator();
 void pingTopic(const std::string &topic);
-void migrateTo(const verification_env::migrateGoalConstPtr &goal, Server *as);
+void migrateTo(const ver_env::migrateGoalConstPtr &goal, Server *as);
 void sendAckToCoordinator() ;
 
 // cpuUsage
