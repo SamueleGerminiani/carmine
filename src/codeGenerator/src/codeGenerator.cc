@@ -47,7 +47,7 @@ void generateVerEnv(const std::string &pathToSpec) {
         parsedFormula.first.first, parsedFormula.first.second);
 
     // generate the checker's source file
-    if (generateCheckerSource(fsms, ch._variables, parsedFormula, ch._name) &&
+    if (generateCheckerSource(fsms, parsedFormula,ch) &&
         // generate the checker's header file
         generateCheckerHeader(fsms, ch._variables, ch._name,parsedFormula)) {
       std::cout << "Successfully generated files for checker " << ch._name

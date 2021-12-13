@@ -1,0 +1,1 @@
+ cd ../ && ./generate_env.sh $1 && cd build && rm -rf ~/catkin_ws/src/ver_env/ && cp -r ../ver_env/ ~/catkin_ws/src/ && rm -rf ~/catkin_ws/src/msg_gen && cp -r ../src/testbench/msg_gen ~/catkin_ws/src/

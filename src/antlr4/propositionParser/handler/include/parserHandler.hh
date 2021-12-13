@@ -13,14 +13,12 @@ using namespace antlr4;
 using Name = std::string;
 using Type = std::string;
 using VarDeclaration = std::pair<Name, Type>;
-using EnumValues = std::vector<std::pair<Name, int>>;
-using EnumMap = std::unordered_map<Name, EnumValues>;
 namespace oden {
 
 class ParserHandler : public propositionBaseListener {
 
 public:
-  explicit ParserHandler(const EnumMap &enums,std::string location="unknown location");
+  explicit ParserHandler(std::string location="unknown location");
 
   ~ParserHandler() override = default;
 
@@ -29,7 +27,6 @@ public:
 private:
   bool _abort;
   bool createExpression = false;
-  std::unordered_map<std::string, std::vector<enumItem>> _enums;
 
   std::stack<Proposition *> _proposition;
   std::stack<LogicExpression *> _logicExpressions;
@@ -80,8 +77,6 @@ private:
   virtual void
   enterNamedLogicConst(propositionParser::NamedLogicConstContext *ctx) override;
 
-  virtual void
-  enterEnumVariable(propositionParser::EnumVariableContext *ctx) override;
   virtual void visitErrorNode(antlr4::tree::ErrorNode *node) override;
 };
 

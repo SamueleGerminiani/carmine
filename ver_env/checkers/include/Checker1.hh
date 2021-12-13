@@ -11,26 +11,25 @@
 #include <thread>
 #include <vector>
 #include "Checker.hpp"
-#include "msg_gen/Num.h"
+#include "sensor_msgs/JointState.h"
 
 
-class Checker0 : public Checker {
+class Checker1 : public Checker {
    public:
-    Checker0(size_t nVars, size_t priority, std::string handlerName,
+    Checker1(size_t nVars, size_t priority, std::string handlerName,
               std::string checkerName);
 
-    ~Checker0() override;
+    ~Checker1() override;
     bool eval() override;
     void notifyFailure() override;
     void clearData() override;
-   void addEvent_v1(ros::Time ts, bool value);
-   void addEvent_v2(ros::Time ts, bool value);
-   void addEvent_v3(ros::Time ts, bool value);
+   void addEvent_ef12(ros::Time ts, double value);
+   void addEvent_ef13(ros::Time ts, double value);
 
 
    private:
 
-   bool eval_Checker0(bool p0,bool p1,bool p2,bool reset = false);
+   bool eval_Checker1(bool p0,bool p1,bool reset = false);
 
     void reorder(bool forceReorder = false);
     void addTimerValue(size_t timerID);
@@ -45,22 +44,18 @@ class Checker0 : public Checker {
     void migrateToHandleData(ver_env::checkerData &res) override;
 
     union Value {
-      Value(const bool var, size_t id){
+      Value(const double var, size_t id){
          switch (id) {
             case 0:
-               _v1 = var;
+               _ef12 = var;
                break;
             case 1:
-               _v2 = var;
-               break;
-            case 2:
-               _v3 = var;
+               _ef13 = var;
                break;
             }
          }
-      bool _v1;
-      bool _v2;
-      bool _v3;
+      double _ef12;
+      double _ef13;
 
     };
     // used to have a common data type for all variables <timestamp,var>
@@ -76,12 +71,11 @@ class Checker0 : public Checker {
     };
 
     std::vector<Event> _vbuff;
-    size_t _currAss[6];
-    size_t _nextAss[6];
-    size_t _currAnt[4];
-    size_t _nextAnt[4];
+    size_t _currAss[5];
+    size_t _nextAss[5];
+    size_t _currAnt[3];
+    size_t _nextAnt[3];
    bool _last_p0 = false;
    bool _last_p1 = false;
-   bool _last_p2 = false;
 
 };

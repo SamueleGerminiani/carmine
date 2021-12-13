@@ -1,13 +1,13 @@
-#include "$ClassName$.hh"
+#include "Checker3_r2.hh"
 #include "ros/time.h"
 #include "ver_env/checkerData.h"
 
-void $ClassName$::notifyFailure() {
+void Checker3_r2::notifyFailure() {
     std::cout << ros::this_node::getName() << ": Checker " << _checkerName
               << " failed, resetting" << std::endl;
 }
 
-$ClassName$::$ClassName$(size_t nVars, size_t priority, std::string handlerName,
+Checker3_r2::Checker3_r2(size_t nVars, size_t priority, std::string handlerName,
                      std::string checkerName)
     : Checker(nVars, priority) {
     // init buffers
@@ -20,23 +20,28 @@ $ClassName$::$ClassName$(size_t nVars, size_t priority, std::string handlerName,
     _handlerName = handlerName;
     _checkerName = checkerName;
 
-$initTimers$
+   _timerInstances[0];
+   _timerCache[0];
+   _timeouts.push_back(10000);
+
 
     resetChecker();
 }
 
-$ClassName$::~$ClassName$() {
+Checker3_r2::~Checker3_r2() {
     delete[] _pbuff;
     delete[] _order;
 }
 
-void $ClassName$::clearData() {
+void Checker3_r2::clearData() {
     _vbuff.clear();
     _evalIndex_p = 0;
     _index_p = 0;
     _eventsInBuffer = 0;
 
-$clearData
+   _last_p0 = 0;
+   _last_p1 = 0;
+
 
     _last_msg_ts = ros::Time(0);
     _toKill = 0;
@@ -47,7 +52,7 @@ $clearData
 
 // function used in Request to eval a checker until the slice or available
 // events end
-bool $ClassName$::eval() {
+bool Checker3_r2::eval() {
     // stat declarations
     static boost::chrono::thread_clock::time_point oneEvalStart;
     static std::chrono::steady_clock::time_point oneSecondStart =
@@ -76,13 +81,30 @@ bool $ClassName$::eval() {
     uint64_t pbuff_entry = get(_pbuff, _evalIndex_p);
 
 
-$order_entry
+   if (order_entry & (1ULL << 0)) {
+      _last_p0= pbuff_entry & (1ULL << 0);
+   }
+   if (order_entry & (1ULL << 1)) {
+      _last_p1= pbuff_entry & (1ULL << 1);
+   }
+
 
     _evalIndex_p = (_evalIndex_p >= BUFF_SIZE - 1) ? 0 : _evalIndex_p + 1;
 
-$overhead
+   static std::chrono::steady_clock::time_point ohstart = std::chrono::steady_clock::now();
+   while (1) {
+      if (std::chrono::duration_cast<std::chrono::microseconds>( std::chrono::steady_clock::now() - ohstart).count() >= 10000) {
+      ohstart = std::chrono::steady_clock::now();
+      break;
+      }
+   }
 
-$call_eval
+
+   if (!eval_Checker3_r2(_last_p0, _last_p1, 0)){
+      notifyFailure();
+      eval_Checker3_r2(0, 0, 1);
+   }
+
 
     // stat
     cumulativeEvalTime +=
@@ -128,21 +150,107 @@ $call_eval
     return true;
 }
 
-$FSM
+//Return true if checker did not fail
+inline bool Checker3_r2::eval_Checker3_r2(bool p0, bool p1, bool const reset){
+   if(reset){
+      resetChecker();
+      return 1;
+   }
+    _currAss[3]++;
+    for (size_t i = 0; i < _currAss[0]; i++) {
+      bool stop0 = getTimerValue(0, i, 1);
+      if((!p1 && !stop0)){
+          _nextAss[0]++;
+      }
+      else if(p1){
+         popTimerInst(0,1);
+         _endIns++;
+      }
+      else if((!p1 && stop0)){
+         return 0;
+      }
+   }
+    _currAss[0]=0;
+    for (size_t i = 0; i < _currAss[1]; i++) {
+      bool stop0 = getTimerValue(0, i, 1);
+      if((!p1 && 1 && !stop0)){
+         addTimerValue(0);
+          _nextAss[0]++;
+      }
+      else if((p1 && 1)){
+         _endIns++;
+      }
+      else if((!1 || (!p1 && stop0))){
+         return 0;
+      }
+   }
+    _currAss[1]=0;
+      if((1 && p0)){
+          _nextAss[1]+=_currAss[3];
+      }
+      else if((!1 && p0)){
+         _endIns+=_currAss[3];
+      }
+      else if(!p0){
+          _nextAss[3]+=_currAss[3];
+      }
+    _currAss[3]=0;
+   for (size_t i = 0; i <5; i++) {
+          _currAss[i] = _nextAss[i];
+          _nextAss[i] = 0;
+   }
+
+
+// ---------ANT-------------
+
+
+    _currAnt[1]++;
+      if((1 && p0)){
+         _conIns+=_currAnt[1];
+      }
+      else if(!p0){
+          _nextAnt[1]+=_currAnt[1];
+      }
+      else if((!1 && p0)){
+         _endIns-=_currAnt[1];
+      }
+    _currAnt[1]=0;
+   for (size_t i = 0; i <3; i++) {
+          _currAnt[i] = _nextAnt[i];
+          _nextAnt[i] = 0;
+   }
+   if (_conIns - _endIns > 0) {
+      _priority = 2;
+   } else if (_conIns - _endIns <= 0) {
+      _priority = 1;
+   }
+
+   return true;
+}
+
 
 // reorder using the timestamp
-void $ClassName$::reorder(bool forceReorder) {
+void Checker3_r2::reorder(bool forceReorder) {
     if (_vbuff.size() >= REORDER_TH || forceReorder) {
         std::sort(std::begin(_vbuff), std::end(_vbuff),
                   [](const Event &e1, const Event &e2) {
                       return e1._timeStamp < e2._timeStamp;
                   });
 
-$static_vars
+   static double pos0;
+
 
         for (auto event : _vbuff) {
             switch (event._type) {
-$cases
+               case 0:{
+                  pos0 = event._value._pos0;
+                  const bool p0 = (pos0 != 0);
+                  const bool p1 = (pos0 >= 0);
+                  assign<bool>(_pbuff, _index_p, p0, p1);
+                  assign<bool>(_order, _index_p, 1, 1);
+               }
+               break;
+
                 default:
                     assert(false);
             }
@@ -160,12 +268,19 @@ $cases
     }
 }
 
-$addEvent
+void Checker3_r2::addEvent_pos0(ros::Time ts, double value){
+      _addEvent_mutex.lock();
+      _last_msg_ts = ts;
+      _numberOfAddEvent++;
+      _vbuff.push_back(Event(ts, Value(value, 0),0));
+      _addEvent_mutex.unlock();
+}
 
-void $ClassName$::addTimerValue(size_t timerID) {
+
+void Checker3_r2::addTimerValue(size_t timerID) {
     _timerInstances[timerID].push_back(ros::Time::now().toSec() * 1000);
 }
-void $ClassName$::popTimerInst(size_t timerID, size_t nToErase) {
+void Checker3_r2::popTimerInst(size_t timerID, size_t nToErase) {
     if (_timerInstances.at(timerID).empty()) {
         return;
     }
@@ -173,7 +288,7 @@ void $ClassName$::popTimerInst(size_t timerID, size_t nToErase) {
         begin(_timerInstances.at(timerID)),
         begin(_timerInstances.at(timerID)) + nToErase);
 }
-bool $ClassName$::getTimerValue(size_t timerID, size_t timerInstance,
+bool Checker3_r2::getTimerValue(size_t timerID, size_t timerInstance,
                               bool isAss) {
     if (isAss) {
         if (timerInstance >= _timerInstances.at(timerID).size()) {
@@ -193,12 +308,12 @@ bool $ClassName$::getTimerValue(size_t timerID, size_t timerInstance,
     }
 }
 
-void $ClassName$::resetChecker() {
-    for (size_t j = 0; j < $nStatesAss$; j++) {
+void Checker3_r2::resetChecker() {
+    for (size_t j = 0; j < 5; j++) {
         _currAss[j] = 0;
         _nextAss[j] = 0;
     }
-    for (size_t j = 0; j < $nStatesAnt$; j++) {
+    for (size_t j = 0; j < 3; j++) {
         _currAnt[j] = 0;
         _nextAnt[j] = 0;
     }
@@ -212,18 +327,18 @@ void $ClassName$::resetChecker() {
     _endIns = 0;
 }
 
-ros::Time $ClassName$::migrateFromHandleTSbefore() {
+ros::Time Checker3_r2::migrateFromHandleTSbefore() {
     while (_last_msg_ts == ros::Time(0)) {
         ros::Duration(0.01).sleep();
     }
     return _last_msg_ts;
 }
-void $ClassName$::migrateFromHandleTSAfter(const ros::Time &ts) {
+void Checker3_r2::migrateFromHandleTSAfter(const ros::Time &ts) {
     while (ts > _last_msg_ts) {
         ros::Duration(0.01).sleep();
     }
 }
-void $ClassName$::migrateFromHandleData(ver_env::checkerData &res) {
+void Checker3_r2::migrateFromHandleData(ver_env::checkerData &res) {
     // buff
 
     _addEvent_mutex.lock();
@@ -246,7 +361,14 @@ void $ClassName$::migrateFromHandleData(ver_env::checkerData &res) {
     for (int i = 0; i < res.buffer_p.size(); i++) {
         auto val = (res.buffer_p)[i];
         
-$setBuffer
+         bool p0 = val & (1ULL << 0);
+         bool p1 = val & (1ULL << 1);
+         assign<bool>(_pbuff, _index_p , p0 , p1);
+         val = (res.buffer_o)[i];
+         p1 = val & (1ULL << 0);
+         p0 = val & (1ULL << 1);
+         assign<bool>(_order, _index_p , p0 , p1);
+
 
         _index_p = (_index_p >= BUFF_SIZE - 1) ? 0 : _index_p + 1;
         _eventsInBuffer++;
@@ -281,7 +403,9 @@ $setBuffer
 
     _conIns = res.conIns;
     _endIns = res.endIns;
-$setInit_p_MF
+   _last_p0 = res.last_p[0];
+   _last_p1 = res.last_p[1];
+
 
     //    if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     //    {
@@ -292,7 +416,7 @@ $setInit_p_MF
     //        FAILED");
     //    }
 }
-ros::Time $ClassName$::migrateToHandleTS(const ros::Time &ts) {
+ros::Time Checker3_r2::migrateToHandleTS(const ros::Time &ts) {
     while (_last_msg_ts < ts) {
         ros::Duration(0.01).sleep();
     }
@@ -302,7 +426,7 @@ ros::Time $ClassName$::migrateToHandleTS(const ros::Time &ts) {
     _addEvent_mutex.unlock();
     return lmts;
 }
-void $ClassName$::migrateToHandleData(ver_env::checkerData &res) {
+void Checker3_r2::migrateToHandleData(ver_env::checkerData &res) {
     // buffers
     if (_evalIndex_p <= _index_p) {
         for (int i = _evalIndex_p; i < _index_p; i++) {
@@ -346,7 +470,9 @@ void $ClassName$::migrateToHandleData(ver_env::checkerData &res) {
 
     res.conIns = _conIns;
     res.endIns = _endIns;
-$setInit_p_MT
+   res.last_p.push_back(_last_p0);
+   res.last_p.push_back(_last_p1);
+
 
     clearData();
 }

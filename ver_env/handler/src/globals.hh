@@ -26,8 +26,16 @@
 #include "ver_env/stat.h"
 #include "ver_env/su.h"
 #include "Checker.hpp"
-#include "Checker0.hh"
-#include "msg_gen/Num.h"
+#include "Checker1.hh"
+#include "Checker2.hh"
+#include "Checker3.hh"
+#include "Checker1_r1.hh"
+#include "Checker2_r1.hh"
+#include "Checker3_r1.hh"
+#include "Checker1_r2.hh"
+#include "Checker2_r2.hh"
+#include "Checker3_r2.hh"
+#include "sensor_msgs/JointState.h"
 
 #define EXEC 0
 #define REMOVE 1
@@ -77,12 +85,8 @@ extern std::mutex addPublisherMutex;
 extern std::mutex acksMutex;
 
 extern std::mutex t0Mutex;
-extern std::mutex t1Mutex;
-extern std::mutex t2Mutex;
 
-extern std::unordered_map<std::string,std::pair<Checker*,void (*)(Checker*, ros::Time, const msg_gen::Num::Ptr&)>> t2AddEvent;
-extern std::unordered_map<std::string,std::pair<Checker*,void (*)(Checker*, ros::Time, const msg_gen::Num::Ptr&)>> t0AddEvent;
-extern std::unordered_map<std::string,std::pair<Checker*,void (*)(Checker*, ros::Time, const msg_gen::Num::Ptr&)>> t1AddEvent;
+extern std::unordered_map<std::string,std::pair<Checker*,void (*)(Checker*, ros::Time, const sensor_msgs::JointState::Ptr&)>> t0AddEvent;
 
 extern double wholeNodeUsage;
 extern double wholeMachineUsage;
@@ -90,6 +94,7 @@ extern int machineCPUfreq;
 extern double thisMachineMaxUsage;
 extern double milpUsageThreshold;
 extern double milpResponsivnessThreshold;
+extern bool disableMigration;
 extern std::string topicPrefix;
 extern size_t windowMaxSize;
 

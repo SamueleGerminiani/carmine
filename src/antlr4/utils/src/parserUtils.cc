@@ -2,13 +2,9 @@
 #include "parsers.hh"
 #include <string>
 std::unordered_map<std::string, std::string> foundVariablesDefault;
-std::unordered_map<std::string, std::string> debugVars;
 namespace oden {
 bool exists(const std::string &varName) {
   return foundVariablesDefault.count(varName);
-}
-std::unordered_map<std::string, std::string> &getDebugVars() {
-  return debugVars;
 }
 
 std::pair<std::pair<std::string,std::string>,std::unordered_map<std::string,Proposition*>> parseLTLformula(std::string &formula,
@@ -28,10 +24,6 @@ std::pair<std::pair<std::string,std::string>,std::unordered_map<std::string,Prop
     tree::ParseTree *treeLocDec = parserPrecLocDec.file();
     tree::ParseTreeWalker::DEFAULT.walk(&listenerLocDec, treeLocDec);
 
-    // keep track of debug variables
-    for (const auto &debugVar : listenerLocDec.getDebugVars()) {
-      debugVars.insert({{debugVar.first, debugVar.second}});
-    }
     // check var type
     for (const auto &name_type : listenerLocDec.getVarDeclarations()) {
       if (foundVariablesDefault.count(name_type.first) &&
@@ -50,13 +42,12 @@ std::pair<std::pair<std::string,std::string>,std::unordered_map<std::string,Prop
   // DEBUG
   //    listener1.print();
   std::vector<VarDeclaration> varDecls = listenerLocDec.getVarDeclarations();
-  EnumMap enums = listenerLocDec.getEnums();
 
   
-  addTypeToProposition(formula, varDecls, enums);
+  addTypeToProposition(formula, varDecls);
 
   // parse typed formula
-  oden::TemporalParserHandler listener2(enums, propLocation);
+  oden::TemporalParserHandler listener2(propLocation);
   antlr4::ANTLRInputStream input2(formula);
   temporalLexer lexer2(&input2);
   CommonTokenStream tokens2(&lexer2);
@@ -90,10 +81,6 @@ Proposition *parseProposition(std::string &formula,
     tree::ParseTree *treeLocDec = parserPrecLocDec.file();
     tree::ParseTreeWalker::DEFAULT.walk(&listenerLocDec, treeLocDec);
 
-    // keep track of debug variables
-    for (const auto &debugVar : listenerLocDec.getDebugVars()) {
-      debugVars.insert({{debugVar.first, debugVar.second}});
-    }
     // check var type
     for (const auto &name_type : listenerLocDec.getVarDeclarations()) {
       if (foundVariablesDefault.count(name_type.first) &&
@@ -112,13 +99,12 @@ Proposition *parseProposition(std::string &formula,
   // DEBUG
   //    listener1.print();
   std::vector<VarDeclaration> varDecls = listenerLocDec.getVarDeclarations();
-  EnumMap enums = listenerLocDec.getEnums();
 
   
-  addTypeToProposition(formula, varDecls, enums);
+  addTypeToProposition(formula, varDecls);
 
   // parse typed propositions
-  oden::ParserHandler listener2(enums, propLocation);
+  oden::ParserHandler listener2(propLocation);
   antlr4::ANTLRInputStream input2(formula);
   propositionLexer lexer2(&input2);
   CommonTokenStream tokens2(&lexer2);
@@ -133,8 +119,7 @@ Proposition *parseProposition(std::string &formula,
   return listener2.getProposition();
 }
 void addTypeToProposition(std::string &formula,
-                          const std::vector<VarDeclaration> &varDeclaration,
-                          const EnumMap &enums) {
+                          const std::vector<VarDeclaration> &varDeclaration) {
   /*all this code is to solve the problem of
   adding types to the variables in the formula:
   The complexity of the code is to handle the following problems:*/
@@ -145,30 +130,14 @@ void addTypeToProposition(std::string &formula,
 
   std::vector<std::pair<std::string, VarType>> names;
   std::unordered_map<std::string, size_t> nameToSize;
-  std::unordered_map<std::string, int> enumNamedValToValue;
-  std::unordered_map<std::string, std::string> varNameToEnumName;
 
   // add variables as names
   for (auto varDecl : varDeclaration) {
-    // add enum name
-    if (enums.count(varDecl.second)) {
-      names.push_back(std::make_pair(varDecl.first, VarType::SLogic));
-      varNameToEnumName.insert({{varDecl.first, varDecl.second}});
-      continue;
-    }
     std::pair<VarType, uint8_t> t = string2VarTypes(varDecl.second);
     names.push_back(std::make_pair(varDecl.first, t.first));
     nameToSize[varDecl.first] = t.second;
   }
 
-  // add enum constants as names
-  for (const auto &name_values : enums) {
-    for (const auto &name_val : name_values.second) {
-      std::pair<VarType, uint8_t> t = std::make_pair(VarType::SLogic, 32);
-      names.push_back(std::make_pair(name_val.first, t.first));
-      enumNamedValToValue.insert({{name_val.first, name_val.second}});
-    }
-  }
 
   /*now that with have all the variables, we can insert the types in the
   formula*/
@@ -199,17 +168,6 @@ void addTypeToProposition(std::string &formula,
                  std::to_string(nameToSize.at(name.first)) + ")>";
       break;
     case VarType::SLogic:
-      if (varNameToEnumName.count(name.first)) {
-        nameType = "<" + name.first + ",enum(" +
-                   varNameToEnumName.at(name.first) + ")>";
-        break;
-      }
-      if (enumNamedValToValue.count(name.first)) {
-        nameType = "<" + name.first + ",constlogic(" +
-                   std::to_string(enumNamedValToValue.at(name.first)) + ")>";
-        break;
-      }
-
       nameType = "<" + name.first + ",logic(s," +
                  std::to_string(nameToSize.at(name.first)) + ")>";
       break;

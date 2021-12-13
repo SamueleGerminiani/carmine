@@ -35,6 +35,10 @@ std::pair<int, char **> parseCommandLineArguments(int argc, char *argv[]) {
         milpResponsivnessThreshold= result["milpResponsivnessThreshold"].as<double>();
         usedArguments.insert("--milpResponsivnessThreshold");
     }
+    if (result.count("disableMigration")) {
+        disableMigration=1;
+        usedArguments.insert("--disableMigration");
+    }
     if (result.count("topicPrefix")) {
         topicPrefix= result["topicPrefix"].as<std::string>();
         usedArguments.insert("--topicPrefix");

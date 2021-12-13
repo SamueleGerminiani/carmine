@@ -27,7 +27,6 @@ inline strHandler parseSpecifications(const std::string &pathToSpec) {
   // the current machine handler
   auto root = _doc->first_node("handler");
   tmpHandler._name = rapidxml::getAttributeValue(root, "name", "");
-  tmpHandler._migrateTo = rapidxml::getAttributeValue(root, "migrateTo", "");
   rapidxml::XmlNodeList checkers;
 
   // the checkers in the current machine handler
@@ -73,9 +72,22 @@ inline strHandler parseSpecifications(const std::string &pathToSpec) {
       splitNameType(tmpVariable._name, tmpVariable._type, tmpVariable._decl);
       tmpChecker._variables.push_back(tmpVariable);
     }
+
+    rapidxml::XmlNodeList ovearheads;
+    rapidxml::getNodesFromName(ch, "overhead", ovearheads);
+    if (!ovearheads.empty()) {
+      messageErrorIf(ovearheads.size() > 1,
+                     "Multiple ovearheads defines for checker " +
+                         tmpChecker._name);
+      tmpChecker._overhead =
+          rapidxml::getAttributeValue(ovearheads[0], "us", "0");
+    }else{
+        tmpChecker._overhead="none";
+    
+    }
     tmpHandler._checkers.push_back(tmpChecker);
   }
 
   return tmpHandler;
 }
-}
+} // namespace codeGenerator

@@ -5,51 +5,76 @@
 #include "globals.hh"
 #include "ros/time.h"
 
-//Callback for topic random3
-inline void callbackT2(const msg_gen::Num::Ptr& msg){
-   const std::lock_guard<std::mutex> lock(t2Mutex);
-
-   for (auto& fp : t2AddEvent) {
-      fp.second.second(fp.second.first, msg->header.stamp, msg);
-   }
-}
-//Callback for topic random1
-inline void callbackT0(const msg_gen::Num::Ptr& msg){
+//Callback for topic joint_states
+inline void callbackT0(const sensor_msgs::JointState::Ptr& msg){
    const std::lock_guard<std::mutex> lock(t0Mutex);
 
    for (auto& fp : t0AddEvent) {
       fp.second.second(fp.second.first, msg->header.stamp, msg);
    }
 }
-//Callback for topic random2
-inline void callbackT1(const msg_gen::Num::Ptr& msg){
-   const std::lock_guard<std::mutex> lock(t1Mutex);
-
-   for (auto& fp : t1AddEvent) {
-      fp.second.second(fp.second.first, msg->header.stamp, msg);
-   }
-}
 
 // Utility functions <CheckerN,VK>-->add_event
-inline void addVarChecker0_T0(Checker *ch, ros::Time ts, const msg_gen::Num::Ptr& msg) {
-   dynamic_cast<Checker0 *>(ch)->addEvent_v1(ts, msg->num);
+inline void addVarChecker1_T0(Checker *ch, ros::Time ts, const sensor_msgs::JointState::Ptr& msg) {
+static std::deque<double> window_ef12(10,0);
+window_ef12.pop_front(); window_ef12.push_back(msg->effort[12]);
+   dynamic_cast<Checker1 *>(ch)->addEvent_ef12(ts,std::accumulate(window_ef12.begin(), window_ef12.end(), (double)0)/window_ef12.size());
+static std::deque<double> window_ef13(10,0);
+window_ef13.pop_front(); window_ef13.push_back(msg->effort[13]);
+   dynamic_cast<Checker1 *>(ch)->addEvent_ef13(ts,std::accumulate(window_ef13.begin(), window_ef13.end(), (double)0)/window_ef13.size());
 }
-inline void addVarChecker0_T1(Checker *ch, ros::Time ts, const msg_gen::Num::Ptr& msg) {
-   dynamic_cast<Checker0 *>(ch)->addEvent_v2(ts, msg->num);
+inline void addVarChecker1_r1_T0(Checker *ch, ros::Time ts, const sensor_msgs::JointState::Ptr& msg) {
+static std::deque<double> window_ef12(10,0);
+window_ef12.pop_front(); window_ef12.push_back(msg->effort[12]);
+   dynamic_cast<Checker1_r1 *>(ch)->addEvent_ef12(ts,std::accumulate(window_ef12.begin(), window_ef12.end(), (double)0)/window_ef12.size());
+static std::deque<double> window_ef13(10,0);
+window_ef13.pop_front(); window_ef13.push_back(msg->effort[13]);
+   dynamic_cast<Checker1_r1 *>(ch)->addEvent_ef13(ts,std::accumulate(window_ef13.begin(), window_ef13.end(), (double)0)/window_ef13.size());
 }
-inline void addVarChecker0_T2(Checker *ch, ros::Time ts, const msg_gen::Num::Ptr& msg) {
-   dynamic_cast<Checker0 *>(ch)->addEvent_v3(ts, msg->num);
+inline void addVarChecker1_r2_T0(Checker *ch, ros::Time ts, const sensor_msgs::JointState::Ptr& msg) {
+static std::deque<double> window_ef12(10,0);
+window_ef12.pop_front(); window_ef12.push_back(msg->effort[12]);
+   dynamic_cast<Checker1_r2 *>(ch)->addEvent_ef12(ts,std::accumulate(window_ef12.begin(), window_ef12.end(), (double)0)/window_ef12.size());
+static std::deque<double> window_ef13(10,0);
+window_ef13.pop_front(); window_ef13.push_back(msg->effort[13]);
+   dynamic_cast<Checker1_r2 *>(ch)->addEvent_ef13(ts,std::accumulate(window_ef13.begin(), window_ef13.end(), (double)0)/window_ef13.size());
+}
+inline void addVarChecker2_T0(Checker *ch, ros::Time ts, const sensor_msgs::JointState::Ptr& msg) {
+static std::deque<double> window_vel0(10,0);
+window_vel0.pop_front(); window_vel0.push_back(msg->velocity[0]);
+   dynamic_cast<Checker2 *>(ch)->addEvent_vel0(ts,std::accumulate(window_vel0.begin(), window_vel0.end(), (double)0)/window_vel0.size());
+}
+inline void addVarChecker2_r1_T0(Checker *ch, ros::Time ts, const sensor_msgs::JointState::Ptr& msg) {
+static std::deque<double> window_vel0(10,0);
+window_vel0.pop_front(); window_vel0.push_back(msg->velocity[0]);
+   dynamic_cast<Checker2_r1 *>(ch)->addEvent_vel0(ts,std::accumulate(window_vel0.begin(), window_vel0.end(), (double)0)/window_vel0.size());
+}
+inline void addVarChecker2_r2_T0(Checker *ch, ros::Time ts, const sensor_msgs::JointState::Ptr& msg) {
+static std::deque<double> window_vel0(10,0);
+window_vel0.pop_front(); window_vel0.push_back(msg->velocity[0]);
+   dynamic_cast<Checker2_r2 *>(ch)->addEvent_vel0(ts,std::accumulate(window_vel0.begin(), window_vel0.end(), (double)0)/window_vel0.size());
+}
+inline void addVarChecker3_T0(Checker *ch, ros::Time ts, const sensor_msgs::JointState::Ptr& msg) {
+static std::deque<double> window_pos0(10,0);
+window_pos0.pop_front(); window_pos0.push_back(msg->position[0]);
+   dynamic_cast<Checker3 *>(ch)->addEvent_pos0(ts,std::accumulate(window_pos0.begin(), window_pos0.end(), (double)0)/window_pos0.size());
+}
+inline void addVarChecker3_r1_T0(Checker *ch, ros::Time ts, const sensor_msgs::JointState::Ptr& msg) {
+static std::deque<double> window_pos0(10,0);
+window_pos0.pop_front(); window_pos0.push_back(msg->position[0]);
+   dynamic_cast<Checker3_r1 *>(ch)->addEvent_pos0(ts,std::accumulate(window_pos0.begin(), window_pos0.end(), (double)0)/window_pos0.size());
+}
+inline void addVarChecker3_r2_T0(Checker *ch, ros::Time ts, const sensor_msgs::JointState::Ptr& msg) {
+static std::deque<double> window_pos0(10,0);
+window_pos0.pop_front(); window_pos0.push_back(msg->position[0]);
+   dynamic_cast<Checker3_r2 *>(ch)->addEvent_pos0(ts,std::accumulate(window_pos0.begin(), window_pos0.end(), (double)0)/window_pos0.size());
 }
 
 
 // Subscribe the specified topic
 inline void attachCallback(const std::string &name) {
-   if(name == "T2"){
-      attachedTopics[name] = n->subscribe(topicPrefix + "random3", 10000, callbackT2, ros::TransportHints().tcpNoDelay()); 
-    }else if(name == "T0"){
-      attachedTopics[name] = n->subscribe(topicPrefix + "random1", 10000, callbackT0, ros::TransportHints().tcpNoDelay()); 
-    }else if(name == "T1"){
-      attachedTopics[name] = n->subscribe(topicPrefix + "random2", 10000, callbackT1, ros::TransportHints().tcpNoDelay()); 
+   if(name == "T0"){
+      attachedTopics[name] = n->subscribe(topicPrefix + "joint_states", 10000, callbackT0, ros::TransportHints().tcpNoDelay()); 
     }else{
       assert(0);
    }
@@ -69,35 +94,31 @@ inline void removeTopicFP(const std::string &topic,
    if(topic == "T0"){
       const std::lock_guard<std::mutex> lock(t0Mutex);
       t0AddEvent.erase(checker);
-   }else if(topic == "T1"){
-      const std::lock_guard<std::mutex> lock(t1Mutex);
-      t1AddEvent.erase(checker);
-   }else if(topic == "T2"){
-      const std::lock_guard<std::mutex> lock(t2Mutex);
-      t2AddEvent.erase(checker);
    }else{
       assert(0);
    }
 }
 inline void addTopicFP(const std::string &topic, const std::string &checker) {
-   if(topic == "T2"){
-      const std::lock_guard<std::mutex> lock(t2Mutex);
-      if(checker == "Checker0"){
-         t2AddEvent["Checker0"] = std::make_pair(chsAll.at("Checker0"), &addVarChecker0_T2);
-      }else{
-         assert(0);
-      }
-   }else if(topic == "T0"){
+   if(topic == "T0"){
       const std::lock_guard<std::mutex> lock(t0Mutex);
-      if(checker == "Checker0"){
-         t0AddEvent["Checker0"] = std::make_pair(chsAll.at("Checker0"), &addVarChecker0_T0);
-      }else{
-         assert(0);
-      }
-   }else if(topic == "T1"){
-      const std::lock_guard<std::mutex> lock(t1Mutex);
-      if(checker == "Checker0"){
-         t1AddEvent["Checker0"] = std::make_pair(chsAll.at("Checker0"), &addVarChecker0_T1);
+      if(checker == "Checker1"){
+         t0AddEvent["Checker1"] = std::make_pair(chsAll.at("Checker1"), &addVarChecker1_T0);
+      }else if(checker == "Checker1_r1"){
+         t0AddEvent["Checker1_r1"] = std::make_pair(chsAll.at("Checker1_r1"), &addVarChecker1_r1_T0);
+      }else if(checker == "Checker1_r2"){
+         t0AddEvent["Checker1_r2"] = std::make_pair(chsAll.at("Checker1_r2"), &addVarChecker1_r2_T0);
+      }else if(checker == "Checker2"){
+         t0AddEvent["Checker2"] = std::make_pair(chsAll.at("Checker2"), &addVarChecker2_T0);
+      }else if(checker == "Checker2_r1"){
+         t0AddEvent["Checker2_r1"] = std::make_pair(chsAll.at("Checker2_r1"), &addVarChecker2_r1_T0);
+      }else if(checker == "Checker2_r2"){
+         t0AddEvent["Checker2_r2"] = std::make_pair(chsAll.at("Checker2_r2"), &addVarChecker2_r2_T0);
+      }else if(checker == "Checker3"){
+         t0AddEvent["Checker3"] = std::make_pair(chsAll.at("Checker3"), &addVarChecker3_T0);
+      }else if(checker == "Checker3_r1"){
+         t0AddEvent["Checker3_r1"] = std::make_pair(chsAll.at("Checker3_r1"), &addVarChecker3_r1_T0);
+      }else if(checker == "Checker3_r2"){
+         t0AddEvent["Checker3_r2"] = std::make_pair(chsAll.at("Checker3_r2"), &addVarChecker3_r2_T0);
       }else{
          assert(0);
       }
@@ -123,14 +144,8 @@ inline void ttlInsert(const std::string &topic, const ros::Time &stamp) {
         (double)topicToLatencyWindow.at(topic).size();
 }
 inline void pingTopic(const std::string &topic) {
-   if(topic == "T2"){
-      boost::shared_ptr<msg_gen::Num const> msg = ros::topic::waitForMessage<msg_gen::Num>(topicPrefix + "random3", *n);
-      ttlInsert(topic, msg->header.stamp);
-   }else if(topic == "T0"){
-      boost::shared_ptr<msg_gen::Num const> msg = ros::topic::waitForMessage<msg_gen::Num>(topicPrefix + "random1", *n);
-      ttlInsert(topic, msg->header.stamp);
-   }else if(topic == "T1"){
-      boost::shared_ptr<msg_gen::Num const> msg = ros::topic::waitForMessage<msg_gen::Num>(topicPrefix + "random2", *n);
+   if(topic == "T0"){
+      boost::shared_ptr<sensor_msgs::JointState const> msg = ros::topic::waitForMessage<sensor_msgs::JointState>(topicPrefix + "joint_states", *n);
       ttlInsert(topic, msg->header.stamp);
    }else{
       assert(0);

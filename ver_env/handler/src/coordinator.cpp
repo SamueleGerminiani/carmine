@@ -1,9 +1,12 @@
 
 #include "coordinator.hh"
+#include <algorithm>
 #include <boost/functional/hash.hpp>
 #include <cmath>
 #include <deque>
+#include <fstream>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <vector>
 #include "comunication.hh"
@@ -11,6 +14,7 @@
 #include "z3++.h"
 #include "z3.h"
 #define printStat 1
+#define dumpStats 1
 
 std::unordered_map<std::string, std::unordered_map<std::string, double>>
     nodeToTopicLatency;
@@ -18,8 +22,10 @@ std::unordered_map<std::string, std::unordered_map<std::string, double>>
     nodeToCheckerUsage;
 std::unordered_map<std::string, std::unordered_map<std::string, double>>
     nodeToTopicUsage;
-std::unordered_map<std::string, std::unordered_map<std::string, std::deque<double>>> nodeToTopicUsageWindow;
-size_t topicUsageWindow=20;
+std::unordered_map<std::string,
+                   std::unordered_map<std::string, std::deque<double>>>
+    nodeToTopicUsageWindow;
+size_t topicUsageWindow = 20;
 std::unordered_map<std::string, double> nodeToAvailable;
 std::unordered_map<std::string, double> nodeToCPUfreq;
 std::unordered_map<std::string, std::string> currAlloc;
@@ -82,12 +88,18 @@ bool ackReceived(const std::string &node) {
     return 0;
 }
 
+#if dumpStats
+static std::ofstream statOut("stat.csv");
+std::map<std::string, std::tuple<double, size_t>> nextDump;
+#endif
+
 // the coordinator main loop
 void coordinator() {
     static size_t count = 0;
     static const size_t rateMILP = 30;
     static const size_t rateStat = 10;
     //    std::cout << "c) Running..." << "\n";
+
     startCheckers();
     while (ros::ok()) {
         ros::Duration(0.1).sleep();
@@ -99,7 +111,8 @@ void coordinator() {
         }
 
         if (nodes.size() > 1 && (count % rateMILP == 0) &&
-            haveLatForAllNodes() && haveUsageForAllCheckers()) {
+            haveLatForAllNodes() && haveUsageForAllCheckers() &&
+            !disableMigration) {
             // 3) run the algorithm to find the best allocation
             auto bestAlloc = findBestAllocation();
 
@@ -149,6 +162,19 @@ void startCheckers() {
     std::string firstNode = nodes.begin()->second;
     nodesMutex.unlock();
 
+#if dumpStats
+    statOut << "time; ";
+    for (auto &c : allCheckers) {
+        nextDump[c];
+    }
+    for (auto &c : nextDump) {
+        statOut << c.first << "; usage; buffer; ";
+    }
+    statOut << "totUsage; ";
+    statOut << "totBuffer; ";
+    statOut << "\n";
+#endif
+
     for (auto &c : allCheckers) {
         nodeToCheckerUsage[firstNode][c] = -1.f;
     }
@@ -187,15 +213,37 @@ void gatherStats() {
         stat_msgs.pop_front();
 
         double sumCheckerUsage = 0.f;
+#if dumpStats
+        size_t buffEvents = 0;
+#endif
         nodeToCheckerUsage[msg.node].clear();
         for (size_t i = 0; i < msg.checkerList.size(); i++) {
             auto checkerName = msg.checkerList[i];
             auto usage = msg.checkerUsage[i];
+            auto eib = msg.eventsInBuffer[i];
+#if dumpStats
+            nextDump.at(checkerName) = std::make_tuple(usage, eib);
+            buffEvents += eib;
+#endif
             nodeToCheckerUsage[msg.node][checkerName] = usage;
             sumCheckerUsage += usage;
         }
 
-        //free unused windows
+#if dumpStats
+        if (!nextDump.empty()) {
+            statOut << ros::Time::now() << "; ";
+        }
+        for (auto &d : nextDump) {
+            statOut << std::get<0>(d.second) << "; ";
+            statOut << std::get<1>(d.second) << "; ";
+        }
+        statOut << sumCheckerUsage << "; ";
+        statOut << buffEvents << "; ";
+        statOut << "\n";
+        statOut.flush();
+#endif
+
+        // free unused windows
         std::unordered_set<std::string> activeTopics;
         for (size_t i = 0; i < msg.topicList.size(); i++) {
             activeTopics.find(msg.topicList[i]);
@@ -211,14 +259,20 @@ void gatherStats() {
             auto latency = msg.topicLatency[i];
             nodeToTopicLatency[msg.node][topicName] = latency;
 
-            //topic usage with window
-            if (nodeToTopicUsageWindow[msg.node][topicName].size()==topicUsageWindow) {
+            // topic usage with window
+            if (nodeToTopicUsageWindow[msg.node][topicName].size() ==
+                topicUsageWindow) {
                 nodeToTopicUsageWindow[msg.node][topicName].pop_back();
             }
-            double val=((msg.wholeNodeUsage - sumCheckerUsage) * 0.8f) / msg.nAttachedTopics;
-            nodeToTopicUsageWindow[msg.node][topicName].push_front(val>0.f && val<10e9 ? val:0.f);
-            nodeToTopicUsage[msg.node][topicName]=std::accumulate(nodeToTopicUsageWindow[msg.node][topicName].begin(),nodeToTopicUsageWindow[msg.node][topicName].end(),0.f)/nodeToTopicUsageWindow[msg.node][topicName].size();
-
+            double val = ((msg.wholeNodeUsage - sumCheckerUsage) * 0.8f) /
+                         msg.nAttachedTopics;
+            nodeToTopicUsageWindow[msg.node][topicName].push_front(
+                val > 0.f && val < 10e9 ? val : 0.f);
+            nodeToTopicUsage[msg.node][topicName] =
+                std::accumulate(
+                    nodeToTopicUsageWindow[msg.node][topicName].begin(),
+                    nodeToTopicUsageWindow[msg.node][topicName].end(), 0.f) /
+                nodeToTopicUsageWindow[msg.node][topicName].size();
         }
 
         nodeToCPUfreq[msg.node] = msg.machineCPUfreq;
@@ -231,27 +285,28 @@ void gatherStats() {
 
     std::cout << "-----------------STAT---------------------"
               << "\n";
-//    std::cout << "[Topics Latency]"
-//              << "\n";
-//    for (auto &nll : nodeToTopicLatency) {
-//        std::cout << nll.first << "\n";
-//        for (auto &nl : nll.second) {
-//            std::cout << "\t\t" << nl.first << ": " << (int)(nl.second * 1000)
-//                      << "ms\n";
-//        }
-//    }
+    //    std::cout << "[Topics Latency]"
+    //              << "\n";
+    //    for (auto &nll : nodeToTopicLatency) {
+    //        std::cout << nll.first << "\n";
+    //        for (auto &nl : nll.second) {
+    //            std::cout << "\t\t" << nl.first << ": " << (int)(nl.second *
+    //            1000)
+    //                      << "ms\n";
+    //        }
+    //    }
     std::cout << "[Usage]"
               << "\n";
     for (auto checkerUsage : nodeToCheckerUsage) {
         std::cout << checkerUsage.first << "\n";
         for (auto &cu : checkerUsage.second) {
-            //if (cu.second>0.f && cu.second<10e9) {
-                std::cout << "\t\t" << cu.first << ": " << cu.second << "\n";
+            // if (cu.second>0.f && cu.second<10e9) {
+            std::cout << "\t\t" << cu.first << ": " << cu.second << "\n";
             //}
         }
         for (auto &tu : nodeToTopicUsage.at(checkerUsage.first)) {
-            //if (tu.second>0.f && tu.second<10e9) {
-                std::cout << "\t\t" << tu.first << ": " << tu.second << "\n";
+            // if (tu.second>0.f && tu.second<10e9) {
+            std::cout << "\t\t" << tu.first << ": " << tu.second << "\n";
             //}
         }
         //        std::cout << "CPU freq: " <<
@@ -431,9 +486,9 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
         for (auto &en : enum_names) {
             expr orCond = ctx.bool_val(false);
             for (auto &ct : checkerToTopic) {
-                orCond = orCond ||
-                         chToz3Const.at(checkerToz3Name.at(ct.first)) ==
-                             enumNameToz3Exp.at(en);
+                orCond =
+                    orCond || chToz3Const.at(checkerToz3Name.at(ct.first)) ==
+                                  enumNameToz3Exp.at(en);
             }
             expr t = ctx.fpa_val(
                 (float)nodeToTopicUsageScaled[enumToNode.at(en)][topic.first]);

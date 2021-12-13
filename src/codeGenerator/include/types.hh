@@ -53,16 +53,16 @@ struct strChecker {
   std::string _description;
   std::string _LTLformula;
   std::vector<strVariable> _variables;
+  std::string _overhead;
 };
 struct strHandler {
-  strHandler(std::string name, std::string migrateTo,
+  strHandler(std::string name,
              std::vector<strChecker> checkers)
-      : _name(name), _migrateTo(migrateTo), _checkers(checkers) {
+      : _name(name), _checkers(checkers) {
     // not todo
   }
   strHandler() {}
   std::string _name;
-  std::string _migrateTo;
   std::vector<strChecker> _checkers;
 };
 

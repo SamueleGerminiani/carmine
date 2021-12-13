@@ -80,5 +80,6 @@ double wholeMachineUsage=0.f;
 int machineCPUfreq=0;
 double milpUsageThreshold=0;
 double milpResponsivnessThreshold=0;
+bool disableMigration=0;
 std::string topicPrefix;
 size_t windowMaxSize=5;

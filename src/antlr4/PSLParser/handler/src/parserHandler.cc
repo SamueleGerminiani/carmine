@@ -6,17 +6,9 @@
 
 namespace oden {
 
-TemporalParserHandler::TemporalParserHandler(const EnumMap &enums,
-                                             std::string location)
+TemporalParserHandler::TemporalParserHandler(std::string location)
     : _abort(false), _proposition(), _logicExpressions(), _numericExpressions(),
       _location(location) {
-  for (const auto &name_values : enums) {
-    std::vector<enumItem> tmpEnumValues;
-    for (const auto &val : name_values.second) {
-      tmpEnumValues.push_back(enumItem(val.first, val.second));
-    }
-    _enums.insert({{name_values.first, tmpEnumValues}});
-  }
 }
 
 void TemporalParserHandler::enterBooleanConstant(
@@ -66,15 +58,6 @@ void TemporalParserHandler::enterNamedLogicConst(
   }
 }
 
-void TemporalParserHandler::enterEnumVariable(
-    temporalParser::EnumVariableContext *ctx) {
-  temporalParser::VariableContext *tNode = ctx->variable();
-  std::string varName = std::string(tNode->getText());
-  // //std::cout << __func__ << ": " << varName << std::endl;
-
-  _logicExpressions.push(
-      new EnumVariable(varName, _enums.at(ctx->enumName()->getText())));
-}
 void TemporalParserHandler::enterLogicConstant(
     temporalParser::LogicConstantContext *ctx) {
   std::string conStr = std::string(ctx->getText());

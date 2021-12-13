@@ -1,5 +1,5 @@
 
-// Generated from varDeclaration.g4 by ANTLR 4.7.2
+// Generated from varDeclaration.g4 by ANTLR 4.9.3
 
 #pragma once
 
@@ -26,38 +26,11 @@ public:
   virtual void enterVarDec(varDeclarationParser::VarDecContext *ctx) = 0;
   virtual void exitVarDec(varDeclarationParser::VarDecContext *ctx) = 0;
 
-  virtual void enterAss(varDeclarationParser::AssContext *ctx) = 0;
-  virtual void exitAss(varDeclarationParser::AssContext *ctx) = 0;
-
-  virtual void enterEnumDec(varDeclarationParser::EnumDecContext *ctx) = 0;
-  virtual void exitEnumDec(varDeclarationParser::EnumDecContext *ctx) = 0;
-
-  virtual void enterEnum_list(varDeclarationParser::Enum_listContext *ctx) = 0;
-  virtual void exitEnum_list(varDeclarationParser::Enum_listContext *ctx) = 0;
-
-  virtual void enterAddLogic(varDeclarationParser::AddLogicContext *ctx) = 0;
-  virtual void exitAddLogic(varDeclarationParser::AddLogicContext *ctx) = 0;
-
   virtual void enterName(varDeclarationParser::NameContext *ctx) = 0;
   virtual void exitName(varDeclarationParser::NameContext *ctx) = 0;
 
-  virtual void enterLogicName(varDeclarationParser::LogicNameContext *ctx) = 0;
-  virtual void exitLogicName(varDeclarationParser::LogicNameContext *ctx) = 0;
-
   virtual void enterVartype(varDeclarationParser::VartypeContext *ctx) = 0;
   virtual void exitVartype(varDeclarationParser::VartypeContext *ctx) = 0;
-
-  virtual void enterEnumType(varDeclarationParser::EnumTypeContext *ctx) = 0;
-  virtual void exitEnumType(varDeclarationParser::EnumTypeContext *ctx) = 0;
-
-  virtual void enterLogic(varDeclarationParser::LogicContext *ctx) = 0;
-  virtual void exitLogic(varDeclarationParser::LogicContext *ctx) = 0;
-
-  virtual void enterLogicAtom(varDeclarationParser::LogicAtomContext *ctx) = 0;
-  virtual void exitLogicAtom(varDeclarationParser::LogicAtomContext *ctx) = 0;
-
-  virtual void enterLogicConstant(varDeclarationParser::LogicConstantContext *ctx) = 0;
-  virtual void exitLogicConstant(varDeclarationParser::LogicConstantContext *ctx) = 0;
 
 
 };

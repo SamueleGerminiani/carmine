@@ -1,13 +1,13 @@
-#include "Checker0.hh"
+#include "Checker1.hh"
 #include "ros/time.h"
 #include "ver_env/checkerData.h"
 
-void Checker0::notifyFailure() {
+void Checker1::notifyFailure() {
     std::cout << ros::this_node::getName() << ": Checker " << _checkerName
               << " failed, resetting" << std::endl;
 }
 
-Checker0::Checker0(size_t nVars, size_t priority, std::string handlerName,
+Checker1::Checker1(size_t nVars, size_t priority, std::string handlerName,
                      std::string checkerName)
     : Checker(nVars, priority) {
     // init buffers
@@ -22,18 +22,18 @@ Checker0::Checker0(size_t nVars, size_t priority, std::string handlerName,
 
    _timerInstances[0];
    _timerCache[0];
-   _timeouts.push_back(2000);
+   _timeouts.push_back(20000);
 
 
     resetChecker();
 }
 
-Checker0::~Checker0() {
+Checker1::~Checker1() {
     delete[] _pbuff;
     delete[] _order;
 }
 
-void Checker0::clearData() {
+void Checker1::clearData() {
     _vbuff.clear();
     _evalIndex_p = 0;
     _index_p = 0;
@@ -41,7 +41,6 @@ void Checker0::clearData() {
 
    _last_p0 = 0;
    _last_p1 = 0;
-   _last_p2 = 0;
 
 
     _last_msg_ts = ros::Time(0);
@@ -53,7 +52,7 @@ void Checker0::clearData() {
 
 // function used in Request to eval a checker until the slice or available
 // events end
-bool Checker0::eval() {
+bool Checker1::eval() {
     // stat declarations
     static boost::chrono::thread_clock::time_point oneEvalStart;
     static std::chrono::steady_clock::time_point oneSecondStart =
@@ -88,16 +87,22 @@ bool Checker0::eval() {
    if (order_entry & (1ULL << 1)) {
       _last_p1= pbuff_entry & (1ULL << 1);
    }
-   if (order_entry & (1ULL << 2)) {
-      _last_p2= pbuff_entry & (1ULL << 2);
-   }
 
 
     _evalIndex_p = (_evalIndex_p >= BUFF_SIZE - 1) ? 0 : _evalIndex_p + 1;
 
-   if (!eval_Checker0(_last_p0, _last_p1, _last_p2, 0)){
+   static std::chrono::steady_clock::time_point ohstart = std::chrono::steady_clock::now();
+   while (1) {
+      if (std::chrono::duration_cast<std::chrono::microseconds>( std::chrono::steady_clock::now() - ohstart).count() >= 3000) {
+      ohstart = std::chrono::steady_clock::now();
+      break;
+      }
+   }
+
+
+   if (!eval_Checker1(_last_p0, _last_p1, 0)){
       notifyFailure();
-      eval_Checker0(0, 0, 0, 1);
+      eval_Checker1(0, 0, 1);
    }
 
 
@@ -146,58 +151,51 @@ bool Checker0::eval() {
 }
 
 //Return true if checker did not fail
-inline bool Checker0::eval_Checker0(bool p0, bool p1, bool p2, bool const reset){
+inline bool Checker1::eval_Checker1(bool p0, bool p1, bool const reset){
    if(reset){
       resetChecker();
       return 1;
    }
-    _currAss[4]++;
+    _currAss[3]++;
     for (size_t i = 0; i < _currAss[0]; i++) {
       bool stop0 = getTimerValue(0, i, 1);
-      if((!p2 && !stop0)){
+      if((!p1 && !stop0)){
           _nextAss[0]++;
       }
-      else if(p2){
+      else if(p1){
          popTimerInst(0,1);
          _endIns++;
       }
-      else if((!p2 && stop0)){
+      else if((!p1 && stop0)){
          return 0;
       }
    }
     _currAss[0]=0;
     for (size_t i = 0; i < _currAss[1]; i++) {
       bool stop0 = getTimerValue(0, i, 1);
-      if((!p2 && 1 && !stop0)){
+      if((!p1 && 1 && !stop0)){
          addTimerValue(0);
           _nextAss[0]++;
       }
-      else if((p2 && 1)){
+      else if((p1 && 1)){
          _endIns++;
       }
-      else if((!1 || (!p2 && stop0))){
+      else if((!1 || (!p1 && stop0))){
          return 0;
       }
    }
     _currAss[1]=0;
-      if((1 && p1)){
-          _nextAss[1]+=_currAss[2];
+      if((1 && p0)){
+          _nextAss[1]+=_currAss[3];
       }
-      else if(!p1){
-          _nextAss[2]+=_currAss[2];
-      }
-      else if((!1 && p1)){
-         _endIns+=_currAss[2];
-      }
-    _currAss[2]=0;
-      if(p0){
-          _nextAss[2]+=_currAss[4];
+      else if((!1 && p0)){
+         _endIns+=_currAss[3];
       }
       else if(!p0){
-          _nextAss[4]+=_currAss[4];
+          _nextAss[3]+=_currAss[3];
       }
-    _currAss[4]=0;
-   for (size_t i = 0; i <6; i++) {
+    _currAss[3]=0;
+   for (size_t i = 0; i <5; i++) {
           _currAss[i] = _nextAss[i];
           _nextAss[i] = 0;
    }
@@ -206,25 +204,18 @@ inline bool Checker0::eval_Checker0(bool p0, bool p1, bool p2, bool const reset)
 // ---------ANT-------------
 
 
-    _currAnt[2]++;
-      if(!p1){
-          _nextAnt[0]+=_currAnt[0];
-      }
-      else if((1 && p1)){
-         _conIns+=_currAnt[0];
-      }
-      else if((!1 && p1)){
-         _endIns-=_currAnt[0];
-      }
-    _currAnt[0]=0;
-      if(p0){
-          _nextAnt[0]+=_currAnt[2];
+    _currAnt[1]++;
+      if((1 && p0)){
+         _conIns+=_currAnt[1];
       }
       else if(!p0){
-          _nextAnt[2]+=_currAnt[2];
+          _nextAnt[1]+=_currAnt[1];
       }
-    _currAnt[2]=0;
-   for (size_t i = 0; i <4; i++) {
+      else if((!1 && p0)){
+         _endIns-=_currAnt[1];
+      }
+    _currAnt[1]=0;
+   for (size_t i = 0; i <3; i++) {
           _currAnt[i] = _nextAnt[i];
           _nextAnt[i] = 0;
    }
@@ -239,39 +230,33 @@ inline bool Checker0::eval_Checker0(bool p0, bool p1, bool p2, bool const reset)
 
 
 // reorder using the timestamp
-void Checker0::reorder(bool forceReorder) {
+void Checker1::reorder(bool forceReorder) {
     if (_vbuff.size() >= REORDER_TH || forceReorder) {
         std::sort(std::begin(_vbuff), std::end(_vbuff),
                   [](const Event &e1, const Event &e2) {
                       return e1._timeStamp < e2._timeStamp;
                   });
 
-   static bool v1;
-   static bool v2;
-   static bool v3;
+   static double ef12;
+   static double ef13;
 
 
         for (auto event : _vbuff) {
             switch (event._type) {
                case 0:{
-                  v1 = event._value._v1;
-                  const bool p0 = v1;
-                  assign<bool>(_pbuff, _index_p, p0, 0, 0);
-                  assign<bool>(_order, _index_p, 1, 0, 0);
+                  ef12 = event._value._ef12;
+                  const bool p0 = ((ef12 != 0) && (ef13 != 0));
+                  const bool p1 = ((ef12 == 0) && (ef13 == 0));
+                  assign<bool>(_pbuff, _index_p, p0, p1);
+                  assign<bool>(_order, _index_p, 1, 1);
                }
                break;
                case 1:{
-                  v2 = event._value._v2;
-                  const bool p1 = v2;
-                  assign<bool>(_pbuff, _index_p, 0, p1, 0);
-                  assign<bool>(_order, _index_p, 0, 1, 0);
-               }
-               break;
-               case 2:{
-                  v3 = event._value._v3;
-                  const bool p2 = v3;
-                  assign<bool>(_pbuff, _index_p, 0, 0, p2);
-                  assign<bool>(_order, _index_p, 0, 0, 1);
+                  ef13 = event._value._ef13;
+                  const bool p0 = ((ef12 != 0) && (ef13 != 0));
+                  const bool p1 = ((ef12 == 0) && (ef13 == 0));
+                  assign<bool>(_pbuff, _index_p, p0, p1);
+                  assign<bool>(_order, _index_p, 1, 1);
                }
                break;
 
@@ -292,33 +277,26 @@ void Checker0::reorder(bool forceReorder) {
     }
 }
 
-void Checker0::addEvent_v1(ros::Time ts, bool value){
+void Checker1::addEvent_ef12(ros::Time ts, double value){
       _addEvent_mutex.lock();
       _last_msg_ts = ts;
       _numberOfAddEvent++;
       _vbuff.push_back(Event(ts, Value(value, 0),0));
       _addEvent_mutex.unlock();
 }
-void Checker0::addEvent_v2(ros::Time ts, bool value){
+void Checker1::addEvent_ef13(ros::Time ts, double value){
       _addEvent_mutex.lock();
       _last_msg_ts = ts;
       _numberOfAddEvent++;
       _vbuff.push_back(Event(ts, Value(value, 1),1));
       _addEvent_mutex.unlock();
 }
-void Checker0::addEvent_v3(ros::Time ts, bool value){
-      _addEvent_mutex.lock();
-      _last_msg_ts = ts;
-      _numberOfAddEvent++;
-      _vbuff.push_back(Event(ts, Value(value, 2),2));
-      _addEvent_mutex.unlock();
-}
 
 
-void Checker0::addTimerValue(size_t timerID) {
+void Checker1::addTimerValue(size_t timerID) {
     _timerInstances[timerID].push_back(ros::Time::now().toSec() * 1000);
 }
-void Checker0::popTimerInst(size_t timerID, size_t nToErase) {
+void Checker1::popTimerInst(size_t timerID, size_t nToErase) {
     if (_timerInstances.at(timerID).empty()) {
         return;
     }
@@ -326,7 +304,7 @@ void Checker0::popTimerInst(size_t timerID, size_t nToErase) {
         begin(_timerInstances.at(timerID)),
         begin(_timerInstances.at(timerID)) + nToErase);
 }
-bool Checker0::getTimerValue(size_t timerID, size_t timerInstance,
+bool Checker1::getTimerValue(size_t timerID, size_t timerInstance,
                               bool isAss) {
     if (isAss) {
         if (timerInstance >= _timerInstances.at(timerID).size()) {
@@ -346,12 +324,12 @@ bool Checker0::getTimerValue(size_t timerID, size_t timerInstance,
     }
 }
 
-void Checker0::resetChecker() {
-    for (size_t j = 0; j < 6; j++) {
+void Checker1::resetChecker() {
+    for (size_t j = 0; j < 5; j++) {
         _currAss[j] = 0;
         _nextAss[j] = 0;
     }
-    for (size_t j = 0; j < 4; j++) {
+    for (size_t j = 0; j < 3; j++) {
         _currAnt[j] = 0;
         _nextAnt[j] = 0;
     }
@@ -365,18 +343,18 @@ void Checker0::resetChecker() {
     _endIns = 0;
 }
 
-ros::Time Checker0::migrateFromHandleTSbefore() {
+ros::Time Checker1::migrateFromHandleTSbefore() {
     while (_last_msg_ts == ros::Time(0)) {
         ros::Duration(0.01).sleep();
     }
     return _last_msg_ts;
 }
-void Checker0::migrateFromHandleTSAfter(const ros::Time &ts) {
+void Checker1::migrateFromHandleTSAfter(const ros::Time &ts) {
     while (ts > _last_msg_ts) {
         ros::Duration(0.01).sleep();
     }
 }
-void Checker0::migrateFromHandleData(ver_env::checkerData &res) {
+void Checker1::migrateFromHandleData(ver_env::checkerData &res) {
     // buff
 
     _addEvent_mutex.lock();
@@ -401,13 +379,11 @@ void Checker0::migrateFromHandleData(ver_env::checkerData &res) {
         
          bool p0 = val & (1ULL << 0);
          bool p1 = val & (1ULL << 1);
-         bool p2 = val & (1ULL << 2);
-         assign<bool>(_pbuff, _index_p , p0 , p1 , p2);
+         assign<bool>(_pbuff, _index_p , p0 , p1);
          val = (res.buffer_o)[i];
-         p2 = val & (1ULL << 0);
+         p1 = val & (1ULL << 0);
          p0 = val & (1ULL << 1);
-         p1 = val & (1ULL << 2);
-         assign<bool>(_order, _index_p , p0 , p1 , p2);
+         assign<bool>(_order, _index_p , p0 , p1);
 
 
         _index_p = (_index_p >= BUFF_SIZE - 1) ? 0 : _index_p + 1;
@@ -445,7 +421,6 @@ void Checker0::migrateFromHandleData(ver_env::checkerData &res) {
     _endIns = res.endIns;
    _last_p0 = res.last_p[0];
    _last_p1 = res.last_p[1];
-   _last_p2 = res.last_p[2];
 
 
     //    if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
@@ -457,7 +432,7 @@ void Checker0::migrateFromHandleData(ver_env::checkerData &res) {
     //        FAILED");
     //    }
 }
-ros::Time Checker0::migrateToHandleTS(const ros::Time &ts) {
+ros::Time Checker1::migrateToHandleTS(const ros::Time &ts) {
     while (_last_msg_ts < ts) {
         ros::Duration(0.01).sleep();
     }
@@ -467,7 +442,7 @@ ros::Time Checker0::migrateToHandleTS(const ros::Time &ts) {
     _addEvent_mutex.unlock();
     return lmts;
 }
-void Checker0::migrateToHandleData(ver_env::checkerData &res) {
+void Checker1::migrateToHandleData(ver_env::checkerData &res) {
     // buffers
     if (_evalIndex_p <= _index_p) {
         for (int i = _evalIndex_p; i < _index_p; i++) {
@@ -513,7 +488,6 @@ void Checker0::migrateToHandleData(ver_env::checkerData &res) {
     res.endIns = _endIns;
    res.last_p.push_back(_last_p0);
    res.last_p.push_back(_last_p1);
-   res.last_p.push_back(_last_p2);
 
 
     clearData();

@@ -72,17 +72,14 @@ std::mutex chsMutex;
 std::mutex addPublisherMutex;
 
 std::mutex t0Mutex;
-std::mutex t1Mutex;
-std::mutex t2Mutex;
 
-std::unordered_map<std::string,std::pair<Checker*,void (*)(Checker*, ros::Time, const msg_gen::Num::Ptr&)>> t2AddEvent;
-std::unordered_map<std::string,std::pair<Checker*,void (*)(Checker*, ros::Time, const msg_gen::Num::Ptr&)>> t0AddEvent;
-std::unordered_map<std::string,std::pair<Checker*,void (*)(Checker*, ros::Time, const msg_gen::Num::Ptr&)>> t1AddEvent;
+std::unordered_map<std::string,std::pair<Checker*,void (*)(Checker*, ros::Time, const sensor_msgs::JointState::Ptr&)>> t0AddEvent;
 double thisMachineMaxUsage = ((double)std::thread::hardware_concurrency()) * 100.0f;
 double wholeNodeUsage=0.f;
 double wholeMachineUsage=0.f;
 int machineCPUfreq=0;
 double milpUsageThreshold=0;
 double milpResponsivnessThreshold=0;
+bool disableMigration=0;
 std::string topicPrefix;
 size_t windowMaxSize=5;

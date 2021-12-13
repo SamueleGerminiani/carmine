@@ -162,13 +162,13 @@ bool generateCallbackHeader(std::vector<strChecker> &checkers) {
           if (std::get<3>(vff).first != "none") {
 
             if (std::get<3>(vff).first == "ma") {
-              line += "static std::deque<" + std::get<2>(vff) + "> window(" +
+              line += "static std::deque<" + std::get<2>(vff) + "> window_"+std::get<0>(vff)+"(" +
                       std::get<3>(vff).second + ",0);\n";
-              line += "window.pop_front(); window.push_back(msg->" +
+              line += "window_"+std::get<0>(vff)+".pop_front(); window_"+std::get<0>(vff)+".push_back(msg->" +
                       std::get<1>(vff) + ");\n";
               line += codeGenerator::ident1 + "dynamic_cast<" +
                       ct_vf.first.first + " *>(ch)->addEvent_" +
-                      std::get<0>(vff) + "(ts,std::accumulate(window.begin(), window.end(), 0)/window.size());\n";
+                      std::get<0>(vff) + "(ts,std::accumulate(window_"+std::get<0>(vff)+".begin(), window_"+std::get<0>(vff)+".end(), ("+std::get<2>(vff)+")0)/window_"+std::get<0>(vff)+".size());\n";
             }
           } else {
             line += codeGenerator::ident1 + "dynamic_cast<" +

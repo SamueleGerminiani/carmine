@@ -39,6 +39,7 @@ class Checker {
     size_t _evalSpeed = 0;
     size_t _numberOfAddEvent = 0;
     size_t _topicSpeed = 0;
+    size_t _eventsInBuffer = 0;
     double _CPUusage = 0;
     std::deque<double> _evalSpeedWindow;
     std::deque<double> _topicSpeedWindow;
@@ -56,7 +57,6 @@ class Checker {
     std::vector<size_t> _timeouts;
     int _conIns = 0;
     int _endIns = 0;
-    size_t _eventsInBuffer = 0;
     std::mutex _buff_mutex;
     std::mutex _addEvent_mutex;
 

@@ -4,6 +4,7 @@ string[] topicList
 float32[] topicLatency
 string[] checkerList
 float32[] checkerUsage
+uint32[] eventsInBuffer
 float32 wholeNodeUsage
 float32 wholeMachineUsage
 float32 availableUsage

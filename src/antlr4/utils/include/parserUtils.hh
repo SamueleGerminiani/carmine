@@ -8,15 +8,12 @@ namespace oden {
 using Name = std::string;
 using Type = std::string;
 using VarDeclaration = std::pair<Name, Type>;
-using EnumValues = std::vector<std::pair<Name, int>>;
-using EnumMap = std::unordered_map<Name, EnumValues>;
 
 enum class expectedToken { TypeP1 = 0, TypeP2, TypeP3, Name };
 
 std::pair<VarType, uint8_t> string2VarTypes(std::string type);
 void addTypeToProposition(std::string &formula,
-                          const std::vector<VarDeclaration> &varDeclaration,
-                          const EnumMap &enums);
+                          const std::vector<VarDeclaration> &varDeclaration);
 
 Proposition *parseProposition(std::string &formula,
                               const std::string &localDecls,

@@ -13,9 +13,33 @@ inline void initChecker(const std::string &name) {
         return;
     }
 
-   if(name == "Checker0"){
-      chsActive["Checker0"] = new Checker0(4,1,ros::this_node::getName(), "Checker0");
-      chsAll["Checker0"] = chsActive.at("Checker0");
+   if(name == "Checker1"){
+      chsActive["Checker1"] = new Checker1(3,1,ros::this_node::getName(), "Checker1");
+      chsAll["Checker1"] = chsActive.at("Checker1");
+   }else if(name == "Checker2"){
+      chsActive["Checker2"] = new Checker2(3,1,ros::this_node::getName(), "Checker2");
+      chsAll["Checker2"] = chsActive.at("Checker2");
+   }else if(name == "Checker3"){
+      chsActive["Checker3"] = new Checker3(3,1,ros::this_node::getName(), "Checker3");
+      chsAll["Checker3"] = chsActive.at("Checker3");
+   }else if(name == "Checker1_r1"){
+      chsActive["Checker1_r1"] = new Checker1_r1(3,1,ros::this_node::getName(), "Checker1_r1");
+      chsAll["Checker1_r1"] = chsActive.at("Checker1_r1");
+   }else if(name == "Checker2_r1"){
+      chsActive["Checker2_r1"] = new Checker2_r1(3,1,ros::this_node::getName(), "Checker2_r1");
+      chsAll["Checker2_r1"] = chsActive.at("Checker2_r1");
+   }else if(name == "Checker3_r1"){
+      chsActive["Checker3_r1"] = new Checker3_r1(3,1,ros::this_node::getName(), "Checker3_r1");
+      chsAll["Checker3_r1"] = chsActive.at("Checker3_r1");
+   }else if(name == "Checker1_r2"){
+      chsActive["Checker1_r2"] = new Checker1_r2(3,1,ros::this_node::getName(), "Checker1_r2");
+      chsAll["Checker1_r2"] = chsActive.at("Checker1_r2");
+   }else if(name == "Checker2_r2"){
+      chsActive["Checker2_r2"] = new Checker2_r2(3,1,ros::this_node::getName(), "Checker2_r2");
+      chsAll["Checker2_r2"] = chsActive.at("Checker2_r2");
+   }else if(name == "Checker3_r2"){
+      chsActive["Checker3_r2"] = new Checker3_r2(3,1,ros::this_node::getName(), "Checker3_r2");
+      chsAll["Checker3_r2"] = chsActive.at("Checker3_r2");
    }
 }
 inline void removeChecker(const std::string &name) {
@@ -44,11 +68,23 @@ inline void execChecker(const std::string &checkerName) {
 }
 inline void initCheckerTopicRelation() {
 
-   checkerToTopic["Checker0"].emplace_back("T2");
-   topicToChecker["T2"].emplace_back("Checker0");
-   checkerToTopic["Checker0"].emplace_back("T0");
-   topicToChecker["T0"].emplace_back("Checker0");
-   checkerToTopic["Checker0"].emplace_back("T1");
-   topicToChecker["T1"].emplace_back("Checker0");
+   checkerToTopic["Checker1"].emplace_back("T0");
+   topicToChecker["T0"].emplace_back("Checker1");
+   checkerToTopic["Checker1_r1"].emplace_back("T0");
+   topicToChecker["T0"].emplace_back("Checker1_r1");
+   checkerToTopic["Checker1_r2"].emplace_back("T0");
+   topicToChecker["T0"].emplace_back("Checker1_r2");
+   checkerToTopic["Checker2"].emplace_back("T0");
+   topicToChecker["T0"].emplace_back("Checker2");
+   checkerToTopic["Checker2_r1"].emplace_back("T0");
+   topicToChecker["T0"].emplace_back("Checker2_r1");
+   checkerToTopic["Checker2_r2"].emplace_back("T0");
+   topicToChecker["T0"].emplace_back("Checker2_r2");
+   checkerToTopic["Checker3"].emplace_back("T0");
+   topicToChecker["T0"].emplace_back("Checker3");
+   checkerToTopic["Checker3_r1"].emplace_back("T0");
+   topicToChecker["T0"].emplace_back("Checker3_r1");
+   checkerToTopic["Checker3_r2"].emplace_back("T0");
+   topicToChecker["T0"].emplace_back("Checker3_r2");
 
 }

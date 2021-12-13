@@ -4,6 +4,7 @@
 #include "globals.hh"
 #include "odenCore.hh"
 #include "parserUtils.hh"
+#include <chrono>
 #include <cmath>
 #include <cstdio>
 #include <dirent.h>
@@ -108,15 +109,16 @@ static bool replace(std::string &str, const std::string &from,
 // Generate code for checker class
 bool generateCheckerSource(
     std::pair<codeGenerator::SpotAutomata, codeGenerator::SpotAutomata> &fsms,
-    std::vector<strVariable> &varList,
     std::pair<std::pair<std::string, std::string>,
               std::unordered_map<std::string, oden::Proposition *>>
         &parsedFormula,
-    std::string &checkerName) {
+    strChecker &checker) {
 
   auto autAss = fsms.first;
   auto autAnt = fsms.second;
   auto &phToProps = parsedFormula.second;
+  auto checkerName = checker._name;
+  auto varList = checker._variables;
 
   std::ifstream src("src/standalone/code_templates/checker_template.cpp");
 
@@ -171,6 +173,25 @@ bool generateCheckerSource(
         line +=
             codeGenerator::ident1 + "_last_p" + std::to_string(i++) + " = 0;\n";
       } // Code for calling eval() and resetting checker
+    } else if (line.compare("$overhead") == 0) {
+      line = "";
+      if (checker._overhead != "none") {
+        // genenerate overhead
+        line += codeGenerator::ident1 +
+                "static std::chrono::steady_clock::time_point ohstart = "
+                "std::chrono::steady_clock::now();\n";
+
+        line += codeGenerator::ident1 + "while (1) {\n";
+        line +=
+            codeGenerator::ident2 +
+            "if (std::chrono::duration_cast<std::chrono::microseconds>( "
+            "std::chrono::steady_clock::now() - ohstart).count() >= "+checker._overhead+") {\n";
+        line += codeGenerator::ident2 +
+                "ohstart = std::chrono::steady_clock::now();\n";
+        line += codeGenerator::ident2 + "break;\n";
+        line += codeGenerator::ident2 + "}\n";
+        line += codeGenerator::ident1 + "}\n";
+      }
     } else if (line.compare("$call_eval") == 0) {
       line = "";
       line += codeGenerator::ident1 + "if (!eval_" + checkerName + "(";
@@ -693,7 +714,7 @@ void generateEvalFunction(
   outstream << codeGenerator::ident1 << "}\n";
 
   // ant
-  outstream<<"\n\n// ---------ANT-------------\n\n\n";
+  outstream << "\n\n// ---------ANT-------------\n\n\n";
   outstream << codeGenerator::ident1 << " _currAnt["
             << autAnt->get_init_state_number() << "]++;\n";
   num_states = autAnt->num_states();
@@ -761,7 +782,7 @@ void generateEvalFunction(
         outstream << codeGenerator::ident2 << "}\n";
       }
       outstream << codeGenerator::ident1 << "}\n";
-    } else{ //ant timers empty
+    } else { // ant timers empty
 
       bool firstEdge = true;
       for (auto &edge : autAnt->out(state)) {
@@ -882,4 +903,4 @@ void addProcess(const SpotAutomata &aut, std::ofstream &outstream,
 
   outstream << "}" << std::endl;
 }
-}
+} // namespace codeGenerator

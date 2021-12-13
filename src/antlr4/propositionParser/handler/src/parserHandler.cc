@@ -6,15 +6,8 @@
 
 namespace oden {
 
-  ParserHandler::ParserHandler(const EnumMap &enums,std::string location) : _abort(false), _proposition(), _logicExpressions(),
+  ParserHandler::ParserHandler(std::string location) : _abort(false), _proposition(), _logicExpressions(),
       _numericExpressions() , _location(location){
-  for (const auto &name_values : enums) {
-    std::vector<enumItem> tmpEnumValues;
-    for (const auto &val : name_values.second) {
-      tmpEnumValues.push_back(enumItem(val.first, val.second));
-    }
-    _enums.insert({{name_values.first, tmpEnumValues}});
-  }
 }
 
 void ParserHandler::enterFile(__attribute__((unused))
@@ -84,15 +77,6 @@ void ParserHandler::enterNamedLogicConst(
   }
 }
 
-void ParserHandler::enterEnumVariable(
-    propositionParser::EnumVariableContext *ctx) {
-  propositionParser::VariableContext *tNode = ctx->variable();
-  std::string varName = std::string(tNode->getText());
-  // //std::cout << __func__ << ": " << varName << std::endl;
-
-  _logicExpressions.push(
-      new EnumVariable(varName, _enums.at(ctx->enumName()->getText())));
-}
 void ParserHandler::enterLogicConstant(
     propositionParser::LogicConstantContext *ctx) {
   std::string conStr = std::string(ctx->getText());

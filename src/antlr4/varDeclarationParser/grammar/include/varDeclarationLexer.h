@@ -1,5 +1,5 @@
 
-// Generated from varDeclaration.g4 by ANTLR 4.7.2
+// Generated from varDeclaration.g4 by ANTLR 4.9.3
 
 #pragma once
 
@@ -12,13 +12,10 @@
 class  varDeclarationLexer : public antlr4::Lexer {
 public:
   enum {
-    T__0 = 1, T__1 = 2, T__2 = 3, LSBRACKET = 4, RSBRACKET = 5, TYPEDEF = 6, 
-    ENUM = 7, OB = 8, CB = 9, VARTYPE = 10, NUMERIC = 11, VERILOG_BINARY = 12, 
-    GCC_BINARY = 13, PLUS = 14, MINUS = 15, TIMES = 16, DIV = 17, NAME = 18, 
-    WS = 19
+    T__0 = 1, VARTYPE = 2, NAME = 3, WS = 4
   };
 
-  varDeclarationLexer(antlr4::CharStream *input);
+  explicit varDeclarationLexer(antlr4::CharStream *input);
   ~varDeclarationLexer();
 
   virtual std::string getGrammarFileName() const override;

@@ -83,6 +83,7 @@ inline void sendStatToCoordinator() {
     for (auto &ch : chsActive) {
         msg.checkerList.push_back(ch.first);
         msg.checkerUsage.push_back(ch.second->_CPUusage);
+        msg.eventsInBuffer.push_back(ch.second->_eventsInBuffer);
     }
 
     msg.wholeNodeUsage = wholeNodeUsage;

@@ -7,11 +7,8 @@ namespace codeGenerator {
 
 bool generateCheckerSource(
     std::pair<codeGenerator::SpotAutomata, codeGenerator::SpotAutomata> &fsms,
-    std::vector<strVariable> &varList,
-    std::pair<std::pair<std::string, std::string>,
-              std::unordered_map<std::string, oden::Proposition *>>
-        &parsedFormula,
-    std::string &checkerName);
+    std::pair<std::pair<std::string, std::string>, std::unordered_map<std::string, oden::Proposition *>> &parsedFormula,
+    strChecker &checker);
 
 // Generate header for checker class
 bool generateCheckerHeader(

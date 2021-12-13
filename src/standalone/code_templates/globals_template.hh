@@ -86,6 +86,7 @@ extern int machineCPUfreq;
 extern double thisMachineMaxUsage;
 extern double milpUsageThreshold;
 extern double milpResponsivnessThreshold;
+extern bool disableMigration;
 extern std::string topicPrefix;
 extern size_t windowMaxSize;
 
