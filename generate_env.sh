@@ -1,3 +1,5 @@
+#!/bin/sh
+
 if [ "$#" -ne 1 ]; then
     echo "Missing argument: call as ./generate_env.sh <specification.xml>"
 	exit
@@ -25,7 +27,12 @@ cp ./src/standalone/handler/src/* ./ver_env/handler/src/
 cp -r ./src/standalone/commandLineParser ./ver_env/
 cp -r ./src/standalone/msg ./ver_env/
 cp -r ./src/standalone/action ./ver_env/
-cp -r ./src/standalone/lib ./ver_env/
+archType=$(uname -m)
+if [ "$archType" = "x86_64" ]; then
+    cp -r ./src/standalone/lib ./ver_env/
+else
+    cp -r ./src/standalone/libarm ./ver_env/lib
+fi
 cp -r ./src/standalone/cmake ./ver_env/
 cp ./src/standalone/CMakeLists.txt ./ver_env/
 cp ./src/standalone/package.xml ./ver_env/
