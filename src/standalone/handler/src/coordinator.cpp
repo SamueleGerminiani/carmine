@@ -2,6 +2,7 @@
 #include "coordinator.hh"
 #include <algorithm>
 #include <boost/functional/hash.hpp>
+#include <chrono>
 #include <cmath>
 #include <deque>
 #include <fstream>
@@ -14,7 +15,7 @@
 #include "z3++.h"
 #include "z3.h"
 #define printStat 1
-#define dumpStats 1
+#define dumpStats 0
 
 std::unordered_map<std::string, std::unordered_map<std::string, double>>
     nodeToTopicLatency;
@@ -322,6 +323,9 @@ void gatherStats() {
 
 using namespace z3;
 std::unordered_map<std::string, std::string> findBestAllocation() {
+    std::chrono::steady_clock::time_point begin =
+        std::chrono::steady_clock::now();
+
     // checker -> node
     std::unordered_map<std::string, std::string> ret;
     // init optimizer
@@ -428,13 +432,13 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
     for (auto &c : z3NameToChecker) {
         for (auto &en : enum_names) {
             if (!mj_cpu.count(en)) {
-                mj_cpu.insert({{en, ctx.fpa_val((float)0.f)}});
+                mj_cpu.insert({{en, ctx.int_val((int)0)}});
             }
             expr cond = chToz3Const.at(c.first) == enumNameToz3Exp.at(en);
-            expr t = ctx.fpa_val(
-                (float)nodeToCheckerUsageScaled.at(enumToNode.at(en))
-                    .at(c.second));
-            expr f = ctx.fpa_val((float)0.f);
+            expr t = ctx.int_val(
+                (int)(nodeToCheckerUsageScaled.at(enumToNode.at(en))
+                    .at(c.second)*1000));
+            expr f = ctx.int_val((int)0);
             mj_cpu.at(en) =
                 mj_cpu.at(en) + to_expr(ctx, Z3_mk_ite(ctx, cond, t, f));
         }
@@ -490,9 +494,9 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
                     orCond || chToz3Const.at(checkerToz3Name.at(ct.first)) ==
                                   enumNameToz3Exp.at(en);
             }
-            expr t = ctx.fpa_val(
-                (float)nodeToTopicUsageScaled[enumToNode.at(en)][topic.first]);
-            expr f = ctx.fpa_val((float)0.f);
+            expr t = ctx.int_val(
+                (int)nodeToTopicUsageScaled[enumToNode.at(en)][topic.first]);
+            expr f = ctx.int_val((int)0);
             mj_cpu.at(en) =
                 mj_cpu.at(en) + to_expr(ctx, Z3_mk_ite(ctx, orCond, t, f));
         }
@@ -527,7 +531,7 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
     for (auto e : nodeToAvailable) {
         mi_avail_cpu.insert(
             {{nodeToEnum.at(e.first),
-              ctx.fpa_val((float)(e.second * milpUsageThreshold))}});
+              ctx.int_val((int)(e.second * milpUsageThreshold)*1000)}});
     }
 
     // assert cpu saturation
@@ -594,5 +598,19 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
     }
 
     freeStats();
+
+#if printStat
+    std::chrono::steady_clock::time_point end =
+        std::chrono::steady_clock::now();
+
+    std::cout << "MILP time = "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(end -
+                                                                       begin)
+                     .count()
+              << "[ms]" << std::endl;
+    //debug
+    //std::cout << opt << "\n";
+#endif
+
     return ret;
 }
