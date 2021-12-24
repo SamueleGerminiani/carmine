@@ -42,6 +42,7 @@ cp -r ./build/output/ver_env/src/* ./ver_env/handler/src/
 cp ./src/standalone/checkers/Checker.hpp ./ver_env/checkers/include/
 
 cp ./src/standalone/debugLaunchN.sh ./ver_env/
+cp ./src/testbench/loadTB.sh ./ver_env/
 #cp ./src/standalone/killAll.sh ./ver_env/
 
 echo "Successfully generated verification environment: output in ver_env directory"
