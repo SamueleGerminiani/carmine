@@ -2,6 +2,7 @@
 
 source devel/setup.bash
 rosrun msg_gen msg_gen_node &
+./devel/lib/cpu_oh_gen/cpu_oh_gen_node --targetNode "server1" &
 
 i=1
 while [ "$i" -le "$1" ]; do
@@ -16,4 +17,5 @@ done
 read -n1 -r -p "" key
 
 ps -ef | grep 'msg_gen' | grep -v grep | awk '{print $2}' | xargs -r kill -9
+ps -ef | grep 'cpu_oh_gen' | grep -v grep | awk '{print $2}' | xargs -r kill -9
 ps -ef | grep 'ver_env' | grep -v grep | awk '{print $2}' | xargs -r kill -9
