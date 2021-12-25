@@ -90,8 +90,10 @@ inline void sendStatToCoordinator() {
     msg.wholeMachineUsage = wholeMachineUsage;
     msg.availableUsage =
         thisMachineMaxUsage - wholeMachineUsage + wholeNodeUsage;
+//    std::cout << thisMachineMaxUsage<<" - "<<wholeMachineUsage<<" + "<<wholeNodeUsage << "\n";
     msg.nAttachedTopics = attachedTopics.size();
     msg.machineCPUfreq = machineCPUfreq;
+    msg.thisMachineMaxUsage=thisMachineMaxUsage;
     //  send the message
     //  n.b.  if the receiving now is in the same process of the coordinator,
     //  simply add the message to "msgs" instead of using a publisher

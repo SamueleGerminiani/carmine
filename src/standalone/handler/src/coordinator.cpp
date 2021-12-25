@@ -28,6 +28,8 @@ std::unordered_map<std::string,
     nodeToTopicUsageWindow;
 size_t topicUsageWindow = 20;
 std::unordered_map<std::string, double> nodeToAvailable;
+std::unordered_map<std::string, double> nodeToWholeUsage;
+std::unordered_map<std::string, double> nodeToThisMachineMaxUsage;
 std::unordered_map<std::string, double> nodeToCPUfreq;
 std::unordered_map<std::string, std::string> currAlloc;
 std::unordered_map<std::string, std::string> findBestAllocation();
@@ -36,8 +38,11 @@ void startCheckers();
 void freeStats();
 bool haveLatForAllNodes();
 bool haveUsageForAllCheckers();
+void printStatistics();
 std::vector<std::pair<std::string, std::string>> findMigrationOrder();
 bool ackReceived(const std::string &node);
+std::chrono::steady_clock::time_point lastChange =
+    std::chrono::steady_clock::now();
 
 int getDelay(std::unordered_map<std::string, std::string> &alloc) {
     size_t curr_delay = 0;
@@ -54,7 +59,8 @@ int getDelay(std::unordered_map<std::string, std::string> &alloc) {
             }
         }
         for (auto &t : reqTopics) {
-            curr_delay += nodeToTopicLatency.at(m_cc.first).at(t) * 1000;
+            curr_delay +=
+                (int)(nodeToTopicLatency.at(m_cc.first).at(t) * 1000.f);
         }
     }
     return curr_delay;
@@ -97,8 +103,9 @@ std::map<std::string, std::tuple<double, size_t>> nextDump;
 // the coordinator main loop
 void coordinator() {
     static size_t count = 0;
-    static const size_t rateMILP = 30;
+    static const size_t rateMILP = 10;
     static const size_t rateStat = 10;
+    static const size_t ratePrint = 10;
     //    std::cout << "c) Running..." << "\n";
 
     startCheckers();
@@ -111,7 +118,16 @@ void coordinator() {
             gatherStats();
         }
 
-        if (nodes.size() > 1 && (count % rateMILP == 0) &&
+#if printStat
+        if (count % ratePrint == 0) {
+            printStatistics();
+        }
+#endif
+
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::steady_clock::now() - lastChange)
+                    .count() >= 0 &&
+            nodes.size() > 1 && (count % rateMILP == 0) &&
             haveLatForAllNodes() && haveUsageForAllCheckers() &&
             !disableMigration) {
             // 3) run the algorithm to find the best allocation
@@ -119,6 +135,9 @@ void coordinator() {
 
             // 4) coordinate the nodes
             auto migOrder = findMigrationOrder(bestAlloc);
+            if (!migOrder.empty()) {
+                lastChange = std::chrono::steady_clock::now();
+            }
             for (auto &mm_cc : migOrder) {
                 sendToNode(mm_cc.first.second, MIGRATE_FROM, mm_cc.first.first,
                            mm_cc.second);
@@ -201,6 +220,10 @@ void freeStats() {
     nodeToTopicUsage.clear();
     nodeToAvailable.clear();
     nodeToCPUfreq.clear();
+    nodeToTopicUsageWindow.clear();
+    stat_msgsMutex.lock();
+    stat_msgs.clear();
+    stat_msgsMutex.unlock();
 }
 void gatherStats() {
     stat_msgsMutex.lock();
@@ -221,13 +244,13 @@ void gatherStats() {
         for (size_t i = 0; i < msg.checkerList.size(); i++) {
             auto checkerName = msg.checkerList[i];
             auto usage = msg.checkerUsage[i];
-            auto eib = msg.eventsInBuffer[i];
+            nodeToCheckerUsage[msg.node][checkerName] = usage;
+            sumCheckerUsage += usage;
 #if dumpStats
+            auto eib = msg.eventsInBuffer[i];
             nextDump.at(checkerName) = std::make_tuple(usage, eib);
             buffEvents += eib;
 #endif
-            nodeToCheckerUsage[msg.node][checkerName] = usage;
-            sumCheckerUsage += usage;
         }
 
 #if dumpStats
@@ -244,16 +267,16 @@ void gatherStats() {
         statOut.flush();
 #endif
 
-        // free unused windows
-        std::unordered_set<std::string> activeTopics;
-        for (size_t i = 0; i < msg.topicList.size(); i++) {
-            activeTopics.find(msg.topicList[i]);
-        }
-        for (auto &tn_tu : nodeToTopicUsageWindow[msg.node]) {
-            if (!activeTopics.count(tn_tu.first)) {
-                tn_tu.second.clear();
-            }
-        }
+        //        // free unused windows
+        //        std::unordered_set<std::string> activeTopics;
+        //        for (size_t i = 0; i < msg.topicList.size(); i++) {
+        //            activeTopics.insert(msg.topicList[i]);
+        //        }
+        //        for (auto &tn_tu : nodeToTopicUsageWindow[msg.node]) {
+        //            if (!activeTopics.count(tn_tu.first)) {
+        //                tn_tu.second.clear();
+        //            }
+        //        }
 
         for (size_t i = 0; i < msg.topicList.size(); i++) {
             auto topicName = msg.topicList[i];
@@ -265,8 +288,9 @@ void gatherStats() {
                 topicUsageWindow) {
                 nodeToTopicUsageWindow[msg.node][topicName].pop_back();
             }
-            double val = ((msg.wholeNodeUsage - sumCheckerUsage) * 0.8f) /
-                         msg.nAttachedTopics;
+            nodeToWholeUsage[msg.node] = msg.wholeNodeUsage;
+            double val =
+                ((msg.wholeNodeUsage - sumCheckerUsage)) / msg.nAttachedTopics;
             nodeToTopicUsageWindow[msg.node][topicName].push_front(
                 val > 0.f && val < 10e9 ? val : 0.f);
             nodeToTopicUsage[msg.node][topicName] =
@@ -278,47 +302,53 @@ void gatherStats() {
 
         nodeToCPUfreq[msg.node] = msg.machineCPUfreq;
         nodeToAvailable[msg.node] = msg.availableUsage;
+        nodeToThisMachineMaxUsage[msg.node] = msg.thisMachineMaxUsage;
     }
     stat_msgsMutex.unlock();
+}
 
-// debug
-#if printStat
-
+void printStatistics() {
     std::cout << "-----------------STAT---------------------"
               << "\n";
-    //    std::cout << "[Topics Latency]"
-    //              << "\n";
-    //    for (auto &nll : nodeToTopicLatency) {
-    //        std::cout << nll.first << "\n";
-    //        for (auto &nl : nll.second) {
-    //            std::cout << "\t\t" << nl.first << ": " << (int)(nl.second *
-    //            1000)
-    //                      << "ms\n";
-    //        }
-    //    }
+    std::cout << "[Topics Latency]"
+              << "\n";
+    for (auto &nll : nodeToTopicLatency) {
+        std::cout << nll.first << "\n";
+        for (auto &nl : nll.second) {
+            std::cout << "\t\t" << nl.first << ": " << (int)(nl.second * 1000.f)
+                      << "ms\n";
+        }
+    }
     std::cout << "[Usage]"
               << "\n";
     for (auto checkerUsage : nodeToCheckerUsage) {
         std::cout << checkerUsage.first << "\n";
         for (auto &cu : checkerUsage.second) {
-            // if (cu.second>0.f && cu.second<10e9) {
-            std::cout << "\t\t" << cu.first << ": " << cu.second << "\n";
-            //}
+            //        std::cout << "\t\t" << cu.first << ": " << cu.second //
+            //        << "\n";
         }
         for (auto &tu : nodeToTopicUsage.at(checkerUsage.first)) {
-            // if (tu.second>0.f && tu.second<10e9) {
             std::cout << "\t\t" << tu.first << ": " << tu.second << "\n";
-            //}
         }
         //        std::cout << "CPU freq: " <<
         //        nodeToCPUfreq.at(checkerUsage.first) << "\n";
-        //        std::cout << "Available CPU: " <<
-        //        nodeToAvailable.at(checkerUsage.first) << "\n";
+        std::cout << "Available CPU: " << nodeToAvailable.at(checkerUsage.first)
+                  << "\n";
+        std::cout << "Whole node CPU: "
+                  << nodeToWholeUsage.at(checkerUsage.first) << "\n";
+    }
+
+    std::cout << "[NCheckers]"
+              << "\n";
+    std::unordered_map<std::string, size_t> nodeToNC;
+    for (auto &a : currAlloc) {
+        nodeToNC[a.second]++;
+    }
+    for (auto &na : nodeToNC) {
+        std::cout << na.first << ": " << na.second << "\n";
     }
     std::cout << "--------------------------------------"
               << "\n";
-
-#endif
 }
 
 using namespace z3;
@@ -347,9 +377,11 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
     }
 
     // debug
-    // std::cout << i<<" "<<enumToNode.size()<<" "<<nodeToEnum.size() << "\n";
+    // std::cout << i<<" "<<enumToNode.size()<<" "<<nodeToEnum.size() <<
+    // "\n";
     // for (size_t i = 0; i < nodeToCPUfreq.size(); i++) {
-    //     std::cout << enum_names[i]<< " -> "<<enumToNode[enum_names[i]] <<" ->
+    //     std::cout << enum_names[i]<< " -> "<<enumToNode[enum_names[i]]
+    //     <<" ->
     //     "<<nodeToEnum[enumToNode[enum_names[i]]] << "\n";
     // }
 
@@ -392,7 +424,8 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
     //    for (auto &checker : checkers) {
     //        std::cout << "ch" + std::to_string(j)<< " ->
     //        "<<z3NameToChecker["ch" + std::to_string(j)] <<" ->
-    //        "<<checkerToz3Name[z3NameToChecker["ch" + std::to_string(j)]] <<
+    //        "<<checkerToz3Name[z3NameToChecker["ch" + std::to_string(j)]]
+    //        <<
     //        "\n";
     //        j++;
     //    }
@@ -435,9 +468,10 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
                 mj_cpu.insert({{en, ctx.int_val((int)0)}});
             }
             expr cond = chToz3Const.at(c.first) == enumNameToz3Exp.at(en);
-            expr t = ctx.int_val(
-                (int)(nodeToCheckerUsageScaled.at(enumToNode.at(en))
-                    .at(c.second)*1000));
+            expr t =
+                ctx.int_val((int)(nodeToCheckerUsageScaled.at(enumToNode.at(en))
+                                      .at(c.second) *
+                                  100.f));
             expr f = ctx.int_val((int)0);
             mj_cpu.at(en) =
                 mj_cpu.at(en) + to_expr(ctx, Z3_mk_ite(ctx, cond, t, f));
@@ -456,13 +490,16 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
                         (nodeToCPUfreq.at(node_ul.first) / n_f.second) *
                         t_u.second;
                     //                    debug
-                    //                    std::cout << node_ul.first << "\n";
+                    //                    std::cout << node_ul.first <<
+                    //                    "\n";
                     //                    std::cout <<
                     //                    "nodeToCPUfreq.at(node_ul.first):"<<nodeToCPUfreq.at(node_ul.first)
                     //                    << "\n";
-                    //                    std::cout << "n_f.second:"<<n_f.second
+                    //                    std::cout <<
+                    //                    "n_f.second:"<<n_f.second
                     //                    << "\n";
-                    //                    std::cout << "t_u.second:"<<t_u.second
+                    //                    std::cout <<
+                    //                    "t_u.second:"<<t_u.second
                     //                    << "\n";
                     //                    std::cout
                     //                    <<"---------------------->"<<
@@ -490,12 +527,13 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
         for (auto &en : enum_names) {
             expr orCond = ctx.bool_val(false);
             for (auto &ct : checkerToTopic) {
-                orCond =
-                    orCond || chToz3Const.at(checkerToz3Name.at(ct.first)) ==
-                                  enumNameToz3Exp.at(en);
+                orCond = orCond ||
+                         chToz3Const.at(checkerToz3Name.at(ct.first)) ==
+                             enumNameToz3Exp.at(en);
             }
             expr t = ctx.int_val(
-                (int)nodeToTopicUsageScaled[enumToNode.at(en)][topic.first]);
+                (int)(nodeToTopicUsageScaled[enumToNode.at(en)][topic.first] *
+                      100.f));
             expr f = ctx.int_val((int)0);
             mj_cpu.at(en) =
                 mj_cpu.at(en) + to_expr(ctx, Z3_mk_ite(ctx, orCond, t, f));
@@ -518,7 +556,7 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
                          chToz3Const.at(checkerToz3Name.at(c)) ==
                              enumNameToz3Exp.at(nodeToEnum.at(node_tl.first));
             }
-            expr t = ctx.int_val((int)(t_v.second * 1000));
+            expr t = ctx.int_val((int)(t_v.second * 1000.f));
             expr f = ctx.int_val((int)0);
             mj_delay.at(nodeToEnum.at(node_tl.first)) =
                 mj_delay.at(nodeToEnum.at(node_tl.first)) +
@@ -529,9 +567,13 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
     // mi_avail_cpu
     std::unordered_map<std::string, expr> mi_avail_cpu;
     for (auto e : nodeToAvailable) {
-        mi_avail_cpu.insert(
-            {{nodeToEnum.at(e.first),
-              ctx.int_val((int)(e.second * milpUsageThreshold)*1000)}});
+        double av = (e.second -
+                     nodeToThisMachineMaxUsage.at(e.first) *
+                         (1.f - milpUsageThreshold)) *
+                    100.f;
+
+        mi_avail_cpu.insert({{nodeToEnum.at(e.first),
+                              ctx.int_val((int)(av >= 0.f ? av : 0.f))}});
     }
 
     // assert cpu saturation
@@ -548,8 +590,8 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
     opt.minimize(sum(goal));
     if (z3::sat != opt.check()) {
         // Unsat: do nothing
-        //        std::cout << "Unsat!"
-        //                  << "\n";
+        //               std::cout << "Unsat!"                   << "\n";
+        //    std::cout << opt << "\n";
         //        assert(0);
         //        exit(1);
         ret = currAlloc;
@@ -572,19 +614,37 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
                           enumNameToz3Exp.at(nodeToEnum.at(c_m.second)));
         }
         if (opt.check(sol) != z3::unsat) {
-            int currDelay = getDelay(currAlloc);
-            int newDelay = getDelay(ret);
-            //    debug
-            //    std::cout << " ====================currDelay:" << currDelay <<
-            //    "\n";
-            //    std::cout << " ====================newDelay:" << newDelay <<
-            //    "\n";
-            //    std::cout << "''''''''''''''''''''''''''''''''''''" << "\n";
-            //    std::cout << "< "<<(int)(std::abs(currDelay - newDelay) <
-            //    milpResponsivnessThreshold) << "\n";
-            if (std::abs(currDelay - newDelay) < milpResponsivnessThreshold) {
-                ret = currAlloc;
-                return ret;
+            bool mustMove = 0;
+            for (auto e : nodeToAvailable) {
+                if (nodeToThisMachineMaxUsage.at(e.first) *
+                        milpUsageThreshold <=
+                    nodeToWholeUsage.at(e.first)) {
+                    mustMove = 1;
+                    break;
+                }
+            }
+            if (!mustMove) {
+                int currDelay = getDelay(currAlloc);
+                int newDelay = getDelay(ret);
+                //    debug
+                //    std::cout << " ====================currDelay:" <<
+                //    currDelay <<
+                //    "\n";
+                //    std::cout << " ====================newDelay:" <<
+                //    newDelay
+                //    <<
+                //    "\n";
+                //    std::cout << "''''''''''''''''''''''''''''''''''''" <<
+                //    "\n";
+                //    std::cout << "< "<<(int)(std::abs(currDelay -
+                //    newDelay) <
+                //    milpResponsivnessThreshold) << "\n";
+
+                if (std::abs(currDelay - newDelay) <
+                    milpResponsivnessThreshold) {
+                    ret = currAlloc;
+                    return ret;
+                }
             }
         }
     }
@@ -608,8 +668,8 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
                                                                        begin)
                      .count()
               << "[ms]" << std::endl;
-    //debug
-    //std::cout << opt << "\n";
+// debug
+//    std::cout << opt << "\n";
 #endif
 
     return ret;
