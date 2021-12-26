@@ -34,6 +34,8 @@ inline void statHandler() {
             pingTopic(t);
         }
 
+        machineCPUfreq=getThiscpuFreq();
+
 
         sendStatToCoordinator();
     }

@@ -3,21 +3,59 @@
 #include <ostream>
 #include <string>
 #include "globals.hh"
+#include <pcre.h>
 
 static unsigned long long lastTotalUser_TOT, lastTotalUser_TOTLow,
     lastTotalSys_TOT, lastTotalIdle_TOT;
 static clock_t lastCPU, lastSysCPU, lastUserCPU;
 static int numProcessors;
+using namespace std;
 
-inline void initMaxFreq() {
-    if (machineCPUfreq == 0) {
-        std::ifstream myfile(
-            "/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq");
-        std::string text = "";
-        if (getline(myfile, text)) machineCPUfreq= std::stoul(text);
-        myfile.close();
+uint32_t getThiscpuFreq()
+{
+    uint32_t cpuFreq = 0;
+
+    // CPU frequency is stored in /proc/cpuinfo in lines beginning with "cpu MHz"
+    string pattern = "^cpu MHz\\s*:\\s*(\\d+)";
+    const char* pcreErrorStr = NULL;
+    int pcreErrorOffset = 0;
+
+    pcre* reCompiled = pcre_compile(pattern.c_str(), PCRE_ANCHORED, &pcreErrorStr,
+                                    &pcreErrorOffset, NULL);
+    if(reCompiled == NULL)
+    {
+	return 0;
     }
+
+    ifstream ifs("/proc/cpuinfo");
+    if(ifs.is_open())
+    {
+	string line;
+	int results[10];
+
+	while(ifs.good())
+	{
+	    getline(ifs, line);
+	    int rc = pcre_exec(reCompiled, 0, line.c_str(), line.length(),
+                               0, 0, results, 10);
+	    if(rc < 0)
+		continue;
+
+	    // Match found - extract frequency
+	    const char* matchStr = NULL;
+	    pcre_get_substring(line.c_str(), results, rc, 1, &(matchStr));
+	    cpuFreq = atol(matchStr);
+	    pcre_free_substring(matchStr);
+	    break;
+	}
+    }
+
+    ifs.close();
+    pcre_free(reCompiled);
+
+    return cpuFreq;
 }
+
 inline void initCPU() {
     FILE *file;
     struct tms timeSample;

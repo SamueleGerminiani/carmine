@@ -199,7 +199,7 @@ void startCheckers() {
     for (auto &c : allCheckers) {
         nodeToCheckerUsage[firstNode][c] = 0.00001f;
     }
-    auto ba = findBestAllocation();
+    std::unordered_map<std::string, std::string> ba = findBestAllocation();
 
     std::unordered_map<std::string, std::vector<std::string>> mToExeCheckers;
     for (auto &c_n : ba) {
@@ -465,6 +465,7 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
                 nodeToCheckerUsageScaled[n_f.first][ch_u.first] =
                     (nodeToCPUfreq.at(node_ul.first) / n_f.second) *
                     ch_u.second;
+  //              std::cout << nodeToCPUfreq.at(node_ul.first)<<" / "<<n_f.second<<") * "<<      ch_u.second << "\n";
                 //                    debug
                 //                    std::cout
                 //                    <<"("<<nodeToCPUfreq.at(node_ul.first)<<"\\"<<n_f.second<<")"<<ch_u.second
@@ -598,7 +599,7 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
 
     // assert cpu saturation
     for (auto &u : mj_cpu) {
-        opt.add(u.second < mi_avail_cpu.at(u.first));
+        opt.add(u.second <= mi_avail_cpu.at(u.first));
     }
     // opt function
     z3::expr_vector goal(ctx);
@@ -614,8 +615,8 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
         // Unsat: do nothing
 //                       std::cout << "Unsat or Uknown!"                   << "\n";
 //            std::cout << opt << "\n";
-//                assert(0);
-//                exit(1);
+ //               assert(0);
+ //               exit(1);
         ret = currAlloc;
         return ret;
     }
@@ -629,6 +630,8 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
                                                                        begin)
                      .count()
               << "[ms]" << std::endl;
+// debug
+ //   std::cout << opt << "\n";
 #endif
 
     z3::model model = opt.get_model();
@@ -652,8 +655,6 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
                     nodeToWholeMachineUsage.at(e.first)) {
                 mustMove = 1;
                 std::cout << "\t\t\t\t\t++++++++++++++++++++++++++++++++++++++++++++++++" << "\n";
-// debug
-    std::cout << opt << "\n";
                 break;
             }
         }

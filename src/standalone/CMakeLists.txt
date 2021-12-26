@@ -157,6 +157,7 @@ target_link_libraries(${PROJECT_NAME}_node scheduler)
 target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES})
 target_link_libraries(${PROJECT_NAME}_node ${Z3_LIBRARY})
 target_link_libraries(${PROJECT_NAME}_node commandLineParser)
+target_link_libraries(${PROJECT_NAME}_node pcre)
 
 include_directories(
 # include
