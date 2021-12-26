@@ -8,7 +8,7 @@ cxxopts::ParseResult parse(int argc, char *argv[]) {
     std::string file = "";
 
     options.allow_unrecognised_options().add_options()
-        ( "milpUsageThreshold", "", cxxopts::value<double>())( "milpResponsivnessThreshold", "", cxxopts::value<double>())( "topicPrefix", "", cxxopts::value<std::string>())("disableMigration", "")("help", "Show options");
+        ( "milpUsageThreshold", "", cxxopts::value<double>())( "milpResponsivnessThreshold", "", cxxopts::value<double>())( "topicPrefix", "", cxxopts::value<std::string>())("disableMigration", "")("disableNotifications", "")("help", "Show options");
 
     auto result = options.parse(argc, argv);
 

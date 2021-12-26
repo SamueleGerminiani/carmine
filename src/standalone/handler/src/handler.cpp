@@ -39,6 +39,10 @@ std::pair<int, char **> parseCommandLineArguments(int argc, char *argv[]) {
         disableMigration=1;
         usedArguments.insert("--disableMigration");
     }
+    if (result.count("disableNotifications")) {
+        disableNotifications=1;
+        usedArguments.insert("--disableNotifications");
+    }
     if (result.count("topicPrefix")) {
         topicPrefix= result["topicPrefix"].as<std::string>();
         usedArguments.insert("--topicPrefix");

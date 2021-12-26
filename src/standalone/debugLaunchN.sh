@@ -6,7 +6,7 @@ rosrun msg_gen msg_gen_node &
 
 i=1
 while [ "$i" -le "$1" ]; do
-./devel/lib/ver_env/ver_env_node --milpUsageThreshold 0.9 --milpResponsivnessThreshold 0 --topicPrefix robot/ __name:="desktop$i" &
+./devel/lib/ver_env/ver_env_node --disableNotifications --milpUsageThreshold 0.9 --milpResponsivnessThreshold 10 --topicPrefix robot/ __name:="desktop$i" &
 #gdb -ex run -ex backtrace --args ./devel/lib/ver_env/ver_env_node --milpUsageThreshold 0.9 --milpResponsivnessThreshold 0 --topicPrefix robot/ __name:="my_node$i" &
 #valgrind --track-origins=yes ./devel/lib/ver_env/ver_env_node __name:="my_node$i" &
 #valgrind --tool=helgrind --quiet ./devel/lib/ver_env/ver_env_node __name:="my_node$i" &

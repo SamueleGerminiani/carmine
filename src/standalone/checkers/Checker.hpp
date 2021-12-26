@@ -16,6 +16,8 @@
 #include <vector>
 #define REORDER_TH 10
 #define BUFF_SIZE 1'000'000
+extern bool disableNotifications;
+
 typedef actionlib::SimpleActionClient<ver_env::migrateAction> Client;
 class Checker {
    public:

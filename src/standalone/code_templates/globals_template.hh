@@ -87,6 +87,7 @@ extern double thisMachineMaxUsage;
 extern double milpUsageThreshold;
 extern double milpResponsivnessThreshold;
 extern bool disableMigration;
+extern bool disableNotifications;
 extern std::string topicPrefix;
 extern size_t windowMaxSize;
 

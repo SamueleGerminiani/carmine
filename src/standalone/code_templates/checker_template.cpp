@@ -3,8 +3,11 @@
 #include "ver_env/checkerData.h"
 
 void $ClassName$::notifyFailure() {
+    if (!disableNotifications) {
+        
     std::cout << ros::this_node::getName() << ": Checker " << _checkerName
               << " failed, resetting" << std::endl;
+    }
 }
 
 $ClassName$::$ClassName$(size_t nVars, size_t priority, std::string handlerName,
