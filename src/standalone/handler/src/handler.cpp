@@ -88,7 +88,6 @@ int main(int argc, char **argv) {
     fillAllTopics();
     fillAllCheckers();
 
-    initMaxFreq();
 
     // The following code is used to decide which node will contain the
     // coordinator
