@@ -89,7 +89,7 @@ inline void overheadCB(const std_msgs::Float64 &msg) {
 int main(int argc, char **argv) {
     auto trimmedArgv = parseCommandLineArguments(argc, argv);
     signal(SIGINT, sigint_handler);
-    ros::init(trimmedArgv.first, trimmedArgv.second, "cpuOH",
+    ros::init(trimmedArgv.first, trimmedArgv.second, "oh_"+targetNode,
               ros::init_options::NoSigintHandler);
     ros::NodeHandle n;
 

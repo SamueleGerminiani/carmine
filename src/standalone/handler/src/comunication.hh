@@ -91,7 +91,9 @@ inline void sendStatToCoordinator() {
     msg.availableUsage =
         thisMachineMaxUsage - wholeMachineUsage + wholeNodeUsage;
 //    std::cout << thisMachineMaxUsage<<" - "<<wholeMachineUsage<<" + "<<wholeNodeUsage << "\n";
-    msg.nAttachedTopics = attachedTopics.size();
+    for (auto &at : attachedTopics) {
+        msg.attachedTopics.push_back(at.first);
+    }
     msg.machineCPUfreq = machineCPUfreq;
     msg.thisMachineMaxUsage=thisMachineMaxUsage;
     //  send the message

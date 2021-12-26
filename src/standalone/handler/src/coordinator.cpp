@@ -28,7 +28,8 @@ std::unordered_map<std::string,
     nodeToTopicUsageWindow;
 size_t topicUsageWindow = 20;
 std::unordered_map<std::string, double> nodeToAvailable;
-std::unordered_map<std::string, double> nodeToWholeUsage;
+std::unordered_map<std::string, double> nodeToWholeNodeUsage;
+std::unordered_map<std::string, double> nodeToWholeMachineUsage;
 std::unordered_map<std::string, double> nodeToThisMachineMaxUsage;
 std::unordered_map<std::string, double> nodeToCPUfreq;
 std::unordered_map<std::string, std::string> currAlloc;
@@ -196,9 +197,10 @@ void startCheckers() {
 #endif
 
     for (auto &c : allCheckers) {
-        nodeToCheckerUsage[firstNode][c] = -1.f;
+        nodeToCheckerUsage[firstNode][c] = 0.00001f;
     }
     auto ba = findBestAllocation();
+
     std::unordered_map<std::string, std::vector<std::string>> mToExeCheckers;
     for (auto &c_n : ba) {
         mToExeCheckers[c_n.second].push_back(c_n.first);
@@ -240,12 +242,16 @@ void gatherStats() {
 #if dumpStats
         size_t buffEvents = 0;
 #endif
+        //checker
         nodeToCheckerUsage[msg.node].clear();
         for (size_t i = 0; i < msg.checkerList.size(); i++) {
             auto checkerName = msg.checkerList[i];
-            auto usage = msg.checkerUsage[i];
-            nodeToCheckerUsage[msg.node][checkerName] = usage;
-            sumCheckerUsage += usage;
+            double usage = msg.checkerUsage[i];
+            if (currAlloc.at(checkerName)==msg.node) {
+                //only if msg is updated to curr allocation
+                nodeToCheckerUsage[msg.node][checkerName] = usage;
+                sumCheckerUsage += usage;
+            }
 #if dumpStats
             auto eib = msg.eventsInBuffer[i];
             nextDump.at(checkerName) = std::make_tuple(usage, eib);
@@ -278,31 +284,45 @@ void gatherStats() {
         //            }
         //        }
 
+        //topics
+        nodeToTopicLatency[msg.node].clear();
+        nodeToTopicUsage[msg.node].clear();
+        std::unordered_set<std::string> attachedTopics;
+        for (auto &at : msg.attachedTopics) {
+            attachedTopics.insert(at);
+        }
+        size_t nAttachedTopics=msg.attachedTopics.size();
         for (size_t i = 0; i < msg.topicList.size(); i++) {
             auto topicName = msg.topicList[i];
             auto latency = msg.topicLatency[i];
-            nodeToTopicLatency[msg.node][topicName] = latency;
+            //latency
+            nodeToTopicLatency[msg.node][topicName] = latency<0.f?0.f:latency;
 
-            // topic usage with window
-            if (nodeToTopicUsageWindow[msg.node][topicName].size() ==
-                topicUsageWindow) {
-                nodeToTopicUsageWindow[msg.node][topicName].pop_back();
+            // usage
+            double val =(nAttachedTopics==0 || val < 0.f)?0.f: ((msg.wholeNodeUsage - sumCheckerUsage) / nAttachedTopics);
+
+            if (attachedTopics.count(topicName)) {
+                if (nodeToTopicUsageWindow[msg.node][topicName].size() ==
+                        topicUsageWindow) {
+                    nodeToTopicUsageWindow[msg.node][topicName].pop_back();
+                }
+                nodeToTopicUsageWindow[msg.node][topicName].push_front(val);
+                nodeToTopicUsage[msg.node][topicName] =
+                    std::accumulate(
+                            nodeToTopicUsageWindow[msg.node][topicName].begin(),
+                            nodeToTopicUsageWindow[msg.node][topicName].end(), 0.f) /
+                    nodeToTopicUsageWindow[msg.node][topicName].size();
+
+            }else{
+                nodeToTopicUsageWindow[msg.node].clear();
             }
-            nodeToWholeUsage[msg.node] = msg.wholeNodeUsage;
-            double val =
-                ((msg.wholeNodeUsage - sumCheckerUsage)) / msg.nAttachedTopics;
-            nodeToTopicUsageWindow[msg.node][topicName].push_front(
-                val > 0.f && val < 10e9 ? val : 0.f);
-            nodeToTopicUsage[msg.node][topicName] =
-                std::accumulate(
-                    nodeToTopicUsageWindow[msg.node][topicName].begin(),
-                    nodeToTopicUsageWindow[msg.node][topicName].end(), 0.f) /
-                nodeToTopicUsageWindow[msg.node][topicName].size();
         }
 
-        nodeToCPUfreq[msg.node] = msg.machineCPUfreq;
-        nodeToAvailable[msg.node] = msg.availableUsage;
-        nodeToThisMachineMaxUsage[msg.node] = msg.thisMachineMaxUsage;
+        nodeToWholeNodeUsage[msg.node] = msg.wholeNodeUsage<0.f?0.f:msg.wholeNodeUsage;
+        nodeToWholeMachineUsage[msg.node] = msg.wholeMachineUsage<0.f?0.f:msg.wholeMachineUsage;
+        nodeToCPUfreq[msg.node] = msg.machineCPUfreq<0.f?0.f:msg.machineCPUfreq;
+        nodeToAvailable[msg.node] = msg.availableUsage<0.f?0.f:msg.availableUsage;
+        nodeToThisMachineMaxUsage[msg.node] = msg.thisMachineMaxUsage<0.f?0.f:msg.thisMachineMaxUsage;
     }
     stat_msgsMutex.unlock();
 }
@@ -335,7 +355,7 @@ void printStatistics() {
         std::cout << "Available CPU: " << nodeToAvailable.at(checkerUsage.first)
                   << "\n";
         std::cout << "Whole node CPU: "
-                  << nodeToWholeUsage.at(checkerUsage.first) << "\n";
+                  << nodeToWholeNodeUsage.at(checkerUsage.first) << "\n";
     }
 
     std::cout << "[NCheckers]"
@@ -588,76 +608,17 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
 
     // launch z3
     opt.minimize(sum(goal));
+
+
     if (z3::sat != opt.check()) {
         // Unsat: do nothing
-        //               std::cout << "Unsat!"                   << "\n";
-        //    std::cout << opt << "\n";
-        //        assert(0);
-        //        exit(1);
+//                       std::cout << "Unsat or Uknown!"                   << "\n";
+//            std::cout << opt << "\n";
+//                assert(0);
+//                exit(1);
         ret = currAlloc;
         return ret;
     }
-
-    z3::model model = opt.get_model();
-
-    for (size_t j = 0; j < model.size(); j++) {
-        std::string chName = model[j].name().str();
-        std::string chVal = model.get_const_interp(model[j]).to_string();
-        ret[z3NameToChecker.at(chName)] = enumToNode.at(chVal);
-    }
-
-    // curr responsivness
-    if (!currAlloc.empty()) {
-        z3::expr_vector sol(ctx);
-        for (auto &c_m : currAlloc) {
-            sol.push_back(chToz3Const.at(checkerToz3Name.at(c_m.first)) ==
-                          enumNameToz3Exp.at(nodeToEnum.at(c_m.second)));
-        }
-        if (opt.check(sol) != z3::unsat) {
-            bool mustMove = 0;
-            for (auto e : nodeToAvailable) {
-                if (nodeToThisMachineMaxUsage.at(e.first) *
-                        milpUsageThreshold <=
-                    nodeToWholeUsage.at(e.first)) {
-                    mustMove = 1;
-                    break;
-                }
-            }
-            if (!mustMove) {
-                int currDelay = getDelay(currAlloc);
-                int newDelay = getDelay(ret);
-                //    debug
-                //    std::cout << " ====================currDelay:" <<
-                //    currDelay <<
-                //    "\n";
-                //    std::cout << " ====================newDelay:" <<
-                //    newDelay
-                //    <<
-                //    "\n";
-                //    std::cout << "''''''''''''''''''''''''''''''''''''" <<
-                //    "\n";
-                //    std::cout << "< "<<(int)(std::abs(currDelay -
-                //    newDelay) <
-                //    milpResponsivnessThreshold) << "\n";
-
-                if (std::abs(currDelay - newDelay) <
-                    milpResponsivnessThreshold) {
-                    ret = currAlloc;
-                    return ret;
-                }
-            }
-        }
-    }
-
-    std::cout << "||||||||||||||||||||||||||||||||||||||||||||||||||||"
-              << "\n";
-    std::cout << "Best allocation:"
-              << "\n";
-    for (auto cm : ret) {
-        std::cout << cm.first << " " << cm.second << "\n";
-    }
-
-    freeStats();
 
 #if printStat
     std::chrono::steady_clock::time_point end =
@@ -668,9 +629,68 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
                                                                        begin)
                      .count()
               << "[ms]" << std::endl;
-// debug
-//    std::cout << opt << "\n";
 #endif
+
+    z3::model model = opt.get_model();
+
+    for (size_t j = 0; j < model.size(); j++) {
+        std::string chName = model[j].name().str();
+        std::string chVal = model.get_const_interp(model[j]).to_string();
+        ret[z3NameToChecker.at(chName)] = enumToNode.at(chVal);
+    }
+
+    if (!currAlloc.empty()) {
+        z3::expr_vector sol(ctx);
+        for (auto &c_m : currAlloc) {
+            sol.push_back(chToz3Const.at(checkerToz3Name.at(c_m.first)) ==
+                    enumNameToz3Exp.at(nodeToEnum.at(c_m.second)));
+        }
+        bool mustMove = 0;
+        for (auto e : nodeToAvailable) {
+            if (nodeToThisMachineMaxUsage.at(e.first) *
+                    milpUsageThreshold <=
+                    nodeToWholeMachineUsage.at(e.first)) {
+                mustMove = 1;
+                std::cout << "\t\t\t\t\t++++++++++++++++++++++++++++++++++++++++++++++++" << "\n";
+// debug
+    std::cout << opt << "\n";
+                break;
+            }
+        }
+        if (!mustMove) {
+            int currDelay = getDelay(currAlloc);
+            int newDelay = getDelay(ret);
+            //    debug
+            //    std::cout << " ====================currDelay:" <<
+            //    currDelay <<
+            //    "\n";
+            //    std::cout << " ====================newDelay:" <<
+            //    newDelay
+            //    <<
+            //    "\n";
+            //    std::cout << "''''''''''''''''''''''''''''''''''''" <<
+            //    "\n";
+            //    std::cout << "< "<<(int)(std::abs(currDelay -
+            //    newDelay) <
+            //    milpResponsivnessThreshold) << "\n";
+
+            if (std::abs(currDelay - newDelay) <=
+                    milpResponsivnessThreshold) {
+                ret = currAlloc;
+                return ret;
+            }
+        }
+    }
+
+    //std::cout << "||||||||||||||||||||||||||||||||||||||||||||||||||||"
+    //          << "\n";
+    //std::cout << "Best allocation:"
+    //          << "\n";
+    //for (auto cm : ret) {
+    //    std::cout << cm.first << " " << cm.second << "\n";
+    //}
+
+
 
     return ret;
 }

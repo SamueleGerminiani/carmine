@@ -3,6 +3,7 @@ string node
 string[] topicList
 float32[] topicLatency
 string[] checkerList
+string[] attachedTopics
 float32[] checkerUsage
 uint32[] eventsInBuffer
 float32 wholeNodeUsage
@@ -10,4 +11,3 @@ float32 wholeMachineUsage
 float32 availableUsage
 float32 thisMachineMaxUsage
 int64 machineCPUfreq
-int64 nAttachedTopics
