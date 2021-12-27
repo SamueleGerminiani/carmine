@@ -98,7 +98,7 @@ bool ackReceived(const std::string &node) {
 
 #if dumpStats
 static std::ofstream statOut("stat.csv");
-std::map<std::string, std::tuple<double, size_t>> nextDump;
+std::unordered_map<std::string, std::tuple<double, double,double,size_t>> nextDump;
 #endif
 
 // the coordinator main loop
@@ -109,6 +109,7 @@ void coordinator() {
     static const size_t ratePrint = 10;
     //    std::cout << "c) Running..." << "\n";
 
+    ros::Duration(5).sleep();
     startCheckers();
     while (ros::ok()) {
         ros::Duration(0.1).sleep();
@@ -185,14 +186,14 @@ void startCheckers() {
 
 #if dumpStats
     statOut << "time; ";
-    for (auto &c : allCheckers) {
-        nextDump[c];
+    nodesMutex.lock();
+    for (auto &c : nodes) {
+        nextDump[c.second];
     }
+    nodesMutex.unlock();
     for (auto &c : nextDump) {
-        statOut << c.first << "; usage; buffer; ";
+        statOut << " available_"+c.first+"; checker_"+c.first+"; topic_"+c.first+";  nChs_"+c.first+"; ";
     }
-    statOut << "totUsage; ";
-    statOut << "totBuffer; ";
     statOut << "\n";
 #endif
 
@@ -250,9 +251,6 @@ void gatherStats() {
         stat_msgs.pop_front();
 
         double sumCheckerUsage = 0.f;
-#if dumpStats
-        size_t buffEvents = 0;
-#endif
         //checker
         nodeToCheckerUsage[msg.node].clear();
         for (size_t i = 0; i < msg.checkerList.size(); i++) {
@@ -263,26 +261,8 @@ void gatherStats() {
                 nodeToCheckerUsage[msg.node][checkerName] = usage;
                 sumCheckerUsage += usage;
             }
-#if dumpStats
-            auto eib = msg.eventsInBuffer[i];
-            nextDump.at(checkerName) = std::make_tuple(usage, eib);
-            buffEvents += eib;
-#endif
         }
 
-#if dumpStats
-        if (!nextDump.empty()) {
-            statOut << ros::Time::now() << "; ";
-        }
-        for (auto &d : nextDump) {
-            statOut << std::get<0>(d.second) << "; ";
-            statOut << std::get<1>(d.second) << "; ";
-        }
-        statOut << sumCheckerUsage << "; ";
-        statOut << buffEvents << "; ";
-        statOut << "\n";
-        statOut.flush();
-#endif
 
         //        // free unused windows
         //        std::unordered_set<std::string> activeTopics;
@@ -373,6 +353,9 @@ void printStatistics() {
                   << "\n";
         std::cout << "Whole node CPU: "
                   << nodeToWholeNodeUsage.at(checkerUsage.first) << "\n";
+#if dumpStats
+            nextDump[checkerUsage.first] = std::make_tuple(nodeToAvailable.at(checkerUsage.first),sumccpu,sumtcpu,0);
+#endif
     }
 
     std::cout << "[NCheckers]"
@@ -383,9 +366,23 @@ void printStatistics() {
     }
     for (auto &na : nodeToNC) {
         std::cout << na.first << ": " << na.second << "\n";
+#if dumpStats
+        std::get<3>(nextDump.at(na.first)) = na.second;
+#endif
     }
     std::cout << "--------------------------------------"
               << "\n";
+#if dumpStats
+    statOut << ros::Time::now() << "; ";
+        for (auto &d : nextDump) {
+            statOut << std::get<0>(d.second) << "; ";
+            statOut << std::get<1>(d.second) << "; ";
+            statOut << std::get<2>(d.second) << "; ";
+            statOut << std::get<3>(d.second) << "; ";
+        }
+        statOut << "\n";
+        statOut.flush();
+#endif
 }
 
 using namespace z3;
