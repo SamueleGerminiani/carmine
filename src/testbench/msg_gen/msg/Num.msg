@@ -1,2 +1,2 @@
 Header header
-int64 num
+bool num

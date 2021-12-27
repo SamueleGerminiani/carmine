@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<handler name ="handler0" migrateTo="handler1">
-    <checker name="Checker0" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+<handler name ="handler0">
+    <checker name="Checker0" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -18,7 +18,75 @@
 			</variable>
 		</checker>
 
-    <checker name="Checker1" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker1" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+			<variable decl="bool v1">
+				<rosTopic>random1</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v2">
+				<rosTopic>random2</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v3">
+				<rosTopic>random3</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+		</checker>
+    <checker name="Checker2" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+			<variable decl="bool v1">
+				<rosTopic>random1</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v2">
+				<rosTopic>random2</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v3">
+				<rosTopic>random3</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+		</checker>
+    <checker name="Checker3" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+			<variable decl="bool v1">
+				<rosTopic>random1</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v2">
+				<rosTopic>random2</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v3">
+				<rosTopic>random3</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+		</checker>
+    <checker name="Checker4" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+			<variable decl="bool v1">
+				<rosTopic>random1</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v2">
+				<rosTopic>random2</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v3">
+				<rosTopic>random3</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+		</checker>
+    <checker name="Checker5" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -36,7 +104,75 @@
 			</variable>
 		</checker>
 
-    <checker name="Checker2" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker6" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+			<variable decl="bool v1">
+				<rosTopic>random1</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v2">
+				<rosTopic>random2</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v3">
+				<rosTopic>random3</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+		</checker>
+    <checker name="Checker7" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+			<variable decl="bool v1">
+				<rosTopic>random1</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v2">
+				<rosTopic>random2</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v3">
+				<rosTopic>random3</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+		</checker>
+    <checker name="Checker8" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+			<variable decl="bool v1">
+				<rosTopic>random1</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v2">
+				<rosTopic>random2</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v3">
+				<rosTopic>random3</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+		</checker>
+    <checker name="Checker9" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+			<variable decl="bool v1">
+				<rosTopic>random1</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v2">
+				<rosTopic>random2</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v3">
+				<rosTopic>random3</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+		</checker>
+    <checker name="Checker10" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -54,7 +190,75 @@
 			</variable>
 		</checker>
 
-    <checker name="Checker3" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker11" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+			<variable decl="bool v1">
+				<rosTopic>random1</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v2">
+				<rosTopic>random2</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v3">
+				<rosTopic>random3</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+		</checker>
+    <checker name="Checker12" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+			<variable decl="bool v1">
+				<rosTopic>random1</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v2">
+				<rosTopic>random2</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v3">
+				<rosTopic>random3</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+		</checker>
+    <checker name="Checker13" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+			<variable decl="bool v1">
+				<rosTopic>random1</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v2">
+				<rosTopic>random2</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v3">
+				<rosTopic>random3</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+		</checker>
+    <checker name="Checker14" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+			<variable decl="bool v1">
+				<rosTopic>random1</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v2">
+				<rosTopic>random2</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v3">
+				<rosTopic>random3</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+		</checker>
+    <checker name="Checker15" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -72,7 +276,7 @@
 			</variable>
 		</checker>
 
-    <checker name="Checker4" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker16" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -89,8 +293,7 @@
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
-    <checker name="Checker5" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker17" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -107,8 +310,7 @@
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
-    <checker name="Checker6" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker18" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -125,245 +327,7 @@
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
-    <checker name="Checker7" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
-			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-		</checker>
-
-
-    <checker name="Checker8" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
-			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-		</checker>
-
-    <checker name="Checker9" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
-			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-		</checker>
-
-    <checker name="Checker10" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
-			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-		</checker>
-
-
-    <checker name="Checker11" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
-			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-		</checker>
-
-    <checker name="Checker12" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
-			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-		</checker>
-
-    <checker name="Checker13" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
-			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-		</checker>
-
-    <checker name="Checker14" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
-			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-		</checker>
-
-    <checker name="Checker15" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
-			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-		</checker>
-
-    <checker name="Checker16" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
-			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-		</checker>
-
-    <checker name="Checker17" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
-			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-		</checker>
-
-
-    <checker name="Checker18" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
-			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-		</checker>
-
-    <checker name="Checker19" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
-			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
-				<msgType>msg_gen::Num</msgType>
-				<msgField>num</msgField>
-			</variable>
-		</checker>
-
-    <checker name="Checker20" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker19" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -382,532 +346,542 @@
 		</checker>
 
 
-    <checker name="Checker21" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+
+
+
+
+
+
+
+
+
+
+
+    <checker name="Checker20" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random5</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random6</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
-    <checker name="Checker22" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker21" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random5</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random6</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
-    <checker name="Checker23" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker22" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random5</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random6</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
-    <checker name="Checker24" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker23" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random5</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random6</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
-    <checker name="Checker25" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker24" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random5</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random6</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
-    <checker name="Checker26" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker25" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random5</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random6</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
-    <checker name="Checker27" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker26" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random5</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random6</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
-
-    <checker name="Checker28" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker27" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random5</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random6</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
-    <checker name="Checker29" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker28" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random5</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random6</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
-    <checker name="Checker30" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker29" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random5</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random6</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
-
-    <checker name="Checker31" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker30" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random5</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random6</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
-    <checker name="Checker32" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker31" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random5</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random6</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
-    <checker name="Checker33" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker32" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random5</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random6</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
-    <checker name="Checker34" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker33" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random5</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random6</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
-    <checker name="Checker35" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker34" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random5</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random6</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
-    <checker name="Checker36" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker35" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random5</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random6</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
-    <checker name="Checker37" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker36" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random5</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random6</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
-
-    <checker name="Checker38" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker37" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random5</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random6</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
-    <checker name="Checker39" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker38" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random5</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random6</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
-
-    <checker name="Checker40" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker39" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random5</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random6</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
 
 
-    <checker name="Checker41" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+
+
+
+
+
+    <checker name="Checker40" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random7</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random8</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random9</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
 
-    <checker name="Checker42" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker41" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random7</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random8</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random9</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
 
-    <checker name="Checker43" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker42" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random7</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random8</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random9</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
 
-    <checker name="Checker44" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker43" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random7</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random8</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random9</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
 
-    <checker name="Checker45" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker44" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random7</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random8</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random9</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
 
-    <checker name="Checker46" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker45" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random7</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random8</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random9</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
 
-    <checker name="Checker47" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker46" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random7</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random8</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random9</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
 
-
-    <checker name="Checker48" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker47" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random7</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random8</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random9</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
 
-    <checker name="Checker49" description="simple checker" LTLformula="G({v1}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <checker name="Checker48" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
-				<rosTopic>random1</rosTopic>
+				<rosTopic>random7</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v2">
-				<rosTopic>random2</rosTopic>
+				<rosTopic>random8</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 			<variable decl="bool v3">
-				<rosTopic>random3</rosTopic>
+				<rosTopic>random9</rosTopic>
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
 		</checker>
 
+    <checker name="Checker49" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+			<variable decl="bool v1">
+				<rosTopic>random7</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v2">
+				<rosTopic>random8</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+			<variable decl="bool v3">
+				<rosTopic>random9</rosTopic>
+				<msgType>msg_gen::Num</msgType>
+				<msgField>num</msgField>
+			</variable>
+		</checker>
 
 </handler>

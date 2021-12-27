@@ -197,7 +197,18 @@ void startCheckers() {
 #endif
 
     for (auto &c : allCheckers) {
-        nodeToCheckerUsage[firstNode][c] = 0.00001f;
+        nodeToCheckerUsage[firstNode][c] = 0.0f;
+    }
+
+    {
+        const std::lock_guard<std::mutex> lock(nodesMutex);
+        for (auto &n : nodes) {
+            nodeToAvailable[n.second]=0.0f;
+            //avoid z3 bug
+            for (auto &tl : nodeToTopicLatency[n.second]) {
+                tl.second+=0.001f;
+            }
+        }
     }
     std::unordered_map<std::string, std::string> ba = findBestAllocation();
 
@@ -342,16 +353,22 @@ void printStatistics() {
     std::cout << "[Usage]"
               << "\n";
     for (auto checkerUsage : nodeToCheckerUsage) {
+        double sumccpu=0.f;
+        double sumtcpu=0.f;
         std::cout << checkerUsage.first << "\n";
         for (auto &cu : checkerUsage.second) {
+            sumccpu+=cu.second;
             //        std::cout << "\t\t" << cu.first << ": " << cu.second //
             //        << "\n";
         }
         for (auto &tu : nodeToTopicUsage.at(checkerUsage.first)) {
-            std::cout << "\t\t" << tu.first << ": " << tu.second << "\n";
+            sumtcpu+=tu.second;
+            //std::cout << "\t\t" << tu.first << ": " << tu.second << "\n";
         }
         //        std::cout << "CPU freq: " <<
         //        nodeToCPUfreq.at(checkerUsage.first) << "\n";
+        std::cout << "Checker usage: " << sumccpu                  << "\n";
+        std::cout << "Topic usage: " << sumtcpu                  << "\n";
         std::cout << "Available CPU: " << nodeToAvailable.at(checkerUsage.first)
                   << "\n";
         std::cout << "Whole node CPU: "
@@ -375,6 +392,16 @@ using namespace z3;
 std::unordered_map<std::string, std::string> findBestAllocation() {
     std::chrono::steady_clock::time_point begin =
         std::chrono::steady_clock::now();
+
+    {
+            //avoid z3 bug
+        const std::lock_guard<std::mutex> lock(nodesMutex);
+        for (auto &n : nodes) {
+            for (auto &tl : nodeToTopicLatency[n.second]) {
+                tl.second+=0.001f;
+            }
+        }
+    }
 
     // checker -> node
     std::unordered_map<std::string, std::string> ret;
@@ -613,7 +640,7 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
 
     if (z3::sat != opt.check()) {
         // Unsat: do nothing
-//                       std::cout << "Unsat or Uknown!"                   << "\n";
+                       std::cout << "Unsat or Uknown!"                   << "\n";
 //            std::cout << opt << "\n";
  //               assert(0);
  //               exit(1);
@@ -631,7 +658,7 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
                      .count()
               << "[ms]" << std::endl;
 // debug
- //   std::cout << opt << "\n";
+//   std::cout << opt << "\n";
 #endif
 
     z3::model model = opt.get_model();
