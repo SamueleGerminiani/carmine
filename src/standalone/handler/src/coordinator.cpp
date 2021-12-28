@@ -15,7 +15,7 @@
 #include "z3++.h"
 #include "z3.h"
 #define printStat 1
-#define dumpStats 0
+#define dumpStats 1
 
 std::unordered_map<std::string, std::unordered_map<std::string, double>>
     nodeToTopicLatency;
@@ -23,10 +23,6 @@ std::unordered_map<std::string, std::unordered_map<std::string, double>>
     nodeToCheckerUsage;
 std::unordered_map<std::string, std::unordered_map<std::string, double>>
     nodeToTopicUsage;
-std::unordered_map<std::string,
-                   std::unordered_map<std::string, std::deque<double>>>
-    nodeToTopicUsageWindow;
-size_t topicUsageWindow = 20;
 std::unordered_map<std::string, double> nodeToAvailable;
 std::unordered_map<std::string, double> nodeToWholeNodeUsage;
 std::unordered_map<std::string, double> nodeToWholeMachineUsage;
@@ -109,7 +105,7 @@ void coordinator() {
     static const size_t ratePrint = 10;
     //    std::cout << "c) Running..." << "\n";
 
-    ros::Duration(5).sleep();
+//    ros::Duration(5).sleep();
     startCheckers();
     while (ros::ok()) {
         ros::Duration(0.1).sleep();
@@ -234,7 +230,6 @@ void freeStats() {
     nodeToTopicUsage.clear();
     nodeToAvailable.clear();
     nodeToCPUfreq.clear();
-    nodeToTopicUsageWindow.clear();
     stat_msgsMutex.lock();
     stat_msgs.clear();
     stat_msgsMutex.unlock();
@@ -264,17 +259,6 @@ void gatherStats() {
         }
 
 
-        //        // free unused windows
-        //        std::unordered_set<std::string> activeTopics;
-        //        for (size_t i = 0; i < msg.topicList.size(); i++) {
-        //            activeTopics.insert(msg.topicList[i]);
-        //        }
-        //        for (auto &tn_tu : nodeToTopicUsageWindow[msg.node]) {
-        //            if (!activeTopics.count(tn_tu.first)) {
-        //                tn_tu.second.clear();
-        //            }
-        //        }
-
         //topics
         nodeToTopicLatency[msg.node].clear();
         nodeToTopicUsage[msg.node].clear();
@@ -290,22 +274,10 @@ void gatherStats() {
             nodeToTopicLatency[msg.node][topicName] = latency<0.f?0.f:latency;
 
             // usage
-            double val =(nAttachedTopics==0 || val < 0.f)?0.f: ((msg.wholeNodeUsage - sumCheckerUsage) / nAttachedTopics);
+            double val =(nAttachedTopics==0 || (msg.wholeNodeUsage - sumCheckerUsage) < 0.f)?0.f: ((msg.wholeNodeUsage - sumCheckerUsage) / nAttachedTopics);
 
             if (attachedTopics.count(topicName)) {
-                if (nodeToTopicUsageWindow[msg.node][topicName].size() ==
-                        topicUsageWindow) {
-                    nodeToTopicUsageWindow[msg.node][topicName].pop_back();
-                }
-                nodeToTopicUsageWindow[msg.node][topicName].push_front(val);
-                nodeToTopicUsage[msg.node][topicName] =
-                    std::accumulate(
-                            nodeToTopicUsageWindow[msg.node][topicName].begin(),
-                            nodeToTopicUsageWindow[msg.node][topicName].end(), 0.f) /
-                    nodeToTopicUsageWindow[msg.node][topicName].size();
-
-            }else{
-                nodeToTopicUsageWindow[msg.node].clear();
+                nodeToTopicUsage[msg.node][topicName] =val;
             }
         }
 
