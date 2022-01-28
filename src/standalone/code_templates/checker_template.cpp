@@ -8,6 +8,7 @@ void $ClassName$::notifyFailure() {
     std::cout << ros::this_node::getName() << ": Checker " << _checkerName
               << " failed, resetting" << std::endl;
     }
+    _ATCF++;
 }
 
 $ClassName$::$ClassName$(size_t nVars, size_t priority, std::string handlerName,
@@ -286,6 +287,8 @@ $setBuffer
     _endIns = res.endIns;
 $setInit_p_MF
 
+   _ATCF=res.ATCF;
+
     //    if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     //    {
     //        ROS_INFO("-------------------------------------MIGRATION
@@ -351,6 +354,7 @@ void $ClassName$::migrateToHandleData(ver_env::checkerData &res) {
     res.endIns = _endIns;
 $setInit_p_MT
 
+   res.ATCF=_ATCF;
     clearData();
 }
 

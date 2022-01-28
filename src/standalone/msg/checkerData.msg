@@ -10,5 +10,6 @@ uint64[] currAnt
 uint64[] nextAnt
 uint32 conIns
 uint32 endIns
+uint32 ATCF
 bool[] last_p
 time last_msg_ts

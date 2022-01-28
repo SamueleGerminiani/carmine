@@ -20,6 +20,8 @@ find_package(catkin REQUIRED COMPONENTS
   genmsg
   message_generation
   message_runtime
+  msg_gen
+  cpu_oh_gen
 )
 
 

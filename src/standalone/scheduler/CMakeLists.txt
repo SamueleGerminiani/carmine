@@ -8,6 +8,3 @@ SET(SCHEDULER_SRC src/dispatcher.cpp
 	)
 add_library(scheduler ${SCHEDULER_SRC})
 target_link_libraries(scheduler pthread)
-##Add a dependency to the scheduler executable so messages and services
-##will be built before it
-add_dependencies(scheduler verification_env_generate_messages_cpp)

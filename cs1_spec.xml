@@ -18,6 +18,7 @@
 			</variable>
 		</checker>
 
+        <!--
     <checker name="Checker1" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
@@ -884,4 +885,5 @@
 			</variable>
 		</checker>
 
+        -->
 </handler>

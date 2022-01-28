@@ -21,6 +21,7 @@ std::unordered_map<std::string, std::unordered_map<std::string, double>>
     nodeToTopicLatency;
 std::unordered_map<std::string, std::unordered_map<std::string, double>>
     nodeToCheckerUsage;
+std::unordered_map<std::string, size_t> checkerToATCF;
 std::unordered_map<std::string, std::unordered_map<std::string, double>>
     nodeToTopicUsage;
 std::unordered_map<std::string, double> nodeToAvailable;
@@ -190,6 +191,7 @@ void startCheckers() {
     for (auto &c : nextDump) {
         statOut << " available_"+c.first+"; checker_"+c.first+"; topic_"+c.first+";  nChs_"+c.first+"; ";
     }
+    statOut<<"nFailures; ";
     statOut << "\n";
 #endif
 
@@ -256,6 +258,7 @@ void gatherStats() {
                 nodeToCheckerUsage[msg.node][checkerName] = usage;
                 sumCheckerUsage += usage;
             }
+            checkerToATCF[checkerName]=msg.checkerATCF[i];
         }
 
 
@@ -344,6 +347,14 @@ void printStatistics() {
     }
     std::cout << "--------------------------------------"
               << "\n";
+
+#if dumpStats
+    size_t totATCF=0;
+    for (auto &atcf : checkerToATCF) {
+        totATCF+=atcf.second;
+    }
+#endif
+
 #if dumpStats
     statOut << ros::Time::now() << "; ";
         for (auto &d : nextDump) {
@@ -352,6 +363,7 @@ void printStatistics() {
             statOut << std::get<2>(d.second) << "; ";
             statOut << std::get<3>(d.second) << "; ";
         }
+        statOut <<totATCF<<"; ";
         statOut << "\n";
         statOut.flush();
 #endif

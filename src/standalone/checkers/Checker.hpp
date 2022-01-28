@@ -43,6 +43,7 @@ class Checker {
     size_t _topicSpeed = 0;
     size_t _eventsInBuffer = 0;
     double _CPUusage = 0;
+    size_t _ATCF=0;
     std::deque<double> _evalSpeedWindow;
     std::deque<double> _topicSpeedWindow;
     std::deque<double> _cpuUsageWindow;

@@ -136,7 +136,7 @@ add_subdirectory(commandLineParser)
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node src/cpu_oh_gen.cpp)
 target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES})
-target_link_libraries(${PROJECT_NAME}_node commandLineParser)
+target_link_libraries(${PROJECT_NAME}_node commandLineParserOH)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

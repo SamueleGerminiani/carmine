@@ -2,7 +2,7 @@
 # Configuration.
 #############################################
 
-SET(NAME commandLineParser)
+SET(NAME commandLineParserOH)
 
 include_directories(
     include/
@@ -12,13 +12,13 @@ include_directories(
 #############################################
 # Sources.
 #############################################
-SET (COMMANDLINE_PARSER_SRCS
+SET (COMMANDLINE_PARSER_OH_SRCS
     src/commandLineParser.cc
     )
 
 #############################################
 # Targets.
 #############################################
-add_library(${NAME} ${COMMANDLINE_PARSER_SRCS})
+add_library(${NAME} ${COMMANDLINE_PARSER_OH_SRCS})
 target_link_libraries(${NAME} stdc++fs)
 
