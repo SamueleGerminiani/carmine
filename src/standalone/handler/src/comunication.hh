@@ -97,6 +97,7 @@ inline void sendStatToCoordinator() {
     }
     msg.machineCPUfreq = machineCPUfreq;
     msg.thisMachineMaxUsage=thisMachineMaxUsage;
+    msg.milpUsageThreshold=milpUsageThreshold;
     //  send the message
     //  n.b.  if the receiving now is in the same process of the coordinator,
     //  simply add the message to "msgs" instead of using a publisher

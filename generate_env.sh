@@ -41,16 +41,17 @@ cp -r ./src/standalone/cmake ./ver_env/
 if [ "$2" = "--debug" ]; then
     cp ./src/standalone/CMakeListsDebug.txt ./ver_env/CMakeLists.txt
     cp ./src/standalone/packageDebug.xml ./ver_env/package.xml
+    cp ./src/standalone/debugLaunchN.sh ./ver_env/
 else
     cp ./src/standalone/CMakeLists.txt ./ver_env/
     cp ./src/standalone/package.xml ./ver_env/
+    cp ./src/standalone/launchN.sh ./ver_env/
 fi
 
 cp -r ./build/output/checkers ./ver_env/
 cp -r ./build/output/ver_env/src/* ./ver_env/handler/src/
 cp ./src/standalone/checkers/Checker.hpp ./ver_env/checkers/include/
 
-cp ./src/standalone/debugLaunchN.sh ./ver_env/
 cp ./src/testbench/loadTB.sh ./ver_env/
 
 echo "Successfully generated verification environment: output in ver_env directory"

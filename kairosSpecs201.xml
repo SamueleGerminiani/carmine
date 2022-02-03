@@ -1,0 +1,2630 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<handler name="handler">
+
+    <checker name="Checker1" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <!--
+
+        replicated 66 times
+
+    -->
+
+    <checker name="Checker1_r0" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r0" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r0" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+
+    <checker name="Checker1_r1" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r1" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r1" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r2" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r2" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r2" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r3" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r3" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r3" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r4" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r4" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r4" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r5" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r5" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r5" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r6" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r6" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r6" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r7" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r7" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r7" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r8" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r8" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r8" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r9" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r9" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r9" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r10" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r10" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r10" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+
+    <checker name="Checker1_r11" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r11" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r11" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r12" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r12" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r12" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r13" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r13" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r13" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r14" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r14" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r14" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r15" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r15" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r15" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r16" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r16" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r16" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r17" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r17" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r17" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r18" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r18" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r18" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r19" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r19" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r19" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r20" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r20" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r20" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+
+    <checker name="Checker1_r21" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r21" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r21" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r22" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r22" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r22" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r23" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r23" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r23" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r24" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r24" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r24" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r25" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r25" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r25" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r26" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r26" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r26" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r27" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r27" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r27" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r28" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r28" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r28" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r29" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r29" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r29" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r30" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r30" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r30" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+
+    <checker name="Checker1_r31" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r31" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r31" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r32" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r32" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r32" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r33" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r33" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r33" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r34" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r34" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r34" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r35" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r35" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r35" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r36" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r36" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r36" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r37" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r37" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r37" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r38" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r38" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r38" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r39" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r39" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r39" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r40" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r40" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r40" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+
+    <checker name="Checker1_r41" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r41" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r41" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r42" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r42" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r42" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r43" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r43" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r43" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r44" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r44" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r44" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r45" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r45" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r45" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r46" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r46" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r46" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r47" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r47" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r47" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r48" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r48" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r48" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r49" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r49" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r49" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r50" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r50" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r50" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+
+    <checker name="Checker1_r51" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r51" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r51" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r52" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r52" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r52" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r53" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r53" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r53" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r54" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r54" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r54" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r55" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r55" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r55" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r56" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r56" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r56" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r57" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r57" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r57" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r58" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r58" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r58" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r59" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r59" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r59" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+    <checker name="Checker1_r60" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r60" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r60" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+
+    <checker name="Checker1_r61" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r61" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r61" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r62" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r62" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r62" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r63" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r63" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r63" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r64" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r64" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r64" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker1_r65" description="" LTLformula="G({(ef12!=0 && ef13!=0)[->1]:1}|=>{$timeout(ef12==0 && ef13==0,2000)})">
+        <variable decl="double ef12">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[12]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+        <variable decl="double ef13">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>effort[13]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker2_r65" description="" LTLformula="G({(vel0!=0)[->1]:1}|=>{$timeout(vel0==1234,500)})">
+        <variable decl="double vel0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>velocity[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+    <checker name="Checker3_r65" description="" LTLformula="G({(pos0!=0)[->1]:1}|=>{$timeout(pos0>=0,1000)})">
+        <variable decl="double pos0">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>position[0]</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+
+        <overhead us="200"/> 
+    </checker>
+
+</handler>

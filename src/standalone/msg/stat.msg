@@ -12,3 +12,4 @@ float32 wholeMachineUsage
 float32 availableUsage
 float32 thisMachineMaxUsage
 int64 machineCPUfreq
+float32 milpUsageThreshold
