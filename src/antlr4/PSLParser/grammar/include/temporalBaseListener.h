@@ -1,5 +1,5 @@
 
-// Generated from temporal.g4 by ANTLR 4.7.2
+// Generated from temporal.g4 by ANTLR 4.10.1
 
 #pragma once
 
@@ -27,6 +27,9 @@ public:
 
   virtual void enterTformula(temporalParser::TformulaContext * /*ctx*/) override { }
   virtual void exitTformula(temporalParser::TformulaContext * /*ctx*/) override { }
+
+  virtual void enterFile(temporalParser::FileContext * /*ctx*/) override { }
+  virtual void exitFile(temporalParser::FileContext * /*ctx*/) override { }
 
   virtual void enterBoolean(temporalParser::BooleanContext * /*ctx*/) override { }
   virtual void exitBoolean(temporalParser::BooleanContext * /*ctx*/) override { }

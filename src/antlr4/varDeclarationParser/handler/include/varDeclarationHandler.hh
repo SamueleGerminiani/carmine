@@ -16,7 +16,7 @@ using Type = std::string;
 using VarDeclaration = std::pair<Name, Type>;
 class varDeclarationParserHandler : public varDeclarationBaseListener {
 public:
-explicit varDeclarationParserHandler(std::string location);
+  varDeclarationParserHandler() = default;
 
   ~varDeclarationParserHandler() override = default;
 
@@ -25,13 +25,12 @@ explicit varDeclarationParserHandler(std::string location);
   virtual void visitErrorNode(antlr4::tree::ErrorNode * /*node*/) override;
 
   std::vector<VarDeclaration> &getVarDeclarations();
-void print() ;
+  void print();
 
 private:
   bool _abort;
 
   std::vector<VarDeclaration> _varDecls;
-  std::string _location;
 };
 
 } // namespace oden

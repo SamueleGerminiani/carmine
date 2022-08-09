@@ -5,7 +5,6 @@
     return;
 
 namespace oden {
-varDeclarationParserHandler::varDeclarationParserHandler(std::string location): _location(location) {}
 
 void varDeclarationParserHandler::enterVarDec(
     varDeclarationParser::VarDecContext *ctx) {
@@ -21,7 +20,7 @@ void varDeclarationParserHandler::print() {
 }
 
 void varDeclarationParserHandler::visitErrorNode(antlr4::tree::ErrorNode * /*node*/) {
-  messageError("Antlr parse error in "+ _location);
+  messageError("Antlr parse error");
 }
 
 std::vector<VarDeclaration> &varDeclarationParserHandler::getVarDeclarations() {

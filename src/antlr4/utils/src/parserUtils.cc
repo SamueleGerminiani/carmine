@@ -7,47 +7,27 @@ bool exists(const std::string &varName) {
   return foundVariablesDefault.count(varName);
 }
 
-std::pair<std::pair<std::string,std::string>,std::unordered_map<std::string,Proposition*>> parseLTLformula(std::string &formula,
-                              const std::string &localDecls,
-                              std::string propLocation,
-                              std::string locDecLocation,std::vector<std::pair<size_t,size_t>> &timers) {
-  // DEBUG
-  // formula="ePage == PAGE_MAIN && c8val==M_TEST+M_NULL";
-
-  // parse local var declarations
-  oden::varDeclarationParserHandler listenerLocDec(locDecLocation);
-  if (localDecls != "") {
-    antlr4::ANTLRInputStream inputLocDec(localDecls);
-    varDeclarationLexer lexerLocDec(&inputLocDec);
-    CommonTokenStream tokensLocDec(&lexerLocDec);
-    varDeclarationParser parserPrecLocDec(&tokensLocDec);
-    tree::ParseTree *treeLocDec = parserPrecLocDec.file();
-    tree::ParseTreeWalker::DEFAULT.walk(&listenerLocDec, treeLocDec);
-
-    // check var type
-    for (const auto &name_type : listenerLocDec.getVarDeclarations()) {
-      if (foundVariablesDefault.count(name_type.first) &&
-          name_type.second != foundVariablesDefault[name_type.first]) {
-        messageError("Variable " + name_type.first +
-                     " redaclered with different type in " + locDecLocation +
-                     "\n\tPrevious declaration: " +
-                     foundVariablesDefault[name_type.first] +
-                     "\n\tRedeclaration: " + name_type.second);
-      } else {
-        foundVariablesDefault[name_type.first] = name_type.second;
-      }
-    }
-  }
-
+std::pair<std::pair<std::string, std::string>,
+          std::unordered_map<std::string, Proposition *>>
+parseLTLformula(std::string &formula, const std::string &decls,
+                std::vector<std::pair<size_t, size_t>> &timers) {
   // DEBUG
   //    listener1.print();
-  std::vector<VarDeclaration> varDecls = listenerLocDec.getVarDeclarations();
 
-  
+  // parse var declarations
+  oden::varDeclarationParserHandler listenerLocDec;
+  antlr4::ANTLRInputStream inputLocDec(decls);
+  varDeclarationLexer lexerLocDec(&inputLocDec);
+  CommonTokenStream tokensLocDec(&lexerLocDec);
+  varDeclarationParser parserPrecLocDec(&tokensLocDec);
+  tree::ParseTree *treeLocDec = parserPrecLocDec.file();
+  tree::ParseTreeWalker::DEFAULT.walk(&listenerLocDec, treeLocDec);
+
+  std::vector<VarDeclaration> varDecls = listenerLocDec.getVarDeclarations();
   addTypeToProposition(formula, varDecls);
 
   // parse typed formula
-  oden::TemporalParserHandler listener2(propLocation);
+  oden::TemporalParserHandler listener2;
   antlr4::ANTLRInputStream input2(formula);
   temporalLexer lexer2(&input2);
   CommonTokenStream tokens2(&lexer2);
@@ -60,51 +40,47 @@ std::pair<std::pair<std::string,std::string>,std::unordered_map<std::string,Prop
   exit(0);
   */
 
-  timers=listener2.getTimers();
+  timers = listener2.getTimers();
   std::cout << listener2.getSFormula() << "\n";
-  return std::make_pair(std::make_pair(listener2.getSFormula(),listener2.getAntecedent()),listener2.getPropositions());
+  return std::make_pair(
+      std::make_pair(listener2.getSFormula(), listener2.getAntecedent()),
+      listener2.getPropositions());
 }
-Proposition *parseProposition(std::string &formula,
-                              const std::string &localDecls,
-                              std::string propLocation,
-                              std::string locDecLocation) {
-  // DEBUG
-  // formula="ePage == PAGE_MAIN && c8val==M_TEST+M_NULL";
+Proposition *parsePropositionAlreadyTyped(const std::string &formula) {
+  // parse typed propositions
+  oden::ParserHandler listener2;
+  antlr4::ANTLRInputStream input2(formula);
+  propositionLexer lexer2(&input2);
+  CommonTokenStream tokens2(&lexer2);
+  propositionParser parser2(&tokens2);
+  tree::ParseTree *treeFragAnt = parser2.file();
+  tree::ParseTreeWalker::DEFAULT.walk(&listener2, treeFragAnt);
+  /*
+  DEBUG
+  std::cout << treeFragAnt->toStringTree(&parser2) << "\n\n\n";
+  exit(0);
+  */
+  return listener2.getProposition();
+}
+Proposition *parseProposition(std::string &formula, const std::string &decls) {
 
   // parse local var declarations
-  oden::varDeclarationParserHandler listenerLocDec(locDecLocation);
-  if (localDecls != "") {
-    antlr4::ANTLRInputStream inputLocDec(localDecls);
-    varDeclarationLexer lexerLocDec(&inputLocDec);
-    CommonTokenStream tokensLocDec(&lexerLocDec);
-    varDeclarationParser parserPrecLocDec(&tokensLocDec);
-    tree::ParseTree *treeLocDec = parserPrecLocDec.file();
-    tree::ParseTreeWalker::DEFAULT.walk(&listenerLocDec, treeLocDec);
-
-    // check var type
-    for (const auto &name_type : listenerLocDec.getVarDeclarations()) {
-      if (foundVariablesDefault.count(name_type.first) &&
-          name_type.second != foundVariablesDefault[name_type.first]) {
-        messageError("Variable " + name_type.first +
-                     " redaclered with different type in " + locDecLocation +
-                     "\n\tPrevious declaration: " +
-                     foundVariablesDefault[name_type.first] +
-                     "\n\tRedeclaration: " + name_type.second);
-      } else {
-        foundVariablesDefault[name_type.first] = name_type.second;
-      }
-    }
-  }
+  oden::varDeclarationParserHandler listenerLocDec;
+  antlr4::ANTLRInputStream inputLocDec(decls);
+  varDeclarationLexer lexerLocDec(&inputLocDec);
+  CommonTokenStream tokensLocDec(&lexerLocDec);
+  varDeclarationParser parserPrecLocDec(&tokensLocDec);
+  tree::ParseTree *treeLocDec = parserPrecLocDec.file();
+  tree::ParseTreeWalker::DEFAULT.walk(&listenerLocDec, treeLocDec);
 
   // DEBUG
   //    listener1.print();
   std::vector<VarDeclaration> varDecls = listenerLocDec.getVarDeclarations();
 
-  
   addTypeToProposition(formula, varDecls);
 
   // parse typed propositions
-  oden::ParserHandler listener2(propLocation);
+  oden::ParserHandler listener2;
   antlr4::ANTLRInputStream input2(formula);
   propositionLexer lexer2(&input2);
   CommonTokenStream tokens2(&lexer2);
@@ -137,7 +113,6 @@ void addTypeToProposition(std::string &formula,
     names.push_back(std::make_pair(varDecl.first, t.first));
     nameToSize[varDecl.first] = t.second;
   }
-
 
   /*now that with have all the variables, we can insert the types in the
   formula*/

@@ -7,12 +7,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 include(CheckCXXCompilerFlag)
 
-CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
-if (COMPILER_SUPPORTS_CXX14)
-    add_compile_options("-std=c++14")
-else()
-    message(FATAL_ERROR "Compiler ${CMAKE_CXX_COMPILER} has no C++14 support.")
-endif()
 
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
     add_compile_options("-Wall")
@@ -80,8 +74,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 ################################################################################
 # External libraries
 ################################################################################
-find_package(ANTLR REQUIRED)
-
+find_package(ANTLR4 REQUIRED)
 find_package(SPOTLTL REQUIRED)
 
 
@@ -128,7 +121,6 @@ add_subdirectory(src/commandLineParser)
 target_link_libraries(${NAME} commandLineParser)
 
 
-#Test executable
 include_directories(libs
     src/antlr4
     src/antlr4/utils/include
@@ -139,17 +131,27 @@ include_directories(libs
     src/antlr4/varDeclarationParser/handler/include
     src/antlr4/varDeclarationParser/
     )
-add_executable(carmine_test EXCLUDE_FROM_ALL test/mainTests.cpp)
-target_link_libraries(carmine_test antlr4Parsers oden)
 
-# ------------------------------------------------------------------------------
-### TESTS ###
+INSTALL(TARGETS carmine
+    RUNTIME DESTINATION carmine/bin
+    LIBRARY DESTINATION carmine/lib
+    ARCHIVE DESTINATION carmine/lib
+    )
 
-    SET(NAME testCaseGeneratorTests)
-    enable_testing()
-    include (CTest)
+INSTALL(PROGRAMS ${SPOTLTL_LIB} ${ANTLR4_RUNTIME} DESTINATION carmine/lib)
 
-    ADD_TEST(NAME CompileTest
-        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/build
-        COMMAND make mist_test)
+#Copy the libraries with their symbolic links
+INSTALL(
+    CODE
+    "execute_process(
+        COMMAND
+        ${CMAKE_COMMAND}
+        -DS=${SPOTLTL_LIB}
+        -DB=${BDDX_LIB}
+        -DA=${ANTLR4_RUNTIME}
+        -DIP=${CMAKE_INSTALL_PREFIX}
+        -P
+        ${CMAKE_SOURCE_DIR}/cmake/PostInstall.cmake
+    )"
+)
 

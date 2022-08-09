@@ -7,7 +7,14 @@ setUpFiles.txt
 *.srctrldb
 *.srctrlprj
 build/*
+install
 ver_env
 .cache/*
 output/*
+third_party/antlr4
+third_party/spot
+third_party/z3
+
+
+
 

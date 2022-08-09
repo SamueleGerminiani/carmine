@@ -1,7 +1,7 @@
 #pragma once
 
-#include "oden/classes/classes.hh"
-#include "oden/odenUtils/propositionUtils.hh"
+//#include "oden/classes/classes.hh"
+//#include "oden/odenUtils/propositionUtils.hh"
 #include "temporalBaseListener.h"
 
 #include <cmath>
@@ -18,29 +18,15 @@ namespace oden {
 class TemporalParserHandler : public temporalBaseListener {
 
 public:
-  explicit TemporalParserHandler( std::string location = "unknown location");
+  TemporalParserHandler() = default;
 
   ~TemporalParserHandler() override = default;
 
- std::unordered_map<std::string,Proposition*> getPropositions() ;
-  std::string getSFormula(){
-	  return _subFormulas.top();
-
-  }
-  std::string getAntecedent(){
-	  return antecedent;
-  }
- std::vector<std::pair<size_t,size_t>>getTimers()
-{
-    return _timers;
-    
-}
-
-  void printAllPropositions() {
-	  for (auto p : _phToProp) {
-		  std::cout << p.first<<":"<<oden::prop2String(*p.second) << "\n";
-	  }
-  }
+  std::unordered_map<std::string, Proposition *> getPropositions();
+  std::string getSFormula();
+  std::string getAntecedent();
+  std::vector<std::pair<size_t, size_t>> getTimers();
+  void printAllPropositions();
 
 private:
   bool _abort;
@@ -50,63 +36,21 @@ private:
   std::stack<LogicExpression *> _logicExpressions;
   std::stack<NumericExpression *> _numericExpressions;
   std::stack<std::string> _subFormulas;
-  std::string antecedent="";
-  std::string _location;
+  std::string antecedent = "";
   size_t boolStack = 0;
   size_t logicStack = 0;
   size_t numeriStack = 0;
-  size_t placeholdN=0;
-  size_t constantsN=0;
-  size_t timerN=0;
-  std::unordered_map<std::string,Proposition*> _phToProp;
-  std::vector<std::pair<size_t,size_t>> _timers;
+  size_t placeholdN = 0;
+  size_t constantsN = 0;
+  size_t timerN = 0;
+  std::unordered_map<std::string, Proposition *> _phToProp;
+  std::vector<std::pair<size_t, size_t>> _timers;
 
-  // already implemented
-  // void enterFile(temporalParser::FileContext *ctx) override;
-
-  // already implemented
-  void exitBoolean(temporalParser::BooleanContext *ctx) override;
-  // already implemented
-  virtual void exitLogic(temporalParser::LogicContext *ctx) override;
-  // already implemented
-  virtual void exitNumeric(temporalParser::NumericContext *ctx) override;
-  // to implement
-  // virtual void enterString(temporalParser::StringContext *ctx) override;
-
-  // already implemented
-  void
-  enterBooleanVariable(temporalParser::BooleanVariableContext *ctx) override;
-  // already implemented
+  virtual void exitTformula(temporalParser::TformulaContext *ctx) override;
   virtual void
-  enterLogicVariable(temporalParser::LogicVariableContext *ctx) override;
-  // already implemented
-  virtual void
-  enterNumericVariable(temporalParser::NumericVariableContext *ctx) override;
-  // to implement
-  // virtual void enterStringVariable(temporalParser::StringVariableContext
-  // *ctx) override;
-
-  // already implemented
-  virtual void
-  enterBooleanConstant(temporalParser::BooleanConstantContext *ctx) override;
-  // already implemented
-  virtual void
-  enterLogicConstant(temporalParser::LogicConstantContext *ctx) override;
-  // already implemented
-  virtual void
-  enterNumericConstant(temporalParser::NumericConstantContext *ctx) override;
-  // to implement
-  //  virtual void enterStringConstant(temporalParser::StringConstantContext
-  //  *ctx) override;
-
-  virtual void
-  enterNamedLogicConst(temporalParser::NamedLogicConstContext *ctx) override;
-
+  exitImplication(temporalParser::ImplicationContext *ctx) override;
+  virtual void exitSere(temporalParser::SereContext *ctx) override;
   virtual void visitErrorNode(antlr4::tree::ErrorNode *node) override;
-  virtual void exitTformula(temporalParser::TformulaContext * ctx) override;
-  virtual void exitImplication(temporalParser::ImplicationContext * ctx) override;
-  virtual void exitSere(temporalParser::SereContext * ctx) override;
-
 };
 
 } // namespace oden

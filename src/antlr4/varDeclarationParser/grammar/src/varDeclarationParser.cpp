@@ -1,5 +1,5 @@
 
-// Generated from varDeclaration.g4 by ANTLR 4.9.3
+// Generated from varDeclaration.g4 by ANTLR 4.10.1
 
 
 #include "varDeclarationListener.h"
@@ -8,14 +8,89 @@
 
 
 using namespace antlrcpp;
+
 using namespace antlr4;
 
-varDeclarationParser::varDeclarationParser(TokenStream *input) : Parser(input) {
-  _interpreter = new atn::ParserATNSimulator(this, _atn, _decisionToDFA, _sharedContextCache);
+namespace {
+
+struct VarDeclarationParserStaticData final {
+  VarDeclarationParserStaticData(std::vector<std::string> ruleNames,
+                        std::vector<std::string> literalNames,
+                        std::vector<std::string> symbolicNames)
+      : ruleNames(std::move(ruleNames)), literalNames(std::move(literalNames)),
+        symbolicNames(std::move(symbolicNames)),
+        vocabulary(this->literalNames, this->symbolicNames) {}
+
+  VarDeclarationParserStaticData(const VarDeclarationParserStaticData&) = delete;
+  VarDeclarationParserStaticData(VarDeclarationParserStaticData&&) = delete;
+  VarDeclarationParserStaticData& operator=(const VarDeclarationParserStaticData&) = delete;
+  VarDeclarationParserStaticData& operator=(VarDeclarationParserStaticData&&) = delete;
+
+  std::vector<antlr4::dfa::DFA> decisionToDFA;
+  antlr4::atn::PredictionContextCache sharedContextCache;
+  const std::vector<std::string> ruleNames;
+  const std::vector<std::string> literalNames;
+  const std::vector<std::string> symbolicNames;
+  const antlr4::dfa::Vocabulary vocabulary;
+  antlr4::atn::SerializedATNView serializedATN;
+  std::unique_ptr<antlr4::atn::ATN> atn;
+};
+
+std::once_flag vardeclarationParserOnceFlag;
+VarDeclarationParserStaticData *vardeclarationParserStaticData = nullptr;
+
+void vardeclarationParserInitialize() {
+  assert(vardeclarationParserStaticData == nullptr);
+  auto staticData = std::make_unique<VarDeclarationParserStaticData>(
+    std::vector<std::string>{
+      "file", "cDeclaration", "cStatement", "varDec", "name", "vartype"
+    },
+    std::vector<std::string>{
+      "", "';'"
+    },
+    std::vector<std::string>{
+      "", "", "VARTYPE", "NAME", "WS"
+    }
+  );
+  static const int32_t serializedATNSegment[] = {
+  	4,1,4,34,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,1,0,1,0,1,0,
+  	1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,23,8,1,1,2,1,2,1,3,1,3,1,3,1,4,1,4,1,
+  	5,1,5,1,5,0,0,6,0,2,4,6,8,10,0,0,28,0,12,1,0,0,0,2,22,1,0,0,0,4,24,1,
+  	0,0,0,6,26,1,0,0,0,8,29,1,0,0,0,10,31,1,0,0,0,12,13,3,2,1,0,13,14,5,0,
+  	0,1,14,1,1,0,0,0,15,16,3,4,2,0,16,17,5,1,0,0,17,23,1,0,0,0,18,19,3,4,
+  	2,0,19,20,5,1,0,0,20,21,3,2,1,0,21,23,1,0,0,0,22,15,1,0,0,0,22,18,1,0,
+  	0,0,23,3,1,0,0,0,24,25,3,6,3,0,25,5,1,0,0,0,26,27,3,10,5,0,27,28,3,8,
+  	4,0,28,7,1,0,0,0,29,30,5,3,0,0,30,9,1,0,0,0,31,32,5,2,0,0,32,11,1,0,0,
+  	0,1,22
+  };
+  staticData->serializedATN = antlr4::atn::SerializedATNView(serializedATNSegment, sizeof(serializedATNSegment) / sizeof(serializedATNSegment[0]));
+
+  antlr4::atn::ATNDeserializer deserializer;
+  staticData->atn = deserializer.deserialize(staticData->serializedATN);
+
+  const size_t count = staticData->atn->getNumberOfDecisions();
+  staticData->decisionToDFA.reserve(count);
+  for (size_t i = 0; i < count; i++) { 
+    staticData->decisionToDFA.emplace_back(staticData->atn->getDecisionState(i), i);
+  }
+  vardeclarationParserStaticData = staticData.release();
+}
+
+}
+
+varDeclarationParser::varDeclarationParser(TokenStream *input) : varDeclarationParser(input, antlr4::atn::ParserATNSimulatorOptions()) {}
+
+varDeclarationParser::varDeclarationParser(TokenStream *input, const antlr4::atn::ParserATNSimulatorOptions &options) : Parser(input) {
+  varDeclarationParser::initialize();
+  _interpreter = new atn::ParserATNSimulator(this, *vardeclarationParserStaticData->atn, vardeclarationParserStaticData->decisionToDFA, vardeclarationParserStaticData->sharedContextCache, options);
 }
 
 varDeclarationParser::~varDeclarationParser() {
   delete _interpreter;
+}
+
+const atn::ATN& varDeclarationParser::getATN() const {
+  return *vardeclarationParserStaticData->atn;
 }
 
 std::string varDeclarationParser::getGrammarFileName() const {
@@ -23,11 +98,15 @@ std::string varDeclarationParser::getGrammarFileName() const {
 }
 
 const std::vector<std::string>& varDeclarationParser::getRuleNames() const {
-  return _ruleNames;
+  return vardeclarationParserStaticData->ruleNames;
 }
 
-dfa::Vocabulary& varDeclarationParser::getVocabulary() const {
-  return _vocabulary;
+const dfa::Vocabulary& varDeclarationParser::getVocabulary() const {
+  return vardeclarationParserStaticData->vocabulary;
+}
+
+antlr4::atn::SerializedATNView varDeclarationParser::getSerializedATN() const {
+  return vardeclarationParserStaticData->serializedATN;
 }
 
 
@@ -388,80 +467,6 @@ varDeclarationParser::VartypeContext* varDeclarationParser::vartype() {
   return _localctx;
 }
 
-// Static vars and initialization.
-std::vector<dfa::DFA> varDeclarationParser::_decisionToDFA;
-atn::PredictionContextCache varDeclarationParser::_sharedContextCache;
-
-// We own the ATN which in turn owns the ATN states.
-atn::ATN varDeclarationParser::_atn;
-std::vector<uint16_t> varDeclarationParser::_serializedATN;
-
-std::vector<std::string> varDeclarationParser::_ruleNames = {
-  "file", "cDeclaration", "cStatement", "varDec", "name", "vartype"
-};
-
-std::vector<std::string> varDeclarationParser::_literalNames = {
-  "", "';'"
-};
-
-std::vector<std::string> varDeclarationParser::_symbolicNames = {
-  "", "", "VARTYPE", "NAME", "WS"
-};
-
-dfa::Vocabulary varDeclarationParser::_vocabulary(_literalNames, _symbolicNames);
-
-std::vector<std::string> varDeclarationParser::_tokenNames;
-
-varDeclarationParser::Initializer::Initializer() {
-	for (size_t i = 0; i < _symbolicNames.size(); ++i) {
-		std::string name = _vocabulary.getLiteralName(i);
-		if (name.empty()) {
-			name = _vocabulary.getSymbolicName(i);
-		}
-
-		if (name.empty()) {
-			_tokenNames.push_back("<INVALID>");
-		} else {
-      _tokenNames.push_back(name);
-    }
-	}
-
-  static const uint16_t serializedATNSegment0[] = {
-    0x3, 0x608b, 0xa72a, 0x8133, 0xb9ed, 0x417c, 0x3be7, 0x7786, 0x5964, 
-       0x3, 0x6, 0x24, 0x4, 0x2, 0x9, 0x2, 0x4, 0x3, 0x9, 0x3, 0x4, 0x4, 
-       0x9, 0x4, 0x4, 0x5, 0x9, 0x5, 0x4, 0x6, 0x9, 0x6, 0x4, 0x7, 0x9, 
-       0x7, 0x3, 0x2, 0x3, 0x2, 0x3, 0x2, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 
-       0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x5, 0x3, 0x19, 0xa, 0x3, 
-       0x3, 0x4, 0x3, 0x4, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x6, 0x3, 
-       0x6, 0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 0x2, 0x2, 0x8, 0x2, 0x4, 0x6, 
-       0x8, 0xa, 0xc, 0x2, 0x2, 0x2, 0x1e, 0x2, 0xe, 0x3, 0x2, 0x2, 0x2, 
-       0x4, 0x18, 0x3, 0x2, 0x2, 0x2, 0x6, 0x1a, 0x3, 0x2, 0x2, 0x2, 0x8, 
-       0x1c, 0x3, 0x2, 0x2, 0x2, 0xa, 0x1f, 0x3, 0x2, 0x2, 0x2, 0xc, 0x21, 
-       0x3, 0x2, 0x2, 0x2, 0xe, 0xf, 0x5, 0x4, 0x3, 0x2, 0xf, 0x10, 0x7, 
-       0x2, 0x2, 0x3, 0x10, 0x3, 0x3, 0x2, 0x2, 0x2, 0x11, 0x12, 0x5, 0x6, 
-       0x4, 0x2, 0x12, 0x13, 0x7, 0x3, 0x2, 0x2, 0x13, 0x19, 0x3, 0x2, 0x2, 
-       0x2, 0x14, 0x15, 0x5, 0x6, 0x4, 0x2, 0x15, 0x16, 0x7, 0x3, 0x2, 0x2, 
-       0x16, 0x17, 0x5, 0x4, 0x3, 0x2, 0x17, 0x19, 0x3, 0x2, 0x2, 0x2, 0x18, 
-       0x11, 0x3, 0x2, 0x2, 0x2, 0x18, 0x14, 0x3, 0x2, 0x2, 0x2, 0x19, 0x5, 
-       0x3, 0x2, 0x2, 0x2, 0x1a, 0x1b, 0x5, 0x8, 0x5, 0x2, 0x1b, 0x7, 0x3, 
-       0x2, 0x2, 0x2, 0x1c, 0x1d, 0x5, 0xc, 0x7, 0x2, 0x1d, 0x1e, 0x5, 0xa, 
-       0x6, 0x2, 0x1e, 0x9, 0x3, 0x2, 0x2, 0x2, 0x1f, 0x20, 0x7, 0x5, 0x2, 
-       0x2, 0x20, 0xb, 0x3, 0x2, 0x2, 0x2, 0x21, 0x22, 0x7, 0x4, 0x2, 0x2, 
-       0x22, 0xd, 0x3, 0x2, 0x2, 0x2, 0x3, 0x18, 
-  };
-
-  _serializedATN.insert(_serializedATN.end(), serializedATNSegment0,
-    serializedATNSegment0 + sizeof(serializedATNSegment0) / sizeof(serializedATNSegment0[0]));
-
-
-  atn::ATNDeserializer deserializer;
-  _atn = deserializer.deserialize(_serializedATN);
-
-  size_t count = _atn.getNumberOfDecisions();
-  _decisionToDFA.reserve(count);
-  for (size_t i = 0; i < count; i++) { 
-    _decisionToDFA.emplace_back(_atn.getDecisionState(i), i);
-  }
+void varDeclarationParser::initialize() {
+  std::call_once(vardeclarationParserOnceFlag, vardeclarationParserInitialize);
 }
-
-varDeclarationParser::Initializer varDeclarationParser::_init;
