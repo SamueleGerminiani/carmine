@@ -1,6 +1,7 @@
 #!/bin/sh
 
-if [ "$1" -ne 1 ]; then
+if [ $# -eq 0 ]
+then
     echo "Missing argument: call as ./generate_env.sh <specification.xml>"
 	exit
 fi
