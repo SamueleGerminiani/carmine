@@ -1,6 +1,6 @@
 #pragma once
 #include "types.hh"
-#include "utils_functions.hpp"
+#include "utils_functions.hh"
 #include "xmlUtils.hh"
 namespace codeGenerator {
 inline strHandler parseSpecifications(const std::string &pathToSpec) {

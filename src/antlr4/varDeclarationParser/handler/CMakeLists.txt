@@ -21,5 +21,5 @@ SET (ANTLR4_VAR_DECLARATION_HANDLER
 # Targets.
 #############################################
 add_library(${NAME} ${ANTLR4_VAR_DECLARATION_HANDLER})
-#target_link_libraries(${NAME} oden)
+#target_link_libraries(${NAME} exp)
 

@@ -4,7 +4,7 @@
   if (_abort)                                                                  \
     return;
 
-namespace oden {
+namespace expression {
 
 void varDeclarationParserHandler::enterVarDec(
     varDeclarationParser::VarDecContext *ctx) {
@@ -26,4 +26,4 @@ void varDeclarationParserHandler::visitErrorNode(antlr4::tree::ErrorNode * /*nod
 std::vector<VarDeclaration> &varDeclarationParserHandler::getVarDeclarations() {
   return _varDecls;
 }
-} // namespace oden
+} // namespace expression

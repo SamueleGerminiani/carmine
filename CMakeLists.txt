@@ -71,9 +71,6 @@ include(FindPackageHandleStandardArgs)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 
-################################################################################
-# External libraries
-################################################################################
 find_package(ANTLR4 REQUIRED)
 find_package(SPOTLTL REQUIRED)
 
@@ -92,24 +89,30 @@ include_directories(
 	src/antlr4/PSLParser/grammar/include
 	src/antlr4/PSLParser/handler/include
     src/antlr4/utils/include
-	src/oden/include
+	src/exp/include
 	src/testCaseGenerator/include
     src/codeGenerator/include
     src/commandLineParser/include
 	src/codeGenerator/include/rapidxml/include
     src/include
+    src/logging/include
 )
 
 #Main executable
 add_executable(${NAME} ${MAIN_SRC})
+
+#Logging
+add_subdirectory(src/logging)
+target_link_libraries(${NAME} logging)
+link_libraries(logging)
 
 #Antrl4 
 add_subdirectory(src/antlr4)
 target_link_libraries(${NAME} antlr4Parsers)   
 
 #Propositions
-add_subdirectory(src/oden)
-target_link_libraries(${NAME} oden) 
+add_subdirectory(src/exp)
+target_link_libraries(${NAME} exp) 
 
 #Code generator
 add_subdirectory(src/codeGenerator)

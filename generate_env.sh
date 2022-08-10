@@ -3,23 +3,30 @@
 if [ $# -eq 0 ]
 then
     echo "Missing argument: call as ./generate_env.sh <specification.xml>"
-	exit
+    exit
 fi
 
 
 #Clean ver_env directory
-rm -rf ./ver_env
+rm -rf output
 mkdir ./ver_env/
 mkdir ./ver_env/handler/
 mkdir ./ver_env/handler/src
 
 #Generate environment
-#gdb -ex run -ex backtrace --args ./build/carmine $1
-./build/carmine $1
+if [ "$2" = "--debug" ] && [ "$3" = "--gdb" ]; then
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        gdb -ex run -ex backtrace --args ./build/carmine $1
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        lldb -o run ./build/carmine $1 -o bt
+    fi
+else
+    ./build/carmine $1
+fi
 
 if [ "$?" -eq 1 ]; then
     echo "Could not generate verification environment"
-	exit
+    exit
 fi
 
 #Move generated files
@@ -54,5 +61,5 @@ cp -r ./build/output/ver_env/src/* ./ver_env/handler/src/
 cp ./src/standalone/checkers/Checker.hpp ./ver_env/checkers/include/
 
 cp ./src/testbench/loadTB.sh ./ver_env/
-
-echo "Successfully generated verification environment: output in ver_env directory"
+mkdir output
+mv ver_env output/ver_env

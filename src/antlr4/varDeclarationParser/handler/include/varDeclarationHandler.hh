@@ -1,6 +1,6 @@
 #pragma once
 
-#include "odenCore.hh"
+#include "exp.hh"
 #include "varDeclarationBaseListener.h"
 
 #include <cmath>
@@ -9,7 +9,7 @@
 
 using namespace antlr4;
 
-namespace oden {
+namespace expression {
 
 using Name = std::string;
 using Type = std::string;
@@ -33,4 +33,4 @@ private:
   std::vector<VarDeclaration> _varDecls;
 };
 
-} // namespace oden
+} // namespace expression

@@ -2,7 +2,7 @@
 #include "parsers.hh"
 #include <string>
 std::unordered_map<std::string, std::string> foundVariablesDefault;
-namespace oden {
+namespace expression {
 bool exists(const std::string &varName) {
   return foundVariablesDefault.count(varName);
 }
@@ -15,7 +15,7 @@ parseLTLformula(std::string &formula, const std::string &decls,
   //    listener1.print();
 
   // parse var declarations
-  oden::varDeclarationParserHandler listenerLocDec;
+  expression::varDeclarationParserHandler listenerLocDec;
   antlr4::ANTLRInputStream inputLocDec(decls);
   varDeclarationLexer lexerLocDec(&inputLocDec);
   CommonTokenStream tokensLocDec(&lexerLocDec);
@@ -27,7 +27,7 @@ parseLTLformula(std::string &formula, const std::string &decls,
   addTypeToProposition(formula, varDecls);
 
   // parse typed formula
-  oden::TemporalParserHandler listener2;
+  expression::TemporalParserHandler listener2;
   antlr4::ANTLRInputStream input2(formula);
   temporalLexer lexer2(&input2);
   CommonTokenStream tokens2(&lexer2);
@@ -48,7 +48,7 @@ parseLTLformula(std::string &formula, const std::string &decls,
 }
 Proposition *parsePropositionAlreadyTyped(const std::string &formula) {
   // parse typed propositions
-  oden::ParserHandler listener2;
+  expression::ParserHandler listener2;
   antlr4::ANTLRInputStream input2(formula);
   propositionLexer lexer2(&input2);
   CommonTokenStream tokens2(&lexer2);
@@ -65,7 +65,7 @@ Proposition *parsePropositionAlreadyTyped(const std::string &formula) {
 Proposition *parseProposition(std::string &formula, const std::string &decls) {
 
   // parse local var declarations
-  oden::varDeclarationParserHandler listenerLocDec;
+  expression::varDeclarationParserHandler listenerLocDec;
   antlr4::ANTLRInputStream inputLocDec(decls);
   varDeclarationLexer lexerLocDec(&inputLocDec);
   CommonTokenStream tokensLocDec(&lexerLocDec);
@@ -80,7 +80,7 @@ Proposition *parseProposition(std::string &formula, const std::string &decls) {
   addTypeToProposition(formula, varDecls);
 
   // parse typed propositions
-  oden::ParserHandler listener2;
+  expression::ParserHandler listener2;
   antlr4::ANTLRInputStream input2(formula);
   propositionLexer lexer2(&input2);
   CommonTokenStream tokens2(&lexer2);
@@ -253,4 +253,4 @@ std::pair<VarType, uint8_t> string2VarTypes(std::string type) {
 
   return std::make_pair(VarType::Bool, 0);
 }
-} // namespace oden
+} // namespace expression

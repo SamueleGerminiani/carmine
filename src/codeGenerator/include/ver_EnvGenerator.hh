@@ -1,11 +1,11 @@
 #pragma once
 #include "converter.hh"
-#include "odenCore.hh"
+#include "exp.hh"
 #include "parserUtils.hh"
 #include "types.hh"
-#include "utils_functions.hpp"
+#include "utils_functions.hh"
 #include "xmlUtils.hh"
-using namespace oden;
+using namespace expression;
 
 namespace codeGenerator {
 bool generateCallbackHeader(std::vector<strChecker> &checkers);

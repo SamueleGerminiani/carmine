@@ -1,7 +1,7 @@
 #pragma once
 
-#include "oden/classes/classes.hh"
-#include "oden/odenUtils/propositionUtils.hh"
+#include "classes/classes.hh"
+ #include "utils/propositionUtils.hh"
 #include "propositionBaseListener.h"
 
 #include <cmath>
@@ -13,7 +13,7 @@ using namespace antlr4;
 using Name = std::string;
 using Type = std::string;
 using VarDeclaration = std::pair<Name, Type>;
-namespace oden {
+namespace expression {
 
 class ParserHandler : public propositionBaseListener {
 
@@ -80,4 +80,4 @@ private:
   virtual void visitErrorNode(antlr4::tree::ErrorNode *node) override;
 };
 
-} // namespace oden
+} // namespace expression

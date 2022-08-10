@@ -1,7 +1,6 @@
 #include "codeGenerator.hh"
 #include "checkerGenerator.hh"
 #include "converter.hh"
-#include "globals.hh"
 #include "parserUtils.hh"
 #include "specificationParser.hh"
 #include "types.hh"
@@ -31,12 +30,12 @@ void generateVerEnv(const std::string &pathToSpec) {
     for (auto v : ch._variables) {
       declarations += v._decl + ";";
     }
-    // clear the timers used in the previous checkers (global var)
-    timer::timers.clear();
+    //<id, timeout>
+    std::vector<std::pair<size_t, size_t>> timers;
 
     //auto is <<implication,antecedent>, map: placeholder -> Proposition>
     auto parsedFormula =
-        oden::parseLTLformula(ch._LTLformula, declarations, timer::timers);
+        expression::parseLTLformula(ch._LTLformula, declarations, timers);
 
     // save the number of placeholders in this checker
     nPhs[i] = parsedFormula.second.size();
@@ -47,7 +46,7 @@ void generateVerEnv(const std::string &pathToSpec) {
         parsedFormula.first.first, parsedFormula.first.second);
 
     // generate the checker's source file
-    if (generateCheckerSource(fsms, parsedFormula, ch) &&
+    if (generateCheckerSource(fsms, parsedFormula, ch, timers) &&
         // generate the checker's header file
         generateCheckerHeader(fsms, ch._variables, ch._name, parsedFormula)) {
       std::cout << "Successfully generated files for checker " << ch._name

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "oden/odenUtils/odenUtils.hh"
-#include <unordered_set>
+#include "exp.hh"
+#include <unordered_map>
 
-namespace oden {
+namespace expression {
 
 using Name = std::string;
 using Type = std::string;
@@ -24,4 +24,4 @@ parseLTLformula(std::string &formula, const std::string &decls,
 
 std::unordered_map<std::string, std::string> &getDebugVars();
 bool exists(const std::string &varName);
-} // namespace oden
+} // namespace expression

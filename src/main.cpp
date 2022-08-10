@@ -1,17 +1,11 @@
 //#include "commandLineParser.hh"
 #include "codeGenerator.hh"
-#include <iostream>
-#include <filesystem>
-using namespace std::filesystem;
+#include "message.hh"
 
 int main(int argc, char *args[]) {
 
-  if (argc < 2) {
-    std::cout << "Missing XML specification file, call as ./carmine "
-                 "<specification.xml>"
-              << std::endl;
-    return 0;
-  }
+  messageErrorIf(argc < 2, "Missing XML specification file, call as ./carmine "
+                           "<specification.xml>");
   codeGenerator::generateVerEnv(args[1]);
   return 0;
 }

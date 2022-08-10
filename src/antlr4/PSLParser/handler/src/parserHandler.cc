@@ -1,5 +1,5 @@
-#include "oden/classes/classes.hh"
-#include "oden/odenUtils/propositionUtils.hh"
+#include "classes/classes.hh"
+ #include "utils/propositionUtils.hh"
 #include "parserUtils.hh"
 #include "temporalParserHandler.hh"
 
@@ -7,7 +7,7 @@
   if (_abort)                                                                  \
     return;
 
-namespace oden {
+namespace expression {
 
 void TemporalParserHandler::visitErrorNode(__attribute__((unused))
                                            antlr4::tree::ErrorNode *node) {
@@ -114,7 +114,7 @@ void TemporalParserHandler::exitTformula(temporalParser::TformulaContext *ctx) {
   if (ctx->boolean() != nullptr) {
     _proposition.push(parsePropositionAlreadyTyped(ctx->boolean()->getText()));
 
-    if (!oden::isConstant(*_proposition.top())) {
+    if (!expression::isConstant(*_proposition.top())) {
       _subFormulas.push("p" + std::to_string(placeholdN));
       _phToProp["p" + std::to_string(placeholdN)] = _proposition.top();
       placeholdN++;
@@ -229,7 +229,7 @@ void TemporalParserHandler::exitSere(temporalParser::SereContext *ctx) {
   if (ctx->boolean() != nullptr) {
     _proposition.push(parsePropositionAlreadyTyped(ctx->boolean()->getText()));
 
-    if (!oden::isConstant(*_proposition.top())) {
+    if (!expression::isConstant(*_proposition.top())) {
       _subFormulas.push("p" + std::to_string(placeholdN));
       _phToProp["p" + std::to_string(placeholdN)] = _proposition.top();
       placeholdN++;
@@ -412,7 +412,7 @@ std::vector<std::pair<size_t, size_t>> TemporalParserHandler::getTimers() {
 
 void TemporalParserHandler::printAllPropositions() {
   for (auto p : _phToProp) {
-    std::cout << p.first << ":" << oden::prop2String(*p.second) << "\n";
+    std::cout << p.first << ":" << expression::prop2String(*p.second) << "\n";
   }
 }
-} // namespace oden
+} // namespace expression

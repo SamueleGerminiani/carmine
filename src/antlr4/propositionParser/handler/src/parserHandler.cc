@@ -4,7 +4,7 @@
   if (_abort)                                                                  \
     return;
 
-namespace oden {
+namespace expression {
 
   ParserHandler::ParserHandler(std::string location) : _abort(false), _proposition(), _logicExpressions(),
       _numericExpressions() , _location(location){
@@ -532,4 +532,4 @@ Proposition *ParserHandler::getProposition() {
 
   return ret;
 }
-} // namespace oden
+} // namespace expression

@@ -1,8 +1,7 @@
 
 #include "checkerGenerator.hh"
 #include "converter.hh"
-#include "globals.hh"
-#include "odenCore.hh"
+#include "exp.hh"
 #include "parserUtils.hh"
 #include <chrono>
 #include <cmath>
@@ -22,7 +21,7 @@ bool isConst(const std::string &n) { return n[0] == 'c'; }
 
 std::string formulaToString(
     const spot::formula f,
-    std::unordered_map<std::string, oden::Proposition *> &phToProps) {
+    std::unordered_map<std::string, expression::Proposition *> &phToProps) {
 
   // And
   if (f.is(spot::op::And)) {
@@ -57,7 +56,7 @@ std::string formulaToString(
       return "1";
     }
     if (isConst(f.ap_name())) {
-      return oden::prop2String(*phToProps.at(f.ap_name()));
+      return expression::prop2String(*phToProps.at(f.ap_name()));
     }
     return f.ap_name();
   }
@@ -110,10 +109,12 @@ static bool replace(std::string &str, const std::string &from,
 bool generateCheckerSource(
     std::pair<codeGenerator::SpotAutomata, codeGenerator::SpotAutomata> &fsms,
     std::pair<std::pair<std::string, std::string>,
-              std::unordered_map<std::string, oden::Proposition *>>
+              std::unordered_map<std::string, expression::Proposition *>>
         &parsedFormula,
-    strChecker &checker) {
+    strChecker &checker, const std::vector<std::pair<size_t, size_t>> &timers) {
 
+  //checker -> list of variables
+  std::map<std::string, std::vector<strVariable>> bindings;
   auto autAss = fsms.first;
   auto autAnt = fsms.second;
   auto &phToProps = parsedFormula.second;
@@ -137,7 +138,6 @@ bool generateCheckerSource(
 
   // Read template file, and on each line replace $ClassName$
   // or generate code
-
   std::string line;
 
   while (getline(src, line)) {
@@ -182,10 +182,10 @@ bool generateCheckerSource(
                 "std::chrono::steady_clock::now();\n";
 
         line += codeGenerator::ident1 + "while (1) {\n";
-        line +=
-            codeGenerator::ident2 +
-            "if (std::chrono::duration_cast<std::chrono::microseconds>( "
-            "std::chrono::steady_clock::now() - ohstart).count() >= "+checker._overhead+") {\n";
+        line += codeGenerator::ident2 +
+                "if (std::chrono::duration_cast<std::chrono::microseconds>( "
+                "std::chrono::steady_clock::now() - ohstart).count() >= " +
+                checker._overhead + ") {\n";
         line += codeGenerator::ident2 +
                 "ohstart = std::chrono::steady_clock::now();\n";
         line += codeGenerator::ident2 + "break;\n";
@@ -223,13 +223,13 @@ bool generateCheckerSource(
       generateEvalFunction(fsms, checkerName, dst, phToProps);
     } else if (line.compare("$initTimers$") == 0) {
       line = "";
-      for (size_t i = 0; i < timer::timers.size(); i++) {
+      for (size_t i = 0; i < timers.size(); i++) {
         line += codeGenerator::ident1 + "_timerInstances[" + std::to_string(i) +
                 "];\n";
         line +=
             codeGenerator::ident1 + "_timerCache[" + std::to_string(i) + "];\n";
         line += codeGenerator::ident1 + "_timeouts.push_back(" +
-                std::to_string(timer::timers[i].second) + ");\n";
+                std::to_string(timers[i].second) + ");\n";
       }
     }
 
@@ -325,7 +325,7 @@ bool generateCheckerSource(
             line += codeGenerator::ident6 + "const bool " + placeholder + " = ";
 
             std::string expression =
-                oden::prop2String(*(phToProps[placeholder]));
+                expression::prop2String(*(phToProps[placeholder]));
 
             line += expression + ";\n";
           }
@@ -398,7 +398,7 @@ bool generateCheckerHeader(
     std::pair<codeGenerator::SpotAutomata, codeGenerator::SpotAutomata> &fsms,
     std::vector<strVariable> &varList, std::string &checkerName,
     std::pair<std::pair<std::string, std::string>,
-              std::unordered_map<std::string, oden::Proposition *>>
+              std::unordered_map<std::string, expression::Proposition *>>
         &parsedFormula) {
 
   auto autAss = fsms.first;
@@ -546,7 +546,7 @@ bool generateCheckerHeader(
 void generateEvalFunction(
     std::pair<codeGenerator::SpotAutomata, codeGenerator::SpotAutomata> &fsms,
     const std::string checkerName, std::ofstream &outstream,
-    std::unordered_map<std::string, oden::Proposition *> &phToProps) {
+    std::unordered_map<std::string, expression::Proposition *> &phToProps) {
 
   std::string initState = "INIT_" + checkerName;
   outstream << "//Return true if checker did not fail" << std::endl;
@@ -649,7 +649,7 @@ void generateEvalFunction(
           }
         } else {
           // non terminal
-          for (size_t i = 0; i < timer::timers.size(); i++) {
+          for (size_t i = 0; i < timers.size(); i++) {
             if (tokenExists(f, "start" + std::to_string(i)) &&
                 tokenExists(f, "stop" + std::to_string(i))) {
               outstream << codeGenerator::ident3 << "addTimerValue(" << i
@@ -732,17 +732,17 @@ void generateEvalFunction(
     delete it;
 
     // gather stop clauses
-    std::set<size_t> timers;
+    std::set<size_t> timersID;
     for (auto &edge : autAnt->out(state)) {
       spot::formula f =
           spot::parse_formula(spot::bdd_format_formula(dict, edge.cond));
-      formulaToGetTimers(f, timers);
+      formulaToGetTimers(f, timersID);
     }
 
-    if (!timers.empty()) {
+    if (!timersID.empty()) {
       outstream << codeGenerator::ident1 << " for (size_t i = 0; i < "
                 << "_currAnt[" << state << "]; i++) {\n";
-      for (auto t : timers) {
+      for (auto t : timersID) {
         outstream << codeGenerator::ident2 << "bool stop" << t
                   << " = getTimerValue(" << t << ", i, 0);\n";
       }

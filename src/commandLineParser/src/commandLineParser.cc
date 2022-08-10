@@ -8,7 +8,7 @@ cxxopts::ParseResult parse(int argc, char *argv[]) {
     std::string file = "";
 
     options.allow_unrecognised_options().add_options()(
-        "f, file", "IDEA .xml configuration file",
+        "f, file", ".xml configuration file",
         cxxopts::value<std::vector<std::string>>(), "FILE")(
         "o, out_directory", "output directory", cxxopts::value<std::string>(),
         "DIRECTORY")("d, directory", "directory of .xml configurations files",

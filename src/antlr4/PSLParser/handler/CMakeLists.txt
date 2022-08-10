@@ -7,7 +7,6 @@ SET(NAME antlr4PSLParserHandler)
 include_directories(
     include
     ../grammar/include
-    ../../../oden/include
 )
 
 #############################################
@@ -22,5 +21,5 @@ SET (ANTLR4_PSL_PARSER_HANDLER
 # Targets.
 #############################################
 add_library(${NAME} ${ANTLR4_PSL_PARSER_HANDLER})
-target_link_libraries(${NAME} oden)
+target_link_libraries(${NAME} exp)
 
