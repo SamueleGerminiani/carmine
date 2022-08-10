@@ -1,9 +1,10 @@
 //#include "commandLineParser.hh"
 #include "codeGenerator.hh"
+#include "globals.hh"
 #include "message.hh"
+#include <iostream>
 
 int main(int argc, char *args[]) {
-
   messageErrorIf(argc < 2, "Missing XML specification file, call as ./carmine "
                            "<specification.xml>");
   codeGenerator::generateVerEnv(args[1]);

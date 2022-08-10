@@ -2,6 +2,7 @@
 #include "checkerGenerator.hh"
 #include "converter.hh"
 #include "exp.hh"
+#include "globals.hh"
 #include "parserUtils.hh"
 #include <chrono>
 #include <cmath>
@@ -124,7 +125,9 @@ bool generateCheckerSource(
   std::ifstream src("src/standalone/code_templates/checker_template.cpp");
 
   if (src.fail()) {
-    std::cout << "Error: could not open checker_template.cpp" << std::endl;
+    std::cout << "Error: could not open "
+              << "src/standalone/code_templates/checker_template.cpp"
+              << std::endl;
     return false;
   }
 
