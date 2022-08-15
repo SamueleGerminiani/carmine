@@ -24,6 +24,7 @@ parseLTLformula(std::string &formula, const std::string &decls,
   tree::ParseTreeWalker::DEFAULT.walk(&listenerLocDec, treeLocDec);
 
   std::vector<VarDeclaration> varDecls = listenerLocDec.getVarDeclarations();
+
   addTypeToProposition(formula, varDecls);
 
   // parse typed formula

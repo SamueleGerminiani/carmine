@@ -30,6 +30,7 @@ inline strHandler parseSpecifications(const std::string &pathToSpec) {
 
   // the monitors in the current machine handler
   rapidxml::getNodesFromName(root, "monitor", monitors);
+  messageErrorIf(monitors.empty(),"No monitors found in specification file!");
 
   for (auto &ch : monitors) {
     strMonitor tmpMonitor;
