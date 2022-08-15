@@ -59,11 +59,36 @@ The user can find several input examples in the 'input' directory
 Run the following command in the root directory of carmine:
 
 ```
-./generate_env.sh input.xml
+./generate_env.sh specifications.xml
 ```
 
 This will create the 'ver_env' catkin project inside the output directory
 
+## The specification file
+We report hereafter an example of specification file.
+
+ ```xml
+<handler>
+
+    <checker name="Checker0" description="An example" LTLformula="G({(var1)[->1]:1}|=>{$timeout(var2==0,2000)})">
+        <variable decl="bool var1">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>start</msgField>
+        </variable>
+        <variable decl="double var2">
+            <rosTopic>joint_states</rosTopic>
+            <msgType>sensor_msgs::JointState</msgType>
+            <msgField>speed</msgField>
+            <filter window="10">ma</filter>
+        </variable>
+    </checker>
+
+</handler>
+```
+
+* All specification files must start with a 'handler' tag
+* The user can define many 'checker' tags contian
 
 # How to use the generated verification environment
 

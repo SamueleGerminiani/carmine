@@ -56,13 +56,11 @@ struct strChecker {
   std::string _overhead;
 };
 struct strHandler {
-  strHandler(std::string name,
-             std::vector<strChecker> checkers)
-      : _name(name), _checkers(checkers) {
+  strHandler(std::vector<strChecker> checkers)
+      : _checkers(checkers) {
     // not todo
   }
   strHandler() {}
-  std::string _name;
   std::vector<strChecker> _checkers;
 };
 

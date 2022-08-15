@@ -26,7 +26,6 @@ inline strHandler parseSpecifications(const std::string &pathToSpec) {
 
   // the current machine handler
   auto root = _doc->first_node("handler");
-  tmpHandler._name = rapidxml::getAttributeValue(root, "name", "");
   rapidxml::XmlNodeList checkers;
 
   // the checkers in the current machine handler

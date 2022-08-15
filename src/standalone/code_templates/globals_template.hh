@@ -43,7 +43,6 @@ extern std::unordered_map<std::string, Checker *> chsAll;
 
 extern ros::NodeHandle *n;
 extern std::string cooName;
-extern std::string thisHandlerName;
 
 extern Scheduler sched;
 extern std::unordered_map<std::string, double> topicToLatency;

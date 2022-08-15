@@ -37,7 +37,6 @@ std::unordered_map<std::string, Checker *> chsAll;
 
 ros::NodeHandle *n;
 std::string cooName;
-std::string thisHandlerName="";
 
 Scheduler sched(std::thread::hardware_concurrency());
 std::unordered_map<std::string, ros::Duration> nodeToLatency;
