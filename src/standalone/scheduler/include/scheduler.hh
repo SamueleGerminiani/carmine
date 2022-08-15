@@ -5,7 +5,7 @@
 #include <mutex>
 #include <string>
 #include <thread>
-#include "Checker.hpp"
+#include "Monitor.hpp"
 #include "dispatcher.hh"
 #include "request.hh"
 class Scheduler {
@@ -21,17 +21,17 @@ class Scheduler {
     }
     void start() { Dispatcher::init(_nWorkers); }
 
-    void addCheckerRequest(Checker* ch) {
+    void addMonitorRequest(Monitor* ch) {
         Request* rq = new Request(ch);
         Dispatcher::addRequest(rq);
     }
-    void removeCheckerRequest(std::vector<Checker*> &ch) {
-        const std::lock_guard<std::mutex> lock(_removeCheckerRequestMutex);
+    void removeMonitorRequest(std::vector<Monitor*> &ch) {
+        const std::lock_guard<std::mutex> lock(_removeMonitorRequestMutex);
         Dispatcher::killRequest(ch);
     }
 
    private:
     bool _stop = false;
     size_t _nWorkers;
-    std::mutex _removeCheckerRequestMutex;
+    std::mutex _removeMonitorRequestMutex;
 };

@@ -19,7 +19,7 @@ class Dispatcher {
     static void addSleeper(Request *request);
     static size_t requestLeft();
     static void sleepersHandler();
-    static void killRequest(std::vector<Checker*> &chs);
+    static void killRequest(std::vector<Monitor*> &chs);
 
    private:
     static std::deque<Request *> requests;

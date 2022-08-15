@@ -1,5 +1,5 @@
 #include "codeGenerator.hh"
-#include "checkerGenerator.hh"
+#include "monitorGenerator.hh"
 #include "converter.hh"
 #include "parserUtils.hh"
 #include "specificationParser.hh"
@@ -14,15 +14,15 @@ void generateVerEnv(const std::string &pathToSpec) {
   strHandler handler = parseSpecifications(pathToSpec);
 
   // Each item in the array is the number o placeholders generated for each
-  // checker formula
-  int *nPhs = new int[handler._checkers.size()];
+  // monitor formula
+  int *nPhs = new int[handler._monitors.size()];
   int i = 0;
   remove_all(path("build/output"));
-  create_directories("build/output/checkers/src");
-  create_directories("build/output/checkers/include");
+  create_directories("build/output/monitors/src");
+  create_directories("build/output/monitors/include");
 
-  // Parse each checker and generate code
-  for (auto &ch : handler._checkers) {
+  // Parse each monitor and generate code
+  for (auto &ch : handler._monitors) {
 
     std::string declarations = "";
 
@@ -37,7 +37,7 @@ void generateVerEnv(const std::string &pathToSpec) {
     auto parsedFormula =
         expression::parseLTLformula(ch._LTLformula, declarations, timers);
 
-    // save the number of placeholders in this checker
+    // save the number of placeholders in this monitor
     nPhs[i] = parsedFormula.second.size();
 
     // Generate two automata: one for the antecedent and one for the whole
@@ -45,14 +45,14 @@ void generateVerEnv(const std::string &pathToSpec) {
     auto fsms = codeGenerator::converter::generateAutomata(
         parsedFormula.first.first, parsedFormula.first.second);
 
-    // generate the checker's source file
-    if (generateCheckerSource(fsms, parsedFormula, ch, timers) &&
-        // generate the checker's header file
-        generateCheckerHeader(fsms, ch._variables, ch._name, parsedFormula)) {
-      std::cout << "Successfully generated files for checker " << ch._name
+    // generate the monitor's source file
+    if (generateMonitorSource(fsms, parsedFormula, ch, timers) &&
+        // generate the monitor's header file
+        generateMonitorHeader(fsms, ch._variables, ch._name, parsedFormula)) {
+      std::cout << "Successfully generated files for monitor " << ch._name
                 << std::endl;
     } else {
-      std::cout << "Could not generate files for checker " << ch._name
+      std::cout << "Could not generate files for monitor " << ch._name
                 << std::endl;
       exit(1);
     }
@@ -61,21 +61,21 @@ void generateVerEnv(const std::string &pathToSpec) {
   }
 
   // generate ver_env
-  if (!generateCallbackHeader(handler._checkers)) {
+  if (!generateCallbackHeader(handler._monitors)) {
     std::cout << "Could not generate CallbackHeader" << std::endl;
     exit(1);
   }
-  if (!generateCheckerHelperHeader(handler._checkers, nPhs)) {
-    std::cout << "Could not generate CheckerHelperHeader" << std::endl;
+  if (!generateMonitorHelperHeader(handler._monitors, nPhs)) {
+    std::cout << "Could not generate MonitorHelperHeader" << std::endl;
     exit(1);
   }
 
-  if (!generateGlobalsHeader(handler._checkers)) {
+  if (!generateGlobalsHeader(handler._monitors)) {
     std::cout << "Could not generate GlobalsHeader" << std::endl;
     exit(1);
   }
 
-  if (!generateGlobalsSource(handler._checkers)) {
+  if (!generateGlobalsSource(handler._monitors)) {
     std::cout << "Could not generate GlobalsSource" << std::endl;
     exit(1);
   }

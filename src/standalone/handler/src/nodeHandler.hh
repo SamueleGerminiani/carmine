@@ -16,9 +16,9 @@ inline void nodeHandler() {
             // 3) serve the corresponding command
             switch (msg.command) {
                 case EXEC:
-                    // execute a checker: only for the first time
-                    for (auto &chName : msg.checkers) {
-                        execChecker(chName);
+                    // execute a monitor: only for the first time
+                    for (auto &chName : msg.monitors) {
+                        execMonitor(chName);
                         std::cout << ros::this_node::getName() << ": EXEC("
                                   << chName << ")"
                                   << "\n";
@@ -26,42 +26,42 @@ inline void nodeHandler() {
                     sendAckToCoordinator();
                     break;
                 case REMOVE:
-                    //                    ch = chsAll.at(msg.checker);
-                    //                    // remove the checker from the
+                    //                    ch = chsAll.at(msg.monitor);
+                    //                    // remove the monitor from the
                     //                    scheduler
-                    //                    sched.removeCheckerRequest(ch);
+                    //                    sched.removeMonitorRequest(ch);
                     //                    // call the function implementing the
                     //                    migration logic in the
-                    //                    // checker
-                    //                    removeCheckerCallbacks(msg.checker);
-                    //                    removeChecker(msg.checker);
+                    //                    // monitor
+                    //                    removeMonitorCallbacks(msg.monitor);
+                    //                    removeMonitor(msg.monitor);
                     //                    ch->clearData();
                     //                    std::cout << ros::this_node::getName()
                     //                    << ": REMOVE("
-                    //                              << msg.checker << ")"
+                    //                              << msg.monitor << ")"
                     //                              << "\n";
                     //                    sendAckToCoordinator();
                     break;
                 case MIGRATE_FROM:
                     const std::lock_guard<std::mutex> lock(migrateMutex);
-                    // migrate a checker: this command is served by the node
-                    // receiving the checker
+                    // migrate a monitor: this command is served by the node
+                    // receiving the monitor
                     //                    std::cout << ros::this_node::getName()
-                    //                    << ": MIGRATE_FROM(" << msg.checker <<
+                    //                    << ": MIGRATE_FROM(" << msg.monitor <<
                     //                    ", " << msg.node << ")" << "\n";
 
-                    for (auto &chName : msg.checkers) {
-                        initChecker(chName);
+                    for (auto &chName : msg.monitors) {
+                        initMonitor(chName);
                     }
 
-                    for (auto &chName : msg.checkers) {
+                    for (auto &chName : msg.monitors) {
                         chsAll.at(chName)->clearData();
-                        addCheckerCallbacks(chName);
+                        addMonitorCallbacks(chName);
                     }
 
                     ver_env::migrateGoal goal;
-                    for (auto &chName : msg.checkers) {
-                        goal.checkers.push_back(chName);
+                    for (auto &chName : msg.monitors) {
+                        goal.monitors.push_back(chName);
                         goal.stamp.push_back(
                             chsAll.at(chName)->migrateFromHandleTSbefore());
                     }
@@ -75,16 +75,16 @@ inline void nodeHandler() {
 
                     auto chDataList = client.getResult()->cd;
                     for (auto &chData : chDataList) {
-                        chsAll.at(chData.checker)
+                        chsAll.at(chData.monitor)
                             ->migrateFromHandleTSAfter(chData.last_msg_ts);
                     }
                     for (auto &chData : chDataList) {
-                        chsAll.at(chData.checker)
+                        chsAll.at(chData.monitor)
                             ->migrateFromHandleData(chData);
                     }
-                    // put the checker on the scheduler
-                    for (auto &chName : msg.checkers) {
-                        sched.addCheckerRequest(chsAll.at(chName));
+                    // put the monitor on the scheduler
+                    for (auto &chName : msg.monitors) {
+                        sched.addMonitorRequest(chsAll.at(chName));
                     }
 
                     sendAckToCoordinator();

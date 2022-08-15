@@ -10,11 +10,11 @@
 #include <vector>
 
 // Map used to store the binding between the addEvent_varx function of the
-// checkers
+// monitors
 // and the variable it refers to
-// Key = checker's name
+// Key = monitor's name
 // Value = vector of strVariable
-// If vector[0] = "msg.a" then the function addEvent_var0 of the checker
+// If vector[0] = "msg.a" then the function addEvent_var0 of the monitor
 // will take msg.a as a parameter
 
 namespace codeGenerator {

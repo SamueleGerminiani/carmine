@@ -8,8 +8,8 @@
 using namespace expression;
 
 namespace codeGenerator {
-bool generateCallbackHeader(std::vector<strChecker> &checkers);
-bool generateCheckerHelperHeader(std::vector<strChecker> &checkers, int nPhs[]);
-bool generateGlobalsHeader(std::vector<strChecker> &checkers) ;
-bool generateGlobalsSource(std::vector<strChecker> &checkers) ;
+bool generateCallbackHeader(std::vector<strMonitor> &monitors);
+bool generateMonitorHelperHeader(std::vector<strMonitor> &monitors, int nPhs[]);
+bool generateGlobalsHeader(std::vector<strMonitor> &monitors) ;
+bool generateGlobalsSource(std::vector<strMonitor> &monitors) ;
 }

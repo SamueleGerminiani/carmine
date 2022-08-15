@@ -26,16 +26,16 @@ inline strHandler parseSpecifications(const std::string &pathToSpec) {
 
   // the current machine handler
   auto root = _doc->first_node("handler");
-  rapidxml::XmlNodeList checkers;
+  rapidxml::XmlNodeList monitors;
 
-  // the checkers in the current machine handler
-  rapidxml::getNodesFromName(root, "checker", checkers);
+  // the monitors in the current machine handler
+  rapidxml::getNodesFromName(root, "monitor", monitors);
 
-  for (auto &ch : checkers) {
-    strChecker tmpChecker;
-    // parse the checker's name
-    tmpChecker._name = rapidxml::getAttributeValue(ch, "name", "");
-    tmpChecker._LTLformula = rapidxml::getAttributeValue(ch, "LTLformula", "");
+  for (auto &ch : monitors) {
+    strMonitor tmpMonitor;
+    // parse the monitor's name
+    tmpMonitor._name = rapidxml::getAttributeValue(ch, "name", "");
+    tmpMonitor._LTLformula = rapidxml::getAttributeValue(ch, "LTLformula", "");
     rapidxml::XmlNodeList variables;
     rapidxml::getNodesFromName(ch, "variable", variables);
     for (auto &var : variables) {
@@ -69,22 +69,22 @@ inline strHandler parseSpecifications(const std::string &pathToSpec) {
       rapidxml::getNodesFromName(var, "msgField", list);
       tmpVariable._msgField = list[0]->value();
       splitNameType(tmpVariable._name, tmpVariable._type, tmpVariable._decl);
-      tmpChecker._variables.push_back(tmpVariable);
+      tmpMonitor._variables.push_back(tmpVariable);
     }
 
     rapidxml::XmlNodeList ovearheads;
     rapidxml::getNodesFromName(ch, "overhead", ovearheads);
     if (!ovearheads.empty()) {
       messageErrorIf(ovearheads.size() > 1,
-                     "Multiple ovearheads defines for checker " +
-                         tmpChecker._name);
-      tmpChecker._overhead =
+                     "Multiple ovearheads defines for monitor " +
+                         tmpMonitor._name);
+      tmpMonitor._overhead =
           rapidxml::getAttributeValue(ovearheads[0], "us", "0");
     }else{
-        tmpChecker._overhead="none";
+        tmpMonitor._overhead="none";
     
     }
-    tmpHandler._checkers.push_back(tmpChecker);
+    tmpHandler._monitors.push_back(tmpMonitor);
   }
 
   return tmpHandler;

@@ -1,42 +1,42 @@
 #pragma once
 #include "globals.hh"
-#include "ver_env/checkerData.h"
+#include "ver_env/monitorData.h"
 
 inline void migrateTo(const ver_env::migrateGoalConstPtr &goal,
                       Server *as) {
     const std::lock_guard<std::mutex> lock(migrateMutex);
-    // remove the checker from the scheduler
-    std::vector<Checker *> chs;
-    for (auto &chName : goal->checkers) {
+    // remove the monitor from the scheduler
+    std::vector<Monitor *> chs;
+    for (auto &chName : goal->monitors) {
         chs.push_back(chsAll.at(chName));
     }
-    sched.removeCheckerRequest(chs);
+    sched.removeMonitorRequest(chs);
 
     ver_env::migrateResult res;
 
     for (size_t i = 0; i < goal->stamp.size(); i++) {
-        ver_env::checkerData cd;
-        cd.checker = goal->checkers[i];
+        ver_env::monitorData cd;
+        cd.monitor = goal->monitors[i];
         cd.last_msg_ts =
-            chsAll.at(goal->checkers[i])->migrateToHandleTS(goal->stamp[i]);
+            chsAll.at(goal->monitors[i])->migrateToHandleTS(goal->stamp[i]);
         res.cd.push_back(cd);
     }
     for (auto &cd : res.cd) {
-        chsAll.at(cd.checker)->migrateToHandleData(cd);
+        chsAll.at(cd.monitor)->migrateToHandleData(cd);
     }
     std::unordered_set<std::string> chsToBeRemoved;
-    for (auto &chName : goal->checkers) {
+    for (auto &chName : goal->monitors) {
         chsToBeRemoved.insert(chName);
     }
 
-    removeCheckerCallbacks(chsToBeRemoved);
-    removeChecker(chsToBeRemoved);
+    removeMonitorCallbacks(chsToBeRemoved);
+    removeMonitor(chsToBeRemoved);
 
     as->setSucceeded(res);
 }
 // function used by the coordinator to send a command to a node
 inline void sendToNode(std::string pubName, int command, std::string node,
-                       std::vector<std::string> &checkers) {
+                       std::vector<std::string> &monitors) {
 
     ros::Publisher &pub = nameToPublisher.at(pubName);
     // wait that the receiving node is ready to receive the message
@@ -50,7 +50,7 @@ inline void sendToNode(std::string pubName, int command, std::string node,
     ver_env::command msg;
     msg.command = command;
     msg.header.stamp = ros::Time::now();
-    msg.checkers=checkers;
+    msg.monitors=monitors;
     msg.node = node;
     //  send the message
     //  n.b.  if the receiving now is in the same process of the coordinator,
@@ -81,9 +81,9 @@ inline void sendStatToCoordinator() {
         msg.topicLatency.push_back(tl.second);
     }
     for (auto &ch : chsActive) {
-        msg.checkerList.push_back(ch.first);
-        msg.checkerUsage.push_back(ch.second->_CPUusage);
-        msg.checkerATCF.push_back(ch.second->_ATCF);
+        msg.monitorList.push_back(ch.first);
+        msg.monitorUsage.push_back(ch.second->_CPUusage);
+        msg.monitorATCF.push_back(ch.second->_ATCF);
         msg.eventsInBuffer.push_back(ch.second->_eventsInBuffer);
     }
 

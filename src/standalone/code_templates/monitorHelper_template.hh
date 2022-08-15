@@ -2,7 +2,7 @@
 #include "globals.hh"
 #include <unordered_set>
 
-inline void initChecker(const std::string &name) {
+inline void initMonitor(const std::string &name) {
     const std::lock_guard<std::mutex> lock(chsMutex);
     if (chsActive.count(name)) {
         return;
@@ -13,10 +13,10 @@ inline void initChecker(const std::string &name) {
         return;
     }
 
-$initCheckers
+$initMonitors
 
 }
-inline void removeChecker(const std::string &name) {
+inline void removeMonitor(const std::string &name) {
     const std::lock_guard<std::mutex> lock(chsMutex);
     if (chsActive.count(name)) {
         chsDeleted[name] = chsActive.at(name);
@@ -27,21 +27,21 @@ inline void removeChecker(const std::string &name) {
         exit(1);
     }
 }
-inline void removeChecker(std::unordered_set<std::string> &chsToBeRemoved) {
+inline void removeMonitor(std::unordered_set<std::string> &chsToBeRemoved) {
     for (auto &ch : chsToBeRemoved) {
-        removeChecker(ch);
+        removeMonitor(ch);
     }
 }
 
-// this function should be called only when a checker is created for the first
+// this function should be called only when a monitor is created for the first
 // time
-inline void execChecker(const std::string &checkerName) {
-    initChecker(checkerName);
-    addCheckerCallbacks(checkerName);
-    sched.addCheckerRequest(chsActive.at(checkerName));
+inline void execMonitor(const std::string &monitorName) {
+    initMonitor(monitorName);
+    addMonitorCallbacks(monitorName);
+    sched.addMonitorRequest(chsActive.at(monitorName));
 }
-inline void initCheckerTopicRelation() {
+inline void initMonitorTopicRelation() {
 
-$initCheckerTopicRelations
+$initMonitorTopicRelations
 
 }

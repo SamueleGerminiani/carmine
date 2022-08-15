@@ -18,9 +18,9 @@ using namespace std::filesystem;
 namespace codeGenerator {
 
 std::unordered_map<std::string, std::vector<std::string>>
-get_topicToCheckers(std::vector<strChecker> &checkers) {
+get_topicToMonitors(std::vector<strMonitor> &monitors) {
   std::unordered_map<std::string, std::vector<std::string>> ret;
-  for (auto &ch : checkers) {
+  for (auto &ch : monitors) {
     for (auto &var : ch._variables) {
       ret[var._rosTopic].push_back(ch._name);
     }
@@ -35,10 +35,10 @@ get_topicToCheckers(std::vector<strChecker> &checkers) {
 }
 
 std::unordered_map<std::string, std::string>
-get_topicToEnTopic(std::vector<strChecker> &checkers) {
+get_topicToEnTopic(std::vector<strMonitor> &monitors) {
 
   std::vector<std::string> topics;
-  for (auto &ch : checkers) {
+  for (auto &ch : monitors) {
     for (auto &var : ch._variables) {
       topics.push_back(var._rosTopic);
     }
@@ -54,10 +54,10 @@ get_topicToEnTopic(std::vector<strChecker> &checkers) {
   return ret;
 }
 std::unordered_map<std::string, std::string>
-get_enTopicToTopic(std::vector<strChecker> &checkers) {
+get_enTopicToTopic(std::vector<strMonitor> &monitors) {
 
   std::vector<std::string> topics;
-  for (auto &ch : checkers) {
+  for (auto &ch : monitors) {
     for (auto &var : ch._variables) {
       topics.push_back(var._rosTopic);
     }
@@ -73,10 +73,10 @@ get_enTopicToTopic(std::vector<strChecker> &checkers) {
   return ret;
 }
 std::unordered_map<std::string, std::string>
-get_topicToMsgType(std::vector<strChecker> &checkers) {
+get_topicToMsgType(std::vector<strMonitor> &monitors) {
 
   std::unordered_map<std::string, std::string> ret;
-  for (auto &ch : checkers) {
+  for (auto &ch : monitors) {
     for (auto &var : ch._variables) {
       ret[var._rosTopic] = var._msgType;
     }
@@ -87,14 +87,14 @@ get_topicToMsgType(std::vector<strChecker> &checkers) {
 std::map<std::pair<std::string, std::string>,
          std::vector<std::tuple<std::string, std::string, std::string,
                                 std::pair<std::string, std::string>>>>
-get_CheckerTopicToVarFieldTypeFilter(std::vector<strChecker> &checkers) {
+get_MonitorTopicToVarFieldTypeFilter(std::vector<strMonitor> &monitors) {
 
   std::map<std::pair<std::string, std::string>,
            std::vector<std::tuple<std::string, std::string, std::string,
                                   std::pair<std::string, std::string>>>>
       ret;
 
-  for (auto &ch : checkers) {
+  for (auto &ch : monitors) {
     for (auto &var : ch._variables) {
       ret[std::make_pair(ch._name, var._rosTopic)].push_back(std::make_tuple(
           var._name, var._msgField, var._type,
@@ -104,7 +104,7 @@ get_CheckerTopicToVarFieldTypeFilter(std::vector<strChecker> &checkers) {
 
   return ret;
 }
-bool generateCallbackHeader(std::vector<strChecker> &checkers) {
+bool generateCallbackHeader(std::vector<strMonitor> &monitors) {
   std::ifstream src("src/standalone/code_templates/callback_template.hh");
   if (src.fail()) {
     std::cout << "Error: could not open callback_template.hh" << std::endl;
@@ -122,10 +122,10 @@ bool generateCallbackHeader(std::vector<strChecker> &checkers) {
 
   std::string line;
 
-  auto topicToEnTopic = get_topicToEnTopic(checkers);
-  auto topicToCheckers = get_topicToCheckers(checkers);
-  auto topicToMsgType = get_topicToMsgType(checkers);
-  auto checkerTopicToVarField = get_CheckerTopicToVarFieldTypeFilter(checkers);
+  auto topicToEnTopic = get_topicToEnTopic(monitors);
+  auto topicToMonitors = get_topicToMonitors(monitors);
+  auto topicToMsgType = get_topicToMsgType(monitors);
+  auto monitorTopicToVarField = get_MonitorTopicToVarFieldTypeFilter(monitors);
 
   // parse and substitute
   while (getline(src, line)) {
@@ -152,10 +152,10 @@ bool generateCallbackHeader(std::vector<strChecker> &checkers) {
 
     } else if (line.compare("$addVars") == 0) {
       line = "";
-      for (auto &ct_vf : checkerTopicToVarField) {
+      for (auto &ct_vf : monitorTopicToVarField) {
         line += "inline void addVar" + ct_vf.first.first + "_" +
                 topicToEnTopic.at(ct_vf.first.second) +
-                "(Checker *ch, ros::Time ts, const " +
+                "(Monitor *ch, ros::Time ts, const " +
                 topicToMsgType.at(ct_vf.first.second) + "::Ptr& msg) {\n";
         for (auto &vff : ct_vf.second) {
 
@@ -182,7 +182,7 @@ bool generateCallbackHeader(std::vector<strChecker> &checkers) {
     } else if (line.compare("$attachCallbacks") == 0) {
       line = "";
       size_t i = 0;
-      for (auto t_cc : topicToCheckers) {
+      for (auto t_cc : topicToMonitors) {
         std::string callbackName = "callback" + topicToEnTopic.at(t_cc.first);
         line += (i == 0 ? codeGenerator::ident1 + "if(" : "else if(");
         line += "name == \"" + topicToEnTopic.at(t_cc.first) + "\"){\n";
@@ -198,7 +198,7 @@ bool generateCallbackHeader(std::vector<strChecker> &checkers) {
 
     } else if (line.compare("$removeTopicFPs") == 0) {
       line = "";
-      for (size_t i = 0; i < topicToCheckers.size(); i++) {
+      for (size_t i = 0; i < topicToMonitors.size(); i++) {
 
         line += (i == 0 ? codeGenerator::ident1 + "if(" : "else if(");
         line += "topic == \"T" + std::to_string(i) + "\"){\n";
@@ -206,7 +206,7 @@ bool generateCallbackHeader(std::vector<strChecker> &checkers) {
                 "const std::lock_guard<std::mutex> lock(t" + std::to_string(i) +
                 "Mutex);\n";
         line += codeGenerator::ident2 + "t" + std::to_string(i) +
-                "AddEvent.erase(checker);\n";
+                "AddEvent.erase(monitor);\n";
         line += codeGenerator::ident1 + "}";
       }
       line += "else{\n" + codeGenerator::ident2 + "assert(0);\n" +
@@ -214,7 +214,7 @@ bool generateCallbackHeader(std::vector<strChecker> &checkers) {
     } else if (line.compare("$addTopicFPs") == 0) {
       line = "";
       size_t i = 0;
-      for (auto e : topicToCheckers) {
+      for (auto e : topicToMonitors) {
         line += (i == 0 ? codeGenerator::ident1 + "if(" : "else if(");
         line += "topic == \"" + topicToEnTopic.at(e.first) + "\"){\n";
         line += codeGenerator::ident2 +
@@ -224,7 +224,7 @@ bool generateCallbackHeader(std::vector<strChecker> &checkers) {
         size_t j = 0;
         for (auto &ch : e.second) {
           line += (j == 0 ? codeGenerator::ident2 + "if(" : "else if(");
-          line += "checker == \"" + ch + "\"){\n";
+          line += "monitor == \"" + ch + "\"){\n";
           line += codeGenerator::ident3 +
                   toLowerCase(topicToEnTopic.at(e.first)) + "AddEvent[\"" + ch +
                   "\"] = std::make_pair(chsAll.at(\"" + ch + "\"), &addVar" +
@@ -245,7 +245,7 @@ bool generateCallbackHeader(std::vector<strChecker> &checkers) {
     } else if (line.compare("$pingTopics") == 0) {
       line = "";
       size_t i = 0;
-      for (auto e : topicToCheckers) {
+      for (auto e : topicToMonitors) {
         auto msgType = topicToMsgType.at(e.first);
         std::string callbackName = "callback" + topicToEnTopic.at(e.first);
         line += (i == 0 ? codeGenerator::ident1 + "if(" : "else if(");
@@ -271,34 +271,34 @@ bool generateCallbackHeader(std::vector<strChecker> &checkers) {
   return 1;
 }
 
-bool generateCheckerHelperHeader(std::vector<strChecker> &checkers,
+bool generateMonitorHelperHeader(std::vector<strMonitor> &monitors,
                                  int nPhs[]) {
-  std::ifstream src("src/standalone/code_templates/checkerHelper_template.hh");
+  std::ifstream src("src/standalone/code_templates/monitorHelper_template.hh");
   if (src.fail()) {
-    std::cout << "Error: could not open checkerHelper_template.hh" << std::endl;
+    std::cout << "Error: could not open monitorHelper_template.hh" << std::endl;
     return false;
   }
 
   create_directories("build/output/ver_env/src");
-  std::ofstream dst("build/output/ver_env/src/checkerHelper.hh");
+  std::ofstream dst("build/output/ver_env/src/monitorHelper.hh");
 
   if (dst.fail()) {
-    std::cout << "Error: could not open output/ver_env/src/checkerHelper.hh"
+    std::cout << "Error: could not open output/ver_env/src/monitorHelper.hh"
               << std::endl;
     return false;
   }
 
   std::string line;
-  auto topicToEnTopic = get_topicToEnTopic(checkers);
-  auto topicToCheckers = get_topicToCheckers(checkers);
-  auto topicToMsgType = get_topicToMsgType(checkers);
+  auto topicToEnTopic = get_topicToEnTopic(monitors);
+  auto topicToMonitors = get_topicToMonitors(monitors);
+  auto topicToMsgType = get_topicToMsgType(monitors);
 
   // parse and substitute
   while (getline(src, line)) {
-    if (line.compare("$initCheckers") == 0) {
+    if (line.compare("$initMonitors") == 0) {
       line = "";
       size_t i = 0;
-      for (auto ch : checkers) {
+      for (auto ch : monitors) {
         line += (i == 0 ? codeGenerator::ident1 + "if(" : "else if(");
         line += "name == \"" + ch._name + "\"){\n";
         line += codeGenerator::ident2 + "chsActive[\"" + ch._name +
@@ -311,13 +311,13 @@ bool generateCheckerHelperHeader(std::vector<strChecker> &checkers,
         line += codeGenerator::ident1 + "}";
         i++;
       }
-    } else if (line.compare("$initCheckerTopicRelations") == 0) {
+    } else if (line.compare("$initMonitorTopicRelations") == 0) {
       line = "";
-      for (auto e : topicToCheckers) {
+      for (auto e : topicToMonitors) {
         for (auto &ch : e.second) {
-          line += codeGenerator::ident1 + "checkerToTopic[\"" + ch +
+          line += codeGenerator::ident1 + "monitorToTopic[\"" + ch +
                   "\"].emplace_back(\"" + topicToEnTopic.at(e.first) + "\");\n";
-          line += codeGenerator::ident1 + "topicToChecker[\"" +
+          line += codeGenerator::ident1 + "topicToMonitor[\"" +
                   topicToEnTopic.at(e.first) + "\"].emplace_back(\"" + ch +
                   "\");\n";
         }
@@ -331,7 +331,7 @@ bool generateCheckerHelperHeader(std::vector<strChecker> &checkers,
   dst.close();
   return 1;
 }
-bool generateGlobalsHeader(std::vector<strChecker> &checkers) {
+bool generateGlobalsHeader(std::vector<strMonitor> &monitors) {
   std::ifstream src("src/standalone/code_templates/globals_template.hh");
   if (src.fail()) {
     std::cout << "Error: could not open globals_template.hh" << std::endl;
@@ -348,27 +348,27 @@ bool generateGlobalsHeader(std::vector<strChecker> &checkers) {
   }
 
   std::string line;
-  auto topicToEnTopic = get_topicToEnTopic(checkers);
-  auto topicToCheckers = get_topicToCheckers(checkers);
-  auto topicToMsgType = get_topicToMsgType(checkers);
+  auto topicToEnTopic = get_topicToEnTopic(monitors);
+  auto topicToMonitors = get_topicToMonitors(monitors);
+  auto topicToMsgType = get_topicToMsgType(monitors);
 
   // parse and substitute
   while (getline(src, line)) {
     if (line.compare("$vMutexs") == 0) {
       line = "";
-      for (size_t i = 0; i < topicToCheckers.size(); i++) {
+      for (size_t i = 0; i < topicToMonitors.size(); i++) {
         line += "extern std::mutex t" + std::to_string(i) + "Mutex;\n";
       }
-    } else if (line.compare("$includeCheckers") == 0) {
+    } else if (line.compare("$includeMonitors") == 0) {
       line = "";
-      for (auto &ch : checkers) {
+      for (auto &ch : monitors) {
         line += "#include \"" + ch._name + ".hh\"\n";
       }
     } else if (line.compare("$msgHeaders") == 0) {
       line = "";
       std::unordered_set<std::string> alreadyIncluded;
       std::vector<strVariable> varList;
-      for (auto &ch : checkers) {
+      for (auto &ch : monitors) {
         for (auto v : ch._variables) {
           varList.push_back(v);
         }
@@ -390,8 +390,8 @@ bool generateGlobalsHeader(std::vector<strChecker> &checkers) {
     } else if (line.compare("$vAddEvents") == 0) {
       line = "";
       for (auto &t_m : topicToMsgType) {
-        line += "extern std::unordered_map<std::string,std::pair<Checker*,void "
-                "(*)(Checker*, ros::Time, const " +
+        line += "extern std::unordered_map<std::string,std::pair<Monitor*,void "
+                "(*)(Monitor*, ros::Time, const " +
                 topicToMsgType.at(t_m.first) + "::Ptr&)>> " +
                 toLowerCase(topicToEnTopic.at(t_m.first)) + "AddEvent;\n";
       }
@@ -404,7 +404,7 @@ bool generateGlobalsHeader(std::vector<strChecker> &checkers) {
   dst.close();
   return 1;
 }
-bool generateGlobalsSource(std::vector<strChecker> &checkers) {
+bool generateGlobalsSource(std::vector<strMonitor> &monitors) {
   std::ifstream src("src/standalone/code_templates/globals_template.cpp");
   if (src.fail()) {
     std::cout << "Error: could not open globals_template.cpp" << std::endl;
@@ -421,22 +421,22 @@ bool generateGlobalsSource(std::vector<strChecker> &checkers) {
   }
 
   std::string line;
-  auto topicToEnTopic = get_topicToEnTopic(checkers);
-  auto topicToCheckers = get_topicToCheckers(checkers);
-  auto topicToMsgType = get_topicToMsgType(checkers);
+  auto topicToEnTopic = get_topicToEnTopic(monitors);
+  auto topicToMonitors = get_topicToMonitors(monitors);
+  auto topicToMsgType = get_topicToMsgType(monitors);
 
   // parse and substitute
   while (getline(src, line)) {
     if (line.compare("$vMutexs") == 0) {
       line = "";
-      for (size_t i = 0; i < topicToCheckers.size(); i++) {
+      for (size_t i = 0; i < topicToMonitors.size(); i++) {
         line += "std::mutex t" + std::to_string(i) + "Mutex;\n";
       }
     } else if (line.compare("$vAddEvents") == 0) {
       line = "";
       for (auto &t_m : topicToMsgType) {
-        line += "std::unordered_map<std::string,std::pair<Checker*,void "
-                "(*)(Checker*, ros::Time, const " +
+        line += "std::unordered_map<std::string,std::pair<Monitor*,void "
+                "(*)(Monitor*, ros::Time, const " +
                 topicToMsgType.at(t_m.first) + "::Ptr&)>> " +
                 toLowerCase(topicToEnTopic.at(t_m.first)) + "AddEvent;\n";
       }

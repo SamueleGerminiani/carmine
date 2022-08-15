@@ -41,14 +41,14 @@ struct strVariable {
   std::string _msgField;
   std::pair<std::string,std::string> _filter;
 };
-struct strChecker {
-  strChecker(std::string name, std::string description, std::string LTLformula,
+struct strMonitor {
+  strMonitor(std::string name, std::string description, std::string LTLformula,
              std::vector<strVariable> variables)
       : _name(name), _description(description), _LTLformula(LTLformula),
         _variables(variables) {
     // not todo
   }
-  strChecker() {}
+  strMonitor() {}
   std::string _name;
   std::string _description;
   std::string _LTLformula;
@@ -56,12 +56,12 @@ struct strChecker {
   std::string _overhead;
 };
 struct strHandler {
-  strHandler(std::vector<strChecker> checkers)
-      : _checkers(checkers) {
+  strHandler(std::vector<strMonitor> monitors)
+      : _monitors(monitors) {
     // not todo
   }
   strHandler() {}
-  std::vector<strChecker> _checkers;
+  std::vector<strMonitor> _monitors;
 };
 
 } // namespace codeGenerator

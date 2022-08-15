@@ -7,7 +7,7 @@
 
 $callbacks
 
-// Utility functions <CheckerN,VK>-->add_event
+// Utility functions <MonitorN,VK>-->add_event
 $addVars
 
 
@@ -15,9 +15,9 @@ $addVars
 inline void attachCallback(const std::string &name) {
 $attachCallbacks
 }
-inline void addCheckerCallbacks(const std::string &checkerName) {
-    for (auto &topic : checkerToTopic.at(checkerName)) {
-        addTopicFP(topic, checkerName);
+inline void addMonitorCallbacks(const std::string &monitorName) {
+    for (auto &topic : monitorToTopic.at(monitorName)) {
+        addTopicFP(topic, monitorName);
         // attach a new your call back only if it's not already attached
         if (attachedTopics.count(topic)) {
             continue;
@@ -26,10 +26,10 @@ inline void addCheckerCallbacks(const std::string &checkerName) {
     }
 }
 inline void removeTopicFP(const std::string &topic,
-                          const std::string &checker) {
+                          const std::string &monitor) {
 $removeTopicFPs
 }
-inline void addTopicFP(const std::string &topic, const std::string &checker) {
+inline void addTopicFP(const std::string &topic, const std::string &monitor) {
 $addTopicFPs
 }
 inline void ttlInsert(const std::string &topic, const ros::Time &stamp) {
@@ -52,40 +52,40 @@ inline void ttlInsert(const std::string &topic, const ros::Time &stamp) {
 inline void pingTopic(const std::string &topic) {
 $pingTopics
 }
-inline void removeCheckerCallbacks(const std::string &checkerName) {
+inline void removeMonitorCallbacks(const std::string &monitorName) {
     std::unordered_set<std::string> usedTopics;
-    // find the topics that are still necessary after removing the checker
+    // find the topics that are still necessary after removing the monitor
     for (auto &ch : chsActive) {
-        if (ch.first != checkerName) {
-            for (auto &topic : checkerToTopic.at(ch.first)) {
+        if (ch.first != monitorName) {
+            for (auto &topic : monitorToTopic.at(ch.first)) {
                 usedTopics.insert(topic);
             }
         }
     }
-    // the callbacks are removed only if no other checker is using them
-    for (auto &topic : checkerToTopic.at(checkerName)) {
+    // the callbacks are removed only if no other monitor is using them
+    for (auto &topic : monitorToTopic.at(monitorName)) {
         if (!usedTopics.count(topic) && attachedTopics.count(topic)) {
             attachedTopics.erase(topic);
         }
-        removeTopicFP(topic, checkerName);
+        removeTopicFP(topic, monitorName);
     }
 }
-inline void removeCheckerCallbacks(
+inline void removeMonitorCallbacks(
     std::unordered_set<std::string> &chsToBeRemoved) {
-    std::unordered_set<std::string> remainingCheckers;
+    std::unordered_set<std::string> remainingMonitors;
     std::unordered_set<std::string> remainingTopics;
     std::unordered_set<std::string> topicsToBeErased;
-    // find the topics that are still necessary after removing the checker
-    // the callbacks are removed only if no other checker is using them
+    // find the topics that are still necessary after removing the monitor
+    // the callbacks are removed only if no other monitor is using them
 
     for (auto &ch : chsActive) {
         if (!chsToBeRemoved.count(ch.first)) {
-            remainingCheckers.insert(ch.first);
+            remainingMonitors.insert(ch.first);
         }
     }
 
-    for (auto &chName : remainingCheckers) {
-        for (auto &t : checkerToTopic.at(chName)) {
+    for (auto &chName : remainingMonitors) {
+        for (auto &t : monitorToTopic.at(chName)) {
             remainingTopics.insert(t);
         }
     }
@@ -97,8 +97,8 @@ inline void removeCheckerCallbacks(
 
     for (auto &topic : topicsToBeErased) {
         attachedTopics.erase(topic);
-        for (auto &checkerName : topicToChecker.at(topic)) {
-            removeTopicFP(topic, checkerName);
+        for (auto &monitorName : topicToMonitor.at(topic)) {
+            removeTopicFP(topic, monitorName);
         }
     }
 }
@@ -133,15 +133,15 @@ inline void receiveStatMSGS(const ver_env::stat &msg) {
     stat_msgs.push_back(msg);
 }
 inline void fillAllTopics() {
-    for (auto &tl : checkerToTopic) {
+    for (auto &tl : monitorToTopic) {
         for (auto &t : tl.second) {
             allTopics.insert(t);
         }
     }
 }
-inline void fillAllCheckers() {
-    for (auto &tl : checkerToTopic) {
-        allCheckers.insert(tl.first);
+inline void fillAllMonitors() {
+    for (auto &tl : monitorToTopic) {
+        allMonitors.insert(tl.first);
     }
 }
 inline void acksCB(const ver_env::ack &msg) {

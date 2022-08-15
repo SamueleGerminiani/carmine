@@ -56,9 +56,9 @@ else
     cp ./src/standalone/launchN.sh ./ver_env/
 fi
 
-cp -r ./build/output/checkers ./ver_env/
+cp -r ./build/output/monitors ./ver_env/
 cp -r ./build/output/ver_env/src/* ./ver_env/handler/src/
-cp ./src/standalone/checkers/Checker.hpp ./ver_env/checkers/include/
+cp ./src/standalone/monitors/Monitor.hpp ./ver_env/monitors/include/
 
 cp ./src/testbench/loadTB.sh ./ver_env/
 mkdir output

@@ -17,7 +17,7 @@ include_directories(
 
 
 SET(CODE_GENERATOR_SRCS
-   ./src/checkerGenerator.cc
+   ./src/monitorGenerator.cc
    ./src/ver_envGenerator.cc
    ./src/codeGenerator.cc
     )

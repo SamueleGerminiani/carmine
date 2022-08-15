@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<handler name ="handler0">
-    <checker name="Checker0" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+<handler>
+    <monitor name="Monitor0" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -16,10 +15,10 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
+		</monitor>
 
         <!--
-    <checker name="Checker1" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <monitor name="Monitor1" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -35,8 +34,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker2" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor2" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -52,8 +51,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker3" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor3" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -69,8 +68,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker4" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor4" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -86,8 +85,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker5" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor5" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -103,9 +102,9 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
+		</monitor>
 
-    <checker name="Checker6" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <monitor name="Monitor6" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -121,8 +120,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker7" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor7" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -138,8 +137,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker8" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor8" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -155,8 +154,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker9" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor9" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -172,8 +171,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker10" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor10" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -189,9 +188,9 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
+		</monitor>
 
-    <checker name="Checker11" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <monitor name="Monitor11" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -207,8 +206,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker12" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor12" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -224,8 +223,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker13" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor13" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -241,8 +240,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker14" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor14" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -258,8 +257,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker15" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor15" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -275,9 +274,9 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
+		</monitor>
 
-    <checker name="Checker16" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <monitor name="Monitor16" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -293,8 +292,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker17" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor17" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -310,8 +309,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker18" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor18" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -327,8 +326,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker19" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor19" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random1</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -344,7 +343,7 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
+		</monitor>
 
 
 
@@ -358,7 +357,7 @@
 
 
 
-    <checker name="Checker20" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <monitor name="Monitor20" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -374,8 +373,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker21" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor21" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -391,8 +390,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker22" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor22" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -408,8 +407,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker23" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor23" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -425,8 +424,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker24" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor24" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -442,8 +441,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker25" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor25" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -459,8 +458,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker26" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor26" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -476,8 +475,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker27" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor27" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -493,8 +492,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker28" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor28" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -510,8 +509,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker29" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor29" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -527,8 +526,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker30" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor30" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -544,8 +543,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker31" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor31" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -561,8 +560,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker32" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor32" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -578,8 +577,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker33" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor33" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -595,8 +594,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker34" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor34" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -612,8 +611,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker35" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor35" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -629,8 +628,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker36" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor36" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -646,8 +645,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker37" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor37" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -663,8 +662,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker38" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor38" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -680,8 +679,8 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
-    <checker name="Checker39" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+		</monitor>
+    <monitor name="Monitor39" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random4</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -697,7 +696,7 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
+		</monitor>
 
 
 
@@ -705,7 +704,7 @@
 
 
 
-    <checker name="Checker40" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <monitor name="Monitor40" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random7</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -721,9 +720,9 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
+		</monitor>
 
-    <checker name="Checker41" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <monitor name="Monitor41" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random7</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -739,9 +738,9 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
+		</monitor>
 
-    <checker name="Checker42" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <monitor name="Monitor42" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random7</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -757,9 +756,9 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
+		</monitor>
 
-    <checker name="Checker43" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <monitor name="Monitor43" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random7</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -775,9 +774,9 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
+		</monitor>
 
-    <checker name="Checker44" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <monitor name="Monitor44" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random7</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -793,9 +792,9 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
+		</monitor>
 
-    <checker name="Checker45" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <monitor name="Monitor45" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random7</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -811,9 +810,9 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
+		</monitor>
 
-    <checker name="Checker46" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <monitor name="Monitor46" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random7</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -829,9 +828,9 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
+		</monitor>
 
-    <checker name="Checker47" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <monitor name="Monitor47" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random7</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -847,9 +846,9 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
+		</monitor>
 
-    <checker name="Checker48" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <monitor name="Monitor48" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random7</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -865,9 +864,9 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
+		</monitor>
 
-    <checker name="Checker49" description="simple checker" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
+    <monitor name="Monitor49" description="simple monitor" LTLformula="G({$timeout(v1,1000)}|->$timeout(v2,2000) && $timeout(v3 ,5000))">
 			<variable decl="bool v1">
 				<rosTopic>random7</rosTopic>
 				<msgType>msg_gen::Num</msgType>
@@ -883,7 +882,7 @@
 				<msgType>msg_gen::Num</msgType>
 				<msgField>num</msgField>
 			</variable>
-		</checker>
+		</monitor>
 
         -->
 </handler>

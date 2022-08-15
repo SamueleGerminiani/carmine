@@ -10,13 +10,13 @@
 #include <mutex>
 #include <thread>
 #include <vector>
-#include "Checker.hpp"
+#include "Monitor.hpp"
 $msgHeaders
 
-class $ClassName$ : public Checker {
+class $ClassName$ : public Monitor {
    public:
     $ClassName$(size_t nVars, size_t priority, std::string handlerName,
-              std::string checkerName);
+              std::string monitorName);
 
     ~$ClassName$() override;
     bool eval() override;
@@ -31,13 +31,13 @@ $eval
     void addTimerValue(size_t timerID);
     bool getTimerValue(size_t timerID, size_t timerInstance, bool isAss);
     void popTimerInst(size_t timerID, size_t nToErase);
-    void resetChecker();
+    void resetMonitor();
 
     ros::Time migrateFromHandleTSbefore() override;
     void migrateFromHandleTSAfter(const ros::Time &ts) override;
-    void migrateFromHandleData(ver_env::checkerData &res) override;
+    void migrateFromHandleData(ver_env::monitorData &res) override;
     ros::Time migrateToHandleTS(const ros::Time &ts) override;
-    void migrateToHandleData(ver_env::checkerData &res) override;
+    void migrateToHandleData(ver_env::monitorData &res) override;
 
     union Value {
 $value

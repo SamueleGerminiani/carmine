@@ -19,25 +19,25 @@
 extern bool disableNotifications;
 
 typedef actionlib::SimpleActionClient<ver_env::migrateAction> Client;
-class Checker {
+class Monitor {
    public:
     virtual bool eval() = 0;
 
-    virtual ~Checker(){};
+    virtual ~Monitor(){};
 
     virtual void notifyFailure() = 0;
     virtual void clearData() = 0;
     virtual ros::Time migrateFromHandleTSbefore() = 0;
     virtual void migrateFromHandleTSAfter(const ros::Time &ts) = 0;
-    virtual void migrateFromHandleData(ver_env::checkerData &res) = 0;
+    virtual void migrateFromHandleData(ver_env::monitorData &res) = 0;
     virtual ros::Time migrateToHandleTS(const ros::Time &ts)=0;
-    virtual void migrateToHandleData(ver_env::checkerData &res)=0;
+    virtual void migrateToHandleData(ver_env::monitorData &res)=0;
 
     size_t getNvars() { return nVars; }
 
     size_t _priority = 0;
     bool _toKill = false;
-    std::string _handlerName, _checkerName;
+    std::string _handlerName, _monitorName;
     size_t _evalSpeed = 0;
     size_t _numberOfAddEvent = 0;
     size_t _topicSpeed = 0;
@@ -64,7 +64,7 @@ class Checker {
     std::mutex _addEvent_mutex;
 
    protected:
-    Checker(size_t n, size_t priority)
+    Monitor(size_t n, size_t priority)
         : nVars(n), _priority(priority), values_inside(64 / nVars) {}
 
     size_t nVars;

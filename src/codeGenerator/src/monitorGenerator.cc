@@ -1,5 +1,5 @@
 
-#include "checkerGenerator.hh"
+#include "monitorGenerator.hh"
 #include "converter.hh"
 #include "exp.hh"
 #include "globals.hh"
@@ -106,36 +106,36 @@ static bool replace(std::string &str, const std::string &from,
   return true;
 }
 
-// Generate code for checker class
-bool generateCheckerSource(
+// Generate code for monitor class
+bool generateMonitorSource(
     std::pair<codeGenerator::SpotAutomata, codeGenerator::SpotAutomata> &fsms,
     std::pair<std::pair<std::string, std::string>,
               std::unordered_map<std::string, expression::Proposition *>>
         &parsedFormula,
-    strChecker &checker, const std::vector<std::pair<size_t, size_t>> &timers) {
+    strMonitor &monitor, const std::vector<std::pair<size_t, size_t>> &timers) {
 
-  //checker -> list of variables
+  //monitor -> list of variables
   std::map<std::string, std::vector<strVariable>> bindings;
   auto autAss = fsms.first;
   auto autAnt = fsms.second;
   auto &phToProps = parsedFormula.second;
-  auto checkerName = checker._name;
-  auto varList = checker._variables;
+  auto monitorName = monitor._name;
+  auto varList = monitor._variables;
 
-  std::ifstream src("src/standalone/code_templates/checker_template.cpp");
+  std::ifstream src("src/standalone/code_templates/monitor_template.cpp");
 
   if (src.fail()) {
     std::cout << "Error: could not open "
-              << "src/standalone/code_templates/checker_template.cpp"
+              << "src/standalone/code_templates/monitor_template.cpp"
               << std::endl;
     return false;
   }
 
-  std::ofstream dst("build/output/checkers/src/" + checkerName + ".cpp");
+  std::ofstream dst("build/output/monitors/src/" + monitorName + ".cpp");
 
   if (dst.fail()) {
-    std::cout << "Error: could not open build/output/checkers/src/"
-              << checkerName << ".cpp" << std::endl;
+    std::cout << "Error: could not open build/output/monitors/src/"
+              << monitorName << ".cpp" << std::endl;
     return false;
   }
 
@@ -144,7 +144,7 @@ bool generateCheckerSource(
   std::string line;
 
   while (getline(src, line)) {
-    while (replace(line, "$ClassName$", checkerName))
+    while (replace(line, "$ClassName$", monitorName))
       ; // To handle multiple occurences
     while (replace(line, "$nStatesAss$", std::to_string(autAss->num_states())))
       ;
@@ -175,10 +175,10 @@ bool generateCheckerSource(
 
         line +=
             codeGenerator::ident1 + "_last_p" + std::to_string(i++) + " = 0;\n";
-      } // Code for calling eval() and resetting checker
+      } // Code for calling eval() and resetting monitor
     } else if (line.compare("$overhead") == 0) {
       line = "";
-      if (checker._overhead != "none") {
+      if (monitor._overhead != "none") {
         // genenerate overhead
         line += codeGenerator::ident1 +
                 "static std::chrono::steady_clock::time_point ohstart = "
@@ -188,7 +188,7 @@ bool generateCheckerSource(
         line += codeGenerator::ident2 +
                 "if (std::chrono::duration_cast<std::chrono::microseconds>( "
                 "std::chrono::steady_clock::now() - ohstart).count() >= " +
-                checker._overhead + ") {\n";
+                monitor._overhead + ") {\n";
         line += codeGenerator::ident2 +
                 "ohstart = std::chrono::steady_clock::now();\n";
         line += codeGenerator::ident2 + "break;\n";
@@ -197,7 +197,7 @@ bool generateCheckerSource(
       }
     } else if (line.compare("$call_eval") == 0) {
       line = "";
-      line += codeGenerator::ident1 + "if (!eval_" + checkerName + "(";
+      line += codeGenerator::ident1 + "if (!eval_" + monitorName + "(";
 
       size_t i = 0;
       for (auto &ph : phToProps) {
@@ -208,7 +208,7 @@ bool generateCheckerSource(
       }
       line += "0)){\n";
       line += codeGenerator::ident2 + "notifyFailure();\n";
-      line += codeGenerator::ident2 + "eval_" + checkerName + "(";
+      line += codeGenerator::ident2 + "eval_" + monitorName + "(";
       for (auto &ph : phToProps) {
         if (isConst(ph.first))
           continue;
@@ -220,10 +220,10 @@ bool generateCheckerSource(
 
     }
 
-    // Checker FSM
+    // Monitor FSM
     else if (line.compare("$FSM") == 0) {
       line = "";
-      generateEvalFunction(fsms, checkerName, dst, phToProps);
+      generateEvalFunction(fsms, monitorName, dst, phToProps);
     } else if (line.compare("$initTimers$") == 0) {
       line = "";
       for (size_t i = 0; i < timers.size(); i++) {
@@ -366,14 +366,14 @@ bool generateCheckerSource(
       line = "";
       int i = 0;
       bindings.insert(std::pair<std::string, std::vector<strVariable>>(
-          checkerName, std::vector<strVariable>()));
+          monitorName, std::vector<strVariable>()));
 
       for (auto v : varList) {
 
-        bindings[checkerName].push_back(v);
+        bindings[monitorName].push_back(v);
 
         line +=
-            "void " + checkerName + "::addEvent_" + v._name + "(ros::Time ts, ";
+            "void " + monitorName + "::addEvent_" + v._name + "(ros::Time ts, ";
         line += v._type + " value){\n";
         line += codeGenerator::ident2 + "_addEvent_mutex.lock();\n";
         line += codeGenerator::ident2 + "_last_msg_ts = ts;\n";
@@ -396,10 +396,10 @@ bool generateCheckerSource(
   return true;
 }
 
-// Generate header for checker class
-bool generateCheckerHeader(
+// Generate header for monitor class
+bool generateMonitorHeader(
     std::pair<codeGenerator::SpotAutomata, codeGenerator::SpotAutomata> &fsms,
-    std::vector<strVariable> &varList, std::string &checkerName,
+    std::vector<strVariable> &varList, std::string &monitorName,
     std::pair<std::pair<std::string, std::string>,
               std::unordered_map<std::string, expression::Proposition *>>
         &parsedFormula) {
@@ -409,17 +409,17 @@ bool generateCheckerHeader(
   auto &phToProps = parsedFormula.second;
 
   // Copy templates in new files replacing the tokens
-  std::ifstream src("src/standalone/code_templates/checker_template.hh");
+  std::ifstream src("src/standalone/code_templates/monitor_template.hh");
   if (src.fail()) {
-    std::cout << "Error: could not open checker_template.hh" << std::endl;
+    std::cout << "Error: could not open monitor_template.hh" << std::endl;
     return false;
   }
 
-  std::ofstream dst("build/output/checkers/include/" + checkerName + ".hh");
+  std::ofstream dst("build/output/monitors/include/" + monitorName + ".hh");
 
   if (dst.fail()) {
-    std::cout << "Error: could not open build/output/checkers/include/"
-              << checkerName << ".hh" << std::endl;
+    std::cout << "Error: could not open build/output/monitors/include/"
+              << monitorName << ".hh" << std::endl;
     return false;
   }
 
@@ -427,7 +427,7 @@ bool generateCheckerHeader(
 
   while (getline(src, line)) {
 
-    while (replace(line, "$ClassName$", checkerName))
+    while (replace(line, "$ClassName$", monitorName))
       ;
     while (replace(line, "$nStatesAss$", std::to_string(autAss->num_states())))
       ;
@@ -450,7 +450,7 @@ bool generateCheckerHeader(
     // Code for defining the eval function
     else if (line.compare("$eval") == 0) {
       line = "";
-      line = codeGenerator::ident1 + "bool eval_" + checkerName + "(";
+      line = codeGenerator::ident1 + "bool eval_" + monitorName + "(";
       size_t i = 0;
       for (auto &ph : phToProps) {
         if (isConst(ph.first))
@@ -461,7 +461,7 @@ bool generateCheckerHeader(
       line += "bool reset = false);\n";
     }
 
-    // Code for defining the Value union based on checker's variables
+    // Code for defining the Value union based on monitor's variables
     else if (line.compare("$value") == 0) {
       line = "";
       std::map<std::string, int> count = countVarTypes(varList);
@@ -508,7 +508,7 @@ bool generateCheckerHeader(
 
     }
 
-    // Code for including ROS message headers and for defining the checker's
+    // Code for including ROS message headers and for defining the monitor's
     // initial state
     else if (line.compare("$msgHeaders") == 0) {
       line = "";
@@ -548,12 +548,12 @@ bool generateCheckerHeader(
 
 void generateEvalFunction(
     std::pair<codeGenerator::SpotAutomata, codeGenerator::SpotAutomata> &fsms,
-    const std::string checkerName, std::ofstream &outstream,
+    const std::string monitorName, std::ofstream &outstream,
     std::unordered_map<std::string, expression::Proposition *> &phToProps) {
 
-  std::string initState = "INIT_" + checkerName;
-  outstream << "//Return true if checker did not fail" << std::endl;
-  outstream << "inline bool " + checkerName + "::eval_" + checkerName + "(";
+  std::string initState = "INIT_" + monitorName;
+  outstream << "//Return true if monitor did not fail" << std::endl;
+  outstream << "inline bool " + monitorName + "::eval_" + monitorName + "(";
   auto autAss = fsms.first;
   auto autAnt = fsms.second;
 
@@ -573,7 +573,7 @@ void generateEvalFunction(
   outstream << "){" << std::endl;
 
   outstream << codeGenerator::ident1 << "if(reset){\n"
-            << codeGenerator::ident2 << "resetChecker();" << std::endl
+            << codeGenerator::ident2 << "resetMonitor();" << std::endl
             << codeGenerator::ident2 << "return 1;" << std::endl
             << codeGenerator::ident1 << "}" << std::endl;
 
@@ -856,8 +856,8 @@ void createRequestClass(const SpotAutomata &aut, std::ofstream &outstream,
   outstream << "}" << std::endl;
 }
 
-// Add variables used by the checker in a .h file
-// void addCheckerVariables(const SpotAutomata& aut, std::ofstream& outstream){
+// Add variables used by the monitor in a .h file
+// void addMonitorVariables(const SpotAutomata& aut, std::ofstream& outstream){
 //}
 
 // Add eval method to the request class created earlier
@@ -887,7 +887,7 @@ void addProcess(const SpotAutomata &aut, std::ofstream &outstream,
   outstream << "void" << className << "::process"
             << "(){" << std::endl;
 
-  // Declare checker variables
+  // Declare monitor variables
   for (auto f : aut->ap()) {
     outstream << "bool " << f << std::endl;
   }

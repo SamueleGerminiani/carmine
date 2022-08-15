@@ -4,7 +4,7 @@
 #include <condition_variable>
 #include <string>
 
-#include "Checker.hpp"
+#include "Monitor.hpp"
 class Request {
    private:
     bool sliceEnded = false;
@@ -18,10 +18,10 @@ class Request {
     void timer();
 
    public:
-    Request(Checker* checker) : _checker(checker) {}
+    Request(Monitor* monitor) : _monitor(monitor) {}
     void start();
     void process();
     void finish();
-    size_t getPriority() const { return _checker->_priority; }
-    Checker* _checker;
+    size_t getPriority() const { return _monitor->_priority; }
+    Monitor* _monitor;
 };
