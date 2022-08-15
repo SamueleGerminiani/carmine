@@ -16,6 +16,7 @@ third_party/antlr4
 third_party/spot
 third_party/z3
 bu
+docker/
 
 
 
