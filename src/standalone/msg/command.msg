@@ -1,4 +1,4 @@
 Header header
 int64 command
-string[] checkers
+string[] monitors
 string node

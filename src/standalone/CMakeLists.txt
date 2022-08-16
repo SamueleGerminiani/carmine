@@ -66,7 +66,7 @@ add_message_files(
   su.msg
   command.msg
   ack.msg
-  checkerData.msg
+  monitorData.msg
 )
 
 
@@ -123,7 +123,7 @@ include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
   scheduler/include
-  checkers/include
+  monitors/include
   lib/z3/include
   commandLineParser/include/
   lib/clp/include/

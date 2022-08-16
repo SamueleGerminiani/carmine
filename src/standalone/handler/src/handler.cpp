@@ -2,7 +2,7 @@
 #include <string>
 #include <utility>
 #include "callback.hh"
-#include "checkerHelper.hh"
+#include "monitorHelper.hh"
 #include "commandLineParser.hh"
 #include "comunication.hh"
 #include "coordinator.hh"
@@ -83,10 +83,10 @@ int main(int argc, char **argv) {
                   boost::bind(&migrateTo, _1, &server), false);
     server.start();
 
-    // store which topic is used by each checker
-    initCheckerTopicRelation();
+    // store which topic is used by each monitor
+    initMonitorTopicRelation();
     fillAllTopics();
-    fillAllCheckers();
+    fillAllMonitors();
 
 
     // The following code is used to decide which node will contain the

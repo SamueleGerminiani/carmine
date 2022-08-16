@@ -28,11 +28,11 @@
 
 
 // this function is called by the client Ros service (migrateFrom)
-// it contains the checkers currently executed by this node
-std::unordered_map<std::string, Checker *> chsActive;
-// it contains the checkers deleted by this node
-std::unordered_map<std::string, Checker *> chsDeleted;
-std::unordered_map<std::string, Checker *> chsAll;
+// it contains the monitors currently executed by this node
+std::unordered_map<std::string, Monitor *> chsActive;
+// it contains the monitors deleted by this node
+std::unordered_map<std::string, Monitor *> chsDeleted;
+std::unordered_map<std::string, Monitor *> chsAll;
 
 
 ros::NodeHandle *n;
@@ -47,12 +47,12 @@ std::unordered_map<std::string, std::deque<double>> topicToLatencyWindow;
 std::vector<std::pair<ros::Time, std::string>> nodes;
 std::vector<std::string> acks;
 
-std::unordered_map<std::string, std::vector<std::string>> checkerToTopic;
-std::unordered_map<std::string, std::vector<std::string>> topicToChecker;
+std::unordered_map<std::string, std::vector<std::string>> monitorToTopic;
+std::unordered_map<std::string, std::vector<std::string>> topicToMonitor;
 std::unordered_map<std::string, ros::Subscriber> attachedTopics;
 std::unordered_map<std::string, ros::Publisher> nameToPublisher;
 std::unordered_set<std::string> allTopics;
-std::unordered_set<std::string> allCheckers;
+std::unordered_set<std::string> allMonitors;
 // messages sent by the coordinator to the node
 std::deque<ver_env::command> msgs;
 // mutex to protect the messages' container

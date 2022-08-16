@@ -1,4 +1,4 @@
-string checker
+string monitor
 uint64[] buffer_p
 uint64[] buffer_o
 uint32[] timerBounds

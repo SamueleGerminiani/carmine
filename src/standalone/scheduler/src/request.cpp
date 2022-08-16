@@ -12,8 +12,8 @@ void Request::start() {
     tt = new std::thread(&Request::timer, this);
 }
 void Request::process() {
-    while (!sliceEnded && !_checker->_toKill) {
-        if (!_checker->eval()) {
+    while (!sliceEnded && !_monitor->_toKill) {
+        if (!_monitor->eval()) {
             _noData = true;
             break;
         }

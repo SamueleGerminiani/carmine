@@ -2,10 +2,10 @@ Header header
 string node
 string[] topicList
 float32[] topicLatency
-string[] checkerList
+string[] monitorList
 string[] attachedTopics
-float32[] checkerUsage
-int32[] checkerATCF
+float32[] monitorUsage
+int32[] monitorATCF
 uint32[] eventsInBuffer
 float32 wholeNodeUsage
 float32 wholeMachineUsage

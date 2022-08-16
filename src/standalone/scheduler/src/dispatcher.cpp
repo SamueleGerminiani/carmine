@@ -43,7 +43,7 @@ void Dispatcher::init(size_t n_workers) {
     sh = new std::thread(&sleepersHandler);
 }
 void Dispatcher::addRequest(Request *request) {
-    if (request->_checker->_toKill) {
+    if (request->_monitor->_toKill) {
         delete request;
         killSema->notify();
         return;
@@ -128,7 +128,7 @@ void Dispatcher::sleepersHandler() {
         sleepersMutex.unlock();
     }
 }
-void Dispatcher::killRequest(std::vector<Checker *> &chs) {
+void Dispatcher::killRequest(std::vector<Monitor *> &chs) {
     killSema = new Semaphore(0);
     for (auto &ch : chs) {
         ch->_toKill = 1;

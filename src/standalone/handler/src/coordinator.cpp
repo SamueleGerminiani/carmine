@@ -21,8 +21,8 @@
 std::unordered_map<std::string, std::unordered_map<std::string, double>>
     nodeToTopicLatency;
 std::unordered_map<std::string, std::unordered_map<std::string, double>>
-    nodeToCheckerUsage;
-std::unordered_map<std::string, size_t> checkerToATCF;
+    nodeToMonitorUsage;
+std::unordered_map<std::string, size_t> monitorToATCF;
 std::unordered_map<std::string, std::unordered_map<std::string, double>>
     nodeToTopicUsage;
 std::unordered_map<std::string, double> nodeToAvailable;
@@ -34,10 +34,10 @@ std::unordered_map<std::string, double> nodeToMilpUsageTh;
 std::unordered_map<std::string, std::string> currAlloc;
 std::unordered_map<std::string, std::string> findBestAllocation();
 void gatherStats();
-void startCheckers();
+void startMonitors();
 void freeStats();
 bool haveLatForAllNodes();
-bool haveUsageForAllCheckers();
+bool haveUsageForAllMonitors();
 void printStatistics();
 std::vector<std::pair<std::string, std::string>> findMigrationOrder();
 bool ackReceived(const std::string &node);
@@ -47,14 +47,14 @@ std::chrono::steady_clock::time_point lastChange =
 int getDelay(std::unordered_map<std::string, std::string> &alloc) {
     size_t curr_delay = 0;
     std::unordered_map<std::string, std::vector<std::string>>
-        currCheckersInMachine;
+        currMonitorsInMachine;
     for (auto &c_m : alloc) {
-        currCheckersInMachine[c_m.second].push_back(c_m.first);
+        currMonitorsInMachine[c_m.second].push_back(c_m.first);
     }
-    for (auto &m_cc : currCheckersInMachine) {
+    for (auto &m_cc : currMonitorsInMachine) {
         std::unordered_set<std::string> reqTopics;
         for (auto &c : m_cc.second) {
-            for (auto &t : checkerToTopic.at(c)) {
+            for (auto &t : monitorToTopic.at(c)) {
                 reqTopics.insert(t);
             }
         }
@@ -114,7 +114,7 @@ void printHeader() {
     }
     nodesMutex.unlock();
     for (auto &c : nextDump) {
-        ss << " available_" + c.first + "; checker_" + c.first + "; topic_" +
+        ss << " available_" + c.first + "; monitor_" + c.first + "; topic_" +
                   c.first + ";  nChs_" + c.first + "; ";
         ss << "|||; ";
     }
@@ -140,7 +140,7 @@ void coordinator() {
 
     //    debug
     //    ros::Duration(5).sleep();
-    startCheckers();
+    startMonitors();
     while (ros::ok()) {
         ros::Duration(0.1).sleep();
         count++;
@@ -160,7 +160,7 @@ void coordinator() {
                 std::chrono::steady_clock::now() - lastChange)
                     .count() >= 0 &&
             nodes.size() > 1 && (count % rateMILP == 0) &&
-            haveLatForAllNodes() && haveUsageForAllCheckers() &&
+            haveLatForAllNodes() && haveUsageForAllMonitors() &&
             !disableMigration) {
             // 3) run the algorithm to find the best allocation
             auto bestAlloc = findBestAllocation();
@@ -193,19 +193,19 @@ bool haveLatForAllNodes() {
     }
     return 1;
 }
-bool haveUsageForAllCheckers() {
-    for (auto &c : allCheckers) {
-        for (auto &n_cu : nodeToCheckerUsage) {
+bool haveUsageForAllMonitors() {
+    for (auto &c : allMonitors) {
+        for (auto &n_cu : nodeToMonitorUsage) {
             if (n_cu.second.count(c)) {
-                goto foundChecker;
+                goto foundMonitor;
             }
         }
         return 0;
-    foundChecker:;
+    foundMonitor:;
     }
     return 1;
 }
-void startCheckers() {
+void startMonitors() {
     while (!haveLatForAllNodes()) {
         ros::Duration(0.1).sleep();
         gatherStats();
@@ -214,8 +214,8 @@ void startCheckers() {
     std::string firstNode = nodes.begin()->second;
     nodesMutex.unlock();
 
-    for (auto &c : allCheckers) {
-        nodeToCheckerUsage[firstNode][c] = 0.0f;
+    for (auto &c : allMonitors) {
+        nodeToMonitorUsage[firstNode][c] = 0.0f;
     }
 
     {
@@ -230,11 +230,11 @@ void startCheckers() {
     }
     std::unordered_map<std::string, std::string> ba = findBestAllocation();
 
-    std::unordered_map<std::string, std::vector<std::string>> mToExeCheckers;
+    std::unordered_map<std::string, std::vector<std::string>> mToExeMonitors;
     for (auto &c_n : ba) {
-        mToExeCheckers[c_n.second].push_back(c_n.first);
+        mToExeMonitors[c_n.second].push_back(c_n.first);
     }
-    for (auto &m_cc : mToExeCheckers) {
+    for (auto &m_cc : mToExeMonitors) {
         sendToNode(m_cc.first, EXEC, "", m_cc.second);
         while (!ackReceived(m_cc.first)) {
             ros::Duration(0.01).sleep();
@@ -247,7 +247,7 @@ void startCheckers() {
 
 void freeStats() {
     nodeToTopicLatency.clear();
-    nodeToCheckerUsage.clear();
+    nodeToMonitorUsage.clear();
     nodeToTopicUsage.clear();
     nodeToAvailable.clear();
     nodeToCPUfreq.clear();
@@ -266,18 +266,18 @@ void gatherStats() {
         ver_env::stat msg = stat_msgs.front();
         stat_msgs.pop_front();
 
-        double sumCheckerUsage = 0.f;
-        // checker
-        nodeToCheckerUsage[msg.node].clear();
-        for (size_t i = 0; i < msg.checkerList.size(); i++) {
-            auto checkerName = msg.checkerList[i];
-            double usage = msg.checkerUsage[i];
-            if (currAlloc.at(checkerName) == msg.node) {
+        double sumMonitorUsage = 0.f;
+        // monitor
+        nodeToMonitorUsage[msg.node].clear();
+        for (size_t i = 0; i < msg.monitorList.size(); i++) {
+            auto monitorName = msg.monitorList[i];
+            double usage = msg.monitorUsage[i];
+            if (currAlloc.at(monitorName) == msg.node) {
                 // only if msg is updated to curr allocation
-                nodeToCheckerUsage[msg.node][checkerName] = usage;
-                sumCheckerUsage += usage;
+                nodeToMonitorUsage[msg.node][monitorName] = usage;
+                sumMonitorUsage += usage;
             }
-            checkerToATCF[checkerName] = msg.checkerATCF[i];
+            monitorToATCF[monitorName] = msg.monitorATCF[i];
         }
 
         // topics
@@ -300,9 +300,9 @@ void gatherStats() {
 
             // usage
             double val = (nAttachedTopics == 0 ||
-                          (msg.wholeNodeUsage - sumCheckerUsage) < 0.f)
+                          (msg.wholeNodeUsage - sumMonitorUsage) < 0.f)
                              ? 0.f
-                             : ((msg.wholeNodeUsage - sumCheckerUsage) /
+                             : ((msg.wholeNodeUsage - sumMonitorUsage) /
                                 nAttachedTopics);
 
             if (attachedTopics.count(topicName)) {
@@ -340,34 +340,34 @@ void printStatistics() {
     }
     std::cout << "[Usage]"
               << "\n";
-    for (auto checkerUsage : nodeToCheckerUsage) {
+    for (auto monitorUsage : nodeToMonitorUsage) {
         double sumccpu = 0.f;
         double sumtcpu = 0.f;
-        std::cout << checkerUsage.first << "\n";
-        for (auto &cu : checkerUsage.second) {
+        std::cout << monitorUsage.first << "\n";
+        for (auto &cu : monitorUsage.second) {
             sumccpu += cu.second;
             //        std::cout << "\t\t" << cu.first << ": " << cu.second //
             //        << "\n";
         }
-        for (auto &tu : nodeToTopicUsage.at(checkerUsage.first)) {
+        for (auto &tu : nodeToTopicUsage.at(monitorUsage.first)) {
             sumtcpu += tu.second;
             // std::cout << "\t\t" << tu.first << ": " << tu.second << "\n";
         }
         //        std::cout << "CPU freq: " <<
-        //        nodeToCPUfreq.at(checkerUsage.first) << "\n";
-        std::cout << "Checker usage: " << sumccpu << "\n";
+        //        nodeToCPUfreq.at(monitorUsage.first) << "\n";
+        std::cout << "Monitor usage: " << sumccpu << "\n";
         std::cout << "Topic usage: " << sumtcpu << "\n";
-        std::cout << "Available CPU: " << nodeToAvailable.at(checkerUsage.first)
+        std::cout << "Available CPU: " << nodeToAvailable.at(monitorUsage.first)
                   << "\n";
         std::cout << "Whole node CPU: "
-                  << nodeToWholeNodeUsage.at(checkerUsage.first) << "\n";
+                  << nodeToWholeNodeUsage.at(monitorUsage.first) << "\n";
 #if dumpStats
-        nextDump[checkerUsage.first] = std::make_tuple(
-            nodeToAvailable.at(checkerUsage.first), sumccpu, sumtcpu, 0);
+        nextDump[monitorUsage.first] = std::make_tuple(
+            nodeToAvailable.at(monitorUsage.first), sumccpu, sumtcpu, 0);
 #endif
     }
 
-    std::cout << "[NCheckers]"
+    std::cout << "[NMonitors]"
               << "\n";
     std::unordered_map<std::string, size_t> nodeToNC;
     for (auto &a : currAlloc) {
@@ -384,7 +384,7 @@ void printStatistics() {
 
 #if dumpStats
     size_t totATCF = 0;
-    for (auto &atcf : checkerToATCF) {
+    for (auto &atcf : monitorToATCF) {
         totATCF += atcf.second;
     }
 #endif
@@ -436,7 +436,7 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
         }
     }
 
-    // checker -> node
+    // monitor -> node
     std::unordered_map<std::string, std::string> ret;
     // init optimizer
     z3::context ctx;
@@ -481,30 +481,30 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
 
     // ch constants of enum type
 
-    // find all checkers
-    std::unordered_set<std::string> checkers;
-    for (auto &cu_list : nodeToCheckerUsage) {
+    // find all monitors
+    std::unordered_set<std::string> monitors;
+    for (auto &cu_list : nodeToMonitorUsage) {
         for (auto &c : cu_list.second) {
-            checkers.insert(c.first);
+            monitors.insert(c.first);
         }
     }
 
-    // checkers mappings
-    std::unordered_map<std::string, std::string> z3NameToChecker;
-    std::unordered_map<std::string, std::string> checkerToz3Name;
+    // monitors mappings
+    std::unordered_map<std::string, std::string> z3NameToMonitor;
+    std::unordered_map<std::string, std::string> monitorToz3Name;
     size_t j = 0;
-    for (auto &checker : checkers) {
-        z3NameToChecker["ch" + std::to_string(j)] = checker;
-        checkerToz3Name[checker] = "ch" + std::to_string(j);
+    for (auto &monitor : monitors) {
+        z3NameToMonitor["ch" + std::to_string(j)] = monitor;
+        monitorToz3Name[monitor] = "ch" + std::to_string(j);
         j++;
     }
 
     // debug
     //    j=0;
-    //    for (auto &checker : checkers) {
+    //    for (auto &monitor : monitors) {
     //        std::cout << "ch" + std::to_string(j)<< " ->
-    //        "<<z3NameToChecker["ch" + std::to_string(j)] <<" ->
-    //        "<<checkerToz3Name[z3NameToChecker["ch" + std::to_string(j)]]
+    //        "<<z3NameToMonitor["ch" + std::to_string(j)] <<" ->
+    //        "<<monitorToz3Name[z3NameToMonitor["ch" + std::to_string(j)]]
     //        <<
     //        "\n";
     //        j++;
@@ -512,17 +512,17 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
     //    exit(1);
 
     std::unordered_map<std::string, expr> chToz3Const;
-    for (auto &c : z3NameToChecker) {
+    for (auto &c : z3NameToMonitor) {
         chToz3Const.insert({{c.first, ctx.constant(c.first.c_str(), s)}});
     }
 
     // estimate the ch usage for all machine
     std::unordered_map<std::string, std::unordered_map<std::string, double>>
-        nodeToCheckerUsageScaled;
-    for (auto node_ul : nodeToCheckerUsage) {
+        nodeToMonitorUsageScaled;
+    for (auto node_ul : nodeToMonitorUsage) {
         for (auto ch_u : node_ul.second) {
             for (auto &n_f : nodeToCPUfreq) {
-                nodeToCheckerUsageScaled[n_f.first][ch_u.first] =
+                nodeToMonitorUsageScaled[n_f.first][ch_u.first] =
                     (nodeToCPUfreq.at(node_ul.first) / n_f.second) *
                     ch_u.second;
                 //              std::cout << nodeToCPUfreq.at(node_ul.first)<<"
@@ -536,7 +536,7 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
         }
     }
     //                    debug
-    //    for (auto node_ul : nodeToCheckerUsageScaled) {
+    //    for (auto node_ul : nodeToMonitorUsageScaled) {
     //        std::cout << node_ul.first << "\n";
     //        for (auto c_u : node_ul.second) {
     //            std::cout << "c_u.second:" << c_u.second << "\n";
@@ -545,14 +545,14 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
 
     std::unordered_map<std::string, expr> mj_cpu;
     // ch_mj_cpu
-    for (auto &c : z3NameToChecker) {
+    for (auto &c : z3NameToMonitor) {
         for (auto &en : enum_names) {
             if (!mj_cpu.count(en)) {
                 mj_cpu.insert({{en, ctx.int_val((int)0)}});
             }
             expr cond = chToz3Const.at(c.first) == enumNameToz3Exp.at(en);
             expr t =
-                ctx.int_val((int)(nodeToCheckerUsageScaled.at(enumToNode.at(en))
+                ctx.int_val((int)(nodeToMonitorUsageScaled.at(enumToNode.at(en))
                                       .at(c.second) *
                                   100.f));
             expr f = ctx.int_val((int)0);
@@ -609,9 +609,9 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
     for (auto &topic : topicNameToz3Name) {
         for (auto &en : enum_names) {
             expr orCond = ctx.bool_val(false);
-            for (auto &ct : checkerToTopic) {
+            for (auto &ct : monitorToTopic) {
                 orCond =
-                    orCond || chToz3Const.at(checkerToz3Name.at(ct.first)) ==
+                    orCond || chToz3Const.at(monitorToz3Name.at(ct.first)) ==
                                   enumNameToz3Exp.at(en);
             }
             expr t = ctx.int_val(
@@ -634,9 +634,9 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
         }
         for (auto &t_v : node_tl.second) {
             expr orCond = ctx.bool_val(false);
-            for (auto &c : topicToChecker.at(t_v.first)) {
+            for (auto &c : topicToMonitor.at(t_v.first)) {
                 orCond = orCond ||
-                         chToz3Const.at(checkerToz3Name.at(c)) ==
+                         chToz3Const.at(monitorToz3Name.at(c)) ==
                              enumNameToz3Exp.at(nodeToEnum.at(node_tl.first));
             }
             expr t = ctx.int_val((int)(t_v.second * 1000.f));
@@ -717,14 +717,14 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
     for (size_t j = 0; j < model.size(); j++) {
         std::string chName = model[j].name().str();
         std::string chVal = model.get_const_interp(model[j]).to_string();
-        ret[z3NameToChecker.at(chName)] = enumToNode.at(chVal);
+        ret[z3NameToMonitor.at(chName)] = enumToNode.at(chVal);
     }
 
     // only if we already have a previous optimal allocation
     if (!currAlloc.empty()) {
         z3::expr_vector sol(ctx);
         for (auto &c_m : currAlloc) {
-            sol.push_back(chToz3Const.at(checkerToz3Name.at(c_m.first)) ==
+            sol.push_back(chToz3Const.at(monitorToz3Name.at(c_m.first)) ==
                           enumNameToz3Exp.at(nodeToEnum.at(c_m.second)));
         }
         bool mustMove = 0;
@@ -732,7 +732,7 @@ std::unordered_map<std::string, std::string> findBestAllocation() {
             if (nodeToThisMachineMaxUsage.at(e.first) *
                         nodeToMilpUsageTh.at(e.first) <=
                     nodeToWholeMachineUsage.at(e.first) &&
-                !nodeToCheckerUsage.at(e.first).empty()) {
+                !nodeToMonitorUsage.at(e.first).empty()) {
                 // must move! at least a cpu is saturated
                 mustMove = 1;
 #if printStat

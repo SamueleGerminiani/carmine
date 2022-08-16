@@ -1,6 +1,6 @@
-string[] checkers
+string[] monitors
 time[] stamp
 ---
-checkerData[] cd
+monitorData[] cd
 ---
 bool progress

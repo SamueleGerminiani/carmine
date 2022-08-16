@@ -1,19 +1,19 @@
 #include "$ClassName$.hh"
 #include "ros/time.h"
-#include "ver_env/checkerData.h"
+#include "ver_env/monitorData.h"
 
 void $ClassName$::notifyFailure() {
     if (!disableNotifications) {
         
-    std::cout << ros::this_node::getName() << ": Checker " << _checkerName
+    std::cout << ros::this_node::getName() << ": Monitor " << _monitorName
               << " failed, resetting" << std::endl;
     }
     _ATCF++;
 }
 
 $ClassName$::$ClassName$(size_t nVars, size_t priority, std::string handlerName,
-                     std::string checkerName)
-    : Checker(nVars, priority) {
+                     std::string monitorName)
+    : Monitor(nVars, priority) {
     // init buffers
     _pbuff = new uint64_t[BUFF_SIZE * values_inside];
     _order = new uint64_t[BUFF_SIZE * values_inside];
@@ -22,11 +22,11 @@ $ClassName$::$ClassName$(size_t nVars, size_t priority, std::string handlerName,
     _eventsInBuffer = 0;
 
     _handlerName = handlerName;
-    _checkerName = checkerName;
+    _monitorName = monitorName;
 
 $initTimers$
 
-    resetChecker();
+    resetMonitor();
 }
 
 $ClassName$::~$ClassName$() {
@@ -46,10 +46,10 @@ $clearData
     _toKill = 0;
     _CPUusage = 0.f;
     _evalSpeed = 0.f;
-    resetChecker();
+    resetMonitor();
 }
 
-// function used in Request to eval a checker until the slice or available
+// function used in Request to eval a monitor until the slice or available
 // events end
 bool $ClassName$::eval() {
     // stat declarations
@@ -121,7 +121,7 @@ $call_eval
         // debug
             //    std::cout << "eval speed: " << numberOfEvals << " e/s\n";
              //   std::cout << "topic speed: " << _topicSpeed << " e/s\n";
-//        std::cout << "\t\t\t\t\t" << _handlerName << "," << _checkerName << " buffer: " << std::setprecision(4) << ((double)_eventsInBuffer / BUFF_SIZE) * 100 << "%\n";
+//        std::cout << "\t\t\t\t\t" << _handlerName << "," << _monitorName << " buffer: " << std::setprecision(4) << ((double)_eventsInBuffer / BUFF_SIZE) * 100 << "%\n";
         //        std::cout << "cpu: " << _CPUusage << "\n";
         _numberOfAddEvent = 0;
         numberOfEvals = 0;
@@ -197,7 +197,7 @@ bool $ClassName$::getTimerValue(size_t timerID, size_t timerInstance,
     }
 }
 
-void $ClassName$::resetChecker() {
+void $ClassName$::resetMonitor() {
     for (size_t j = 0; j < $nStatesAss$; j++) {
         _currAss[j] = 0;
         _nextAss[j] = 0;
@@ -227,7 +227,7 @@ void $ClassName$::migrateFromHandleTSAfter(const ros::Time &ts) {
         ros::Duration(0.01).sleep();
     }
 }
-void $ClassName$::migrateFromHandleData(ver_env::checkerData &res) {
+void $ClassName$::migrateFromHandleData(ver_env::monitorData &res) {
     // buff
 
     _addEvent_mutex.lock();
@@ -308,7 +308,7 @@ ros::Time $ClassName$::migrateToHandleTS(const ros::Time &ts) {
     _addEvent_mutex.unlock();
     return lmts;
 }
-void $ClassName$::migrateToHandleData(ver_env::checkerData &res) {
+void $ClassName$::migrateToHandleData(ver_env::monitorData &res) {
     // buffers
     if (_evalIndex_p <= _index_p) {
         for (int i = _evalIndex_p; i < _index_p; i++) {
